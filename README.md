@@ -141,6 +141,12 @@ Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento loca
     docker-compose up -d
     ```
 
+6.  **Para utilizar o dbt:**
+    Teste o dbt
+    ```bash
+    dbt debug --project-dir ./postgres_dw
+    ```
+
 ### Utilização
 
 -   **Para análise exploratória:**
