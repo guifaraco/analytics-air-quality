@@ -19,10 +19,10 @@ A análise cruza informações históricas sobre a **qualidade do ar**, obtidas 
 -   **Visualizar:** Criar gráficos e mapas interativos que facilitem a compreensão dos resultados por um público não técnico.
 -   **Disponibilizar:** Apresentar os _insights_ em um dashboard interativo, permitindo a exploração dos dados por capital e por período.
 
-## 🔗 Links importantes relacionados as APIs utilizadas
+## 🔗 Links importantes relacionados as APIs/CSVs utilizados
 
-[MonitorAr](https://dados.gov.br/dados/conjuntos-dados/ar-puro-monitorar)
-[openDataSUS](https://opendatasus.saude.gov.br/dataset/srag-2021-a-2024)
+-   [MonitorAr](https://dados.gov.br/dados/conjuntos-dados/ar-puro-monitorar)
+-   [openDataSUS](https://opendatasus.saude.gov.br/dataset/srag-2021-a-2024)
 
 ## 🛠️ Tecnologias Utilizadas
 
