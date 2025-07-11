@@ -1,0 +1,20 @@
+[project]
+name = "air-quality"
+version = "0.1.0"
+description = "Qualidade do Ar em Estados Brasileiros"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dbt-postgres>=1.9.0",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.3",
+    "numpy>=2.3.1",
+    "pandas>=2.3.1",
+    "psycopg-binary>=3.2.9",
+    "pytest>=8.4.1",
+    "python-dotenv>=1.1.1",
+    "requests>=2.32.4",
+    "scikit-learn>=1.7.0",
+    "seaborn>=0.13.2",
+    "streamlit>=1.46.1",
+]
