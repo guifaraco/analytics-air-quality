@@ -11,5 +11,5 @@ logs
 .venv
 
 # Dados Sensíveis
-data/raw
+data/*
 .env
