@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+    # Tudo que vem do MonitorAr
+    - name: monitor_ar # Nome da source
+      description: "Dados de qualidade do ar da rede de monitoramento MonitorAr."
+      schema: bronze # O schema no banco onde estão carregados os dados brutos
+      # A lista de tabelas que pertencem a esta fonte
+      tables:
+          - name: monitorar_stations # Nome da tabela que estão os dados na camada bronze
+            description: "Tabela com dados cadastrais das estações de monitoramento (localização, etc.)."
+
+          - name: monitorar_measurements # Nome da tabela que estão os dados na camada bronze
+            description: "Tabela com as medições de poluentes coletadas pelas estações ao longo do tempo."
+
+    # Tudo que vem do OpenDataSUS.
+    - name: opendatasus # Nome da source
+      description: "Dados de Síndrome Respiratória Aguda Grave (SRAG) do sistema OpenDataSUS."
+      schema: bronze # O schema no banco onde estão carregados os dados brutos
+      # A lista de tabelas que pertencem a esta fonte
+      tables:
+          - name: opendatasus_srag_cases
+            description: "Tabela com os casos individuais notificados de SRAG."

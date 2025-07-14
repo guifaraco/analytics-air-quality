@@ -7,17 +7,17 @@ def load_to_postgres(df: pd.DataFrame, conn, schema: str, table_name: str):
     A tabela será criada ou substituída.
     """
     if df.empty:
-        print("DataFrame está vazio. Nenhuma carga será realizada.")
-        return
+        raise Exception("DataFrame está vazio. Nenhuma carga será realizada.")
 
     full_table_name = f"{schema}.{table_name}"
     print(f"Iniciando carga para a tabela '{full_table_name}'...")
 
     # Cria um buffer de texto na memória para "fingir" que o DataFrame é um arquivo CSV
     buffer = StringIO()
+
     # Converte o DataFrame para um formato CSV no buffer, sem índice e sem cabeçalho
-    # Usamos tab como separador para evitar problemas com vírgulas nos dados
     df.to_csv(buffer, index=False, header=False, sep='\t')
+    
     # Volta para o início do buffer para a leitura
     buffer.seek(0)
     
@@ -29,8 +29,8 @@ def load_to_postgres(df: pd.DataFrame, conn, schema: str, table_name: str):
         cur.execute(f"DROP TABLE IF EXISTS {full_table_name};")
         
         # Cria a tabela com as colunas e tipos de dados do DataFrame
-        colunas_sql = ", ".join([f'"{col}" TEXT' for col in df.columns])
-        cur.execute(f"CREATE TABLE {full_table_name} ({colunas_sql});")
+        sql_columns = ", ".join([f'"{col}" TEXT' for col in df.columns])
+        cur.execute(f"CREATE TABLE {full_table_name} ({sql_columns});")
         print(f"Tabela '{full_table_name}' criada com sucesso.")
 
         # Insere os dados na tabela

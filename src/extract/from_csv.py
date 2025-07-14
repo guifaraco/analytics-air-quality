@@ -1,10 +1,10 @@
 import pandas as pd
 import os
 
-def extract_from_csv(path: str) -> pd.DataFrame | Exception:
+def extract_from_csv(path: str) -> pd.DataFrame:
     """
         Extrai os dados de todos os CSVs (Precisa conter as mesmas colunas) dentro do caminho do diretório informado ou extrai os dados do caminho do CSV informado. Após a extração dos dados é feita a conversão em DataFrame.
-        Pode ser retornado um DataFrame ou None (Em caso de não conseguir realizar a extração/conversão).
+        Será retornado um DataFrame.
     """
     try:
         abs_workspace_path = os.path.abspath(".")

@@ -3,6 +3,9 @@ import psycopg
 import subprocess
 from dotenv import load_dotenv
 from src.extract import from_csv
+from src.load import to_postgres
+from src.transform import clean_monitor_ar, clean_opendatasus
+
 # Executa a função para carregar as variáveis do arquivo .env no ambiente
 load_dotenv()
 
@@ -43,29 +46,27 @@ def run_dbt_transformations():
 def main():
     print("Iniciando pipeline ELT localmente...")
     
-    path_monitor_ar_dados_qualidade = "data/monitor-ar_csv/dados_qualidade"
-    path_estacoes = "data/monitorar_csv/estacoes.csv"
-    path_opendatasus = "data/open_data_sus_csv/INFLUD22-26-06-2025.csv"
+    # Pegar a conexão com o banco de dados
+    conn = get_db_connection()
 
-    df_monitor_ar = from_csv.extract_from_csv(path_monitor_ar_dados_qualidade)
-    df_estacoes = from_csv.extract_from_csv(path_estacoes)
-    df_datasus = from_csv.extract_from_csv(path_opendatasus)
+    # Extract
+    df_air_measurements = from_csv.extract_from_csv("data/monitor_ar/dados_qualidade")
+    df_monitoring_stations = from_csv.extract_from_csv("data/monitor_ar/estacoes.csv")
+    df_datasus = from_csv.extract_from_csv("data/open_data_sus_csv/INFLUD22-26-06-2025.csv")
 
-    # Eliminação de algumas colunas "problematicas" do csv do openDataSUS
-    cols = [14,17,59,61,62,63,66,92,94,106,123,144,149,163,164,169,170,175,176,180,181,185,186,188,189]
-    cols_names = []
-    for col in cols:
-        cols_names.append(df_datasus.columns[col])
-    df_datasus.drop(cols_names, inplace=True, axis=1)
+    # Light Transform
+ #   df_air_measurements = clean_monitor_ar.x(df_air_measurements)
+ #   df_monitoring_stations = clean_monitor_ar.x(df_monitoring_stations)
+    df_datasus = clean_opendatasus.opendatasus_light_transform(df_datasus)
     
+    # Load
+    to_postgres.load_to_postgres(df_air_measurements, conn, "bronze", "monitorar_measurements")
+    to_postgres.load_to_postgres(df_monitoring_stations, conn, "bronze", "monitorar_stations")
+    to_postgres.load_to_postgres(df_datasus, conn, "bronze", "opendatasus_srag_cases")
 
-    # ETAPAS E e L
-    # Esta parte do seu código usaria get_db_connection() para se conectar.
-    # conn = get_db_connection()
-    # ...seu código de extract e load...
-    # conn.commit()
-    # conn.close()
-    print("Etapas de Extração e Carga concluídas (simulado).")
+    conn.commit()
+    conn.close()
+    print("Etapas de Extração e Carga concluídas.")
 
     # ETAPA T
     run_dbt_transformations()

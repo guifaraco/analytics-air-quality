@@ -30,12 +30,9 @@ clean-targets: # directories to be removed by `dbt clean`
 models:
     postgres_dw:
         # Config indicated by + and applies to all files under models/example/
-        staging:
-            +materialized: view # Todos os modelos em 'models/staging' serão views
-            +schema: staging # e serão criados no schema 'staging'
-        core:
-            +materialized: table # Todos os modelos em 'models/core' serão tabelas
-            +schema: core # e serão criados no schema 'core'
-        marts:
-            +materialized: view # Todos os modelos em 'models/marts' serão views
-            +schema: marts # e serão criados no schema 'marts'
+        silver:
+            +materialized: table # Todos os modelos em 'models/silver' serão tabelas
+            +schema: silver # e serão criados no schema 'silver'
+        gold:
+            +materialized: view # Todos os modelos em 'models/gold' serão views
+            +schema: gold # e serão criados no schema 'gold'
