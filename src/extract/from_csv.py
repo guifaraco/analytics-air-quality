@@ -33,13 +33,13 @@ def extract_from_csv(path: str) -> pd.DataFrame:
             # Adiciona na lista o Dataframe
             for csv in csv_files:
                 csv_path = os.path.join(abs_path, csv)
-                df_csv = pd.read_csv(csv_path, encoding="latin1", sep=";", decimal=',')
+                df_csv = pd.read_csv(csv_path, encoding="latin1", sep=";", decimal=',', low_memory=False)
                 df_list.append(df_csv)
             
             # Concatena os Dataframes em um só
             return pd.concat(df_list, axis=0)
         
-        df_csv = pd.read_csv(abs_path, encoding="latin1", sep=";", decimal=",")
+        df_csv = pd.read_csv(abs_path, encoding="latin1", sep=";", decimal=",", low_memory=False)
         return df_csv
         
     except Exception as e:

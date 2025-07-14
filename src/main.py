@@ -52,11 +52,11 @@ def main():
     # Extract
     df_air_measurements = from_csv.extract_from_csv("data/monitor_ar/dados_qualidade")
     df_monitoring_stations = from_csv.extract_from_csv("data/monitor_ar/estacoes.csv")
-    df_datasus = from_csv.extract_from_csv("data/open_data_sus_csv/INFLUD22-26-06-2025.csv")
+    df_datasus = from_csv.extract_from_csv("data/opendatasus/INFLUD22-26-06-2025.csv")
 
     # Light Transform
- #   df_air_measurements = clean_monitor_ar.x(df_air_measurements)
- #   df_monitoring_stations = clean_monitor_ar.x(df_monitoring_stations)
+    df_air_measurements = clean_monitor_ar.air_quality_measurements_light_transform(df_air_measurements)
+    df_monitoring_stations = clean_monitor_ar.monitoring_stations_light_transform(df_monitoring_stations)
     df_datasus = clean_opendatasus.opendatasus_light_transform(df_datasus)
     
     # Load
