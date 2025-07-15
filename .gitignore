@@ -14,4 +14,7 @@ logs
 # Dados Sensíveis
 .env
 
+data/*.csv
 data/opendatasus/*.csv
+data/monitor_ar/*.csv
+data/monitor_ar/dados_qualidade/*.csv
