@@ -15,16 +15,8 @@ def render_monitorar():
     )
 
     st.subheader("Estações")
-    st.dataframe(stations_df.head(10))
     render_map(stations_df)
-
-    st.subheader("Monitoramentos")
-    st.dataframe(monitors_df.head(10))
-    st.write(f"Total Encontrados: {len(monitors_df)}")
-
-    st.subheader("Relacionados")
-    st.dataframe(joined_df)
-    st.write(f"Total Encontrados: {len(joined_df)}")
+    st.write(f"Total de Estações: {len(stations_df)}")
 
     return stations_df
 
@@ -39,7 +31,7 @@ def get_df(stations_cols=None, monitors_cols=None):
 
     # Junta os datasets com base em seu Nome de Município
     df = pd.merge(
-        stations_df[['Nome do Município', 'Estado', 'Nome da Estação']],
+        stations_df,
         monitors_df,
         on=['Nome do Município', 'Estado', 'Nome da Estação'],
         how='inner'

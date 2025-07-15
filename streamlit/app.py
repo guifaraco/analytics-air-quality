@@ -1,5 +1,6 @@
 import streamlit as st
 
+from utils.dashboard import render_dashboard
 from utils.components import sidebar
 from utils.monitorar import render_monitorar
 from utils.datasus import render_datasus
@@ -14,10 +15,14 @@ sidebar()
 
 st.title("🏥 MonitorAr x DataSUS")
 
-main, monitorar, datasus = st.tabs(["Dashboard", "MonitorAr", "DataSUS"])
+dashboard, monitorar, datasus = st.tabs(["Dashboard", "MonitorAr", "DataSUS"])
 
 with monitorar:
     ma_df = render_monitorar()
+
 with datasus:
-    render_datasus(ma_df=ma_df)
+    ds_df = render_datasus()
+
+with dashboard:
+    render_dashboard(ma_df, ds_df)
 
