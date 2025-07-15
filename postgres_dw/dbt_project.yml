@@ -36,3 +36,7 @@ models:
         gold:
             +materialized: view # Todos os modelos em 'models/gold' serão views
             +schema: gold # e serão criados no schema 'gold'
+
+seeds:
+    postgres_dw:
+        +schema: bronze

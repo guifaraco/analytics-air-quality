@@ -13,6 +13,9 @@ sources:
           - name: monitorar_measurements # Nome da tabela que estão os dados na camada bronze
             description: "Tabela com as medições de poluentes coletadas pelas estações ao longo do tempo."
 
+          - name: pollutant_units
+            description: "Tabela adicional feita a partir do dicionário do MonitorAr, para o armazenamento das unidades de medida do dos poluentes"
+
     # Tudo que vem do OpenDataSUS.
     - name: opendatasus # Nome da source
       description: "Dados de Síndrome Respiratória Aguda Grave (SRAG) do sistema OpenDataSUS."
