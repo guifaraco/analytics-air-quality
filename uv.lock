@@ -30,8 +30,10 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
+    { name = "plotly" },
     { name = "psycopg-binary" },
     { name = "pytest" },
+    { name = "python-aqi" },
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "scikit-learn" },
@@ -46,8 +48,10 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.3" },
     { name = "numpy", specifier = ">=2.3.1" },
     { name = "pandas", specifier = ">=2.3.1" },
+    { name = "plotly", specifier = ">=6.2.0" },
     { name = "psycopg-binary", specifier = ">=3.2.9" },
     { name = "pytest", specifier = ">=8.4.1" },
+    { name = "python-aqi", specifier = ">=0.6.1" },
     { name = "python-dotenv", specifier = ">=1.1.1" },
     { name = "requests", specifier = ">=2.32.4" },
     { name = "scikit-learn", specifier = ">=1.7.0" },
@@ -1671,6 +1675,19 @@ wheels = [
 ]
 
 [[package]]
+name = "plotly"
+version = "6.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "narwhals" },
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6e/5c/0efc297df362b88b74957a230af61cd6929f531f72f48063e8408702ffba/plotly-6.2.0.tar.gz", hash = "sha256:9dfa23c328000f16c928beb68927444c1ab9eae837d1fe648dbcda5360c7953d", size = 6801941, upload-time = "2025-06-26T16:20:45.765Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ed/20/f2b7ac96a91cc5f70d81320adad24cc41bf52013508d649b1481db225780/plotly-6.2.0-py3-none-any.whl", hash = "sha256:32c444d4c940887219cb80738317040363deefdfee4f354498cc0b6dab8978bd", size = 9635469, upload-time = "2025-06-26T16:20:40.76Z" },
+]
+
+[[package]]
 name = "pluggy"
 version = "1.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1954,6 +1971,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/08/ba/45911d754e8eba3d5
 wheels = [
     { url = "https://files.pythonhosted.org/packages/29/16/c8a903f4c4dffe7a12843191437d7cd8e32751d5de349d45d3fe69544e87/pytest-8.4.1-py3-none-any.whl", hash = "sha256:539c70ba6fcead8e78eebbf1115e8b589e7565830d7d006a8723f19ac8a0afb7", size = 365474, upload-time = "2025-06-18T05:48:03.955Z" },
 ]
+
+[[package]]
+name = "python-aqi"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/41/89/42266c6fb056ef52776effba731acaf2bf3b564f7845ef970918ee9f68f9/python-aqi-0.6.1.tar.gz", hash = "sha256:141a03a0fed48880dc8706ca57b03f30fa91ab60e9330474bf9c9a8fb9b96020", size = 9024, upload-time = "2019-01-10T04:46:11.584Z" }
 
 [[package]]
 name = "python-dateutil"
