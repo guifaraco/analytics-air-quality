@@ -26,7 +26,7 @@ def load_to_postgres(df: pd.DataFrame, conn, schema: str, table_name: str):
             cur.execute(f"CREATE SCHEMA IF NOT EXISTS {schema};")
             
             # Apaga a tabela se ela já existir
-            cur.execute(f"DROP TABLE IF EXISTS {full_table_name};")
+            cur.execute(f"DROP TABLE IF EXISTS {full_table_name} CASCADE;")
             
             # Cria a tabela com as colunas e tipos de dados do DataFrame
             sql_columns = ", ".join([f'"{col}" TEXT' for col in df.columns])

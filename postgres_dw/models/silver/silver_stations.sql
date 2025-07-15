@@ -1,13 +1,13 @@
 WITH source_data AS (
     SELECT
-        'Código IBGE do Município',
-        'Nome do Município',
-        'Estado',
-        'ID da Estação', 
-        'Nome da Estação', 
-        'Latitude', 
-        'Longitude',
-        'no_fonte_dados'
+        "Código IBGE do Município",
+        "Nome do Município",
+        "Estado",
+        "ID da Estação", 
+        "Nome da Estação", 
+        "Latitude", 
+        "Longitude",
+        "no_fonte_dados"
     FROM {{source("monitor_ar", "monitorar_stations")}}
 ),
 
@@ -23,7 +23,7 @@ renamed_and_casted AS (
         TRIM("Nome da Estação") AS station_name,
         -- Converte o separador de decimais para ponto, caso não seja null
         NULLIF(REPLACE("Latitude", ',', '.'), '')::NUMERIC AS latitude,
-        NULLIF(REPLACE("Longitude", ',', '.'), '')::NUMERIC AS longitude,
+        NULLIF(REPLACE("Longitude", ',', '.'), '')::NUMERIC AS longitude
     FROM
         source_data
 )
@@ -40,6 +40,5 @@ SELECT
     data_source_organization,
     latitude,
     longitude
-
 FROM
     renamed_and_casted
