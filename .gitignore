@@ -12,5 +12,6 @@ logs
 .venv
 
 # Dados Sensíveis
-data/*
 .env
+
+data/opendatasus/*.csv
