@@ -16,7 +16,7 @@ def load_to_postgres(df: pd.DataFrame, conn, schema: str, table_name: str):
     buffer = StringIO()
 
     # Converte o DataFrame para um formato CSV no buffer, sem índice e sem cabeçalho
-    df.to_csv(buffer, index=False, header=False, sep='\t')
+    df.to_csv(buffer, index=False, header=False, sep='\t', encoding="latin1")
     
     # Volta para o início do buffer para a leitura
     buffer.seek(0)

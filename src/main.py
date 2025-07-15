@@ -4,7 +4,6 @@ import subprocess
 from dotenv import load_dotenv
 from src.extract import from_csv
 from src.load import to_postgres
-from src.transform import clean_monitor_ar, clean_opendatasus
 
 # Executa a função para carregar as variáveis do arquivo .env no ambiente
 load_dotenv()
@@ -50,14 +49,9 @@ def main():
     conn = get_db_connection()
 
     # Extract
-    df_air_measurements = from_csv.extract_from_csv("data/monitor_ar/dados_qualidade")
-    df_monitoring_stations = from_csv.extract_from_csv("data/monitor_ar/estacoes.csv")
-    df_datasus = from_csv.extract_from_csv("data/opendatasus/INFLUD22-26-06-2025.csv")
-
-    # Light Transform
-    df_air_measurements = clean_monitor_ar.air_quality_measurements_light_transform(df_air_measurements)
-    df_monitoring_stations = clean_monitor_ar.monitoring_stations_light_transform(df_monitoring_stations)
-    df_datasus = clean_opendatasus.opendatasus_light_transform(df_datasus)
+    df_air_measurements = from_csv.extract_from_csv("data/monitor_ar/dados_qualidade", "latin1")
+    df_monitoring_stations = from_csv.extract_from_csv("data/monitor_ar/estacoes.csv", "utf_8_sig")
+    df_datasus = from_csv.extract_from_csv("data/opendatasus/INFLUD22-26-06-2025.csv", "latin1")
     
     # Load
     to_postgres.load_to_postgres(df_air_measurements, conn, "bronze", "monitorar_measurements")
