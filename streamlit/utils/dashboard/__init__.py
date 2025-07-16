@@ -2,9 +2,13 @@ import streamlit as st
 import pandas as pd
 from .map import render_map
 
-def render_dashboard(ma_df, ds_df):
+def render_dashboard(ma_df, ds_df, filters):
     df = join_df(ma_df, ds_df)
-    st.write(df.head(10))
+
+    if filters['uf']:
+        df = df[df['SG_UF'] == filters['uf']]
+        if filters['city']:
+            df = df[df['ID_MN_RESI'] == filters['city']]
 
     st.subheader("Mapa de Casos Encontrados")
     render_map(df)

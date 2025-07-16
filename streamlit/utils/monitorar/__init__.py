@@ -2,17 +2,18 @@ import streamlit as st
 import pandas as pd
 from .map import render_map
 
-def render_monitorar():
+def render_monitorar(filters):
     st.header("MonitorAr")
-    stations_df, monitors_df, joined_df = get_df(
-        stations_cols=[
-            'Código IBGE do Município', 'Nome do Município', 'Estado', 'Nome da Estação', 
-            'Latitude', 'Longitude'
-        ],
-        monitors_cols=[
-            'Nome do Município', 'Estado', 'Nome da Estação', 'Sigla', 'Concentracao', 'iqar', 'Data'
+    stations_df = get_stations([
+        'Nome do Município', 'Estado', 'Nome da Estação', 'Código IBGE do Município',
+        'Latitude', 'Longitude'
         ]
     )
+
+    if filters['uf']:
+        stations_df = stations_df[stations_df['Estado'] == filters['uf']]
+        if filters['city']:
+            stations_df = stations_df[stations_df['Nome do Município'] == filters['city']]
 
     st.subheader("Estações")
     render_map(stations_df)
@@ -20,21 +21,17 @@ def render_monitorar():
 
     return stations_df
 
-def get_df(stations_cols=None, monitors_cols=None):
-    stations_df = pd.read_csv("data/monitor_ar/EstacoesMonitorAr-Nov-2022.csv", sep=";", usecols=stations_cols)
-    jan_mar_df = pd.read_csv("data/monitor_ar/Dados_monitorar_jan_mar.csv", encoding="latin", sep=";", usecols=monitors_cols)
-    abr_jun_df = pd.read_csv("data/monitor_ar/Dados_monitorar_abr_jun.csv", encoding="latin", sep=";", usecols=monitors_cols)
-    jul_nov_df = pd.read_csv("data/monitor_ar/Dados_monitorar_jul_nov.csv", encoding="latin", sep=";", usecols=monitors_cols)
+def get_stations(cols=None):
+    stations_df = pd.read_csv("../data/monitor_ar/EstacoesMonitorAr-Nov-2022.csv", sep=";", usecols=cols)
+
+    return stations_df
+
+def get_monitors(cols=None):
+    jan_mar_df = pd.read_csv("../data/monitor_ar/Dados_monitorar_jan_mar.csv", encoding="latin", sep=";", usecols=cols)
+    abr_jun_df = pd.read_csv("../data/monitor_ar/Dados_monitorar_abr_jun.csv", encoding="latin", sep=";", usecols=cols)
+    jul_nov_df = pd.read_csv("../data/monitor_ar/Dados_monitorar_jul_nov.csv", encoding="latin", sep=";", usecols=cols)
 
     # Junta as três tabelas de monitores
     monitors_df = pd.concat([jan_mar_df, abr_jun_df, jul_nov_df], axis=0)
 
-    # Junta os datasets com base em seu Nome de Município
-    df = pd.merge(
-        stations_df,
-        monitors_df,
-        on=['Nome do Município', 'Estado', 'Nome da Estação'],
-        how='inner'
-    )
-
-    return stations_df, monitors_df, df
+    return monitors_df

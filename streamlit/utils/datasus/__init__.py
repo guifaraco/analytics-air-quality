@@ -1,14 +1,19 @@
 import streamlit as st
 import pandas as pd
 
-def render_datasus():
+def render_datasus(filters):
     st.header("DataSUS")
     cols = [
         'DT_SIN_PRI', 'CS_SEXO', 'DT_NASC', 'CS_GESTANT', 'CS_RACA', 'CS_ESCOL_N', 'SG_UF', 'ID_MN_RESI', 'CO_MUN_RES', 'CLASSI_FIN',
         'CRITERIO', 'EVOLUCAO', 'DT_EVOLUCA'
     ]
     
-    df = get_df(cols=cols)
+    df = get_df(cols)
+
+    if filters['uf']:
+        df = df[df['SG_UF'] == filters['uf']]
+        if filters['city']:
+            df = df[df['ID_MN_RESI'] == filters['city']]
 
     st.subheader("Casos")
     st.dataframe(df.head(10))
@@ -17,5 +22,5 @@ def render_datasus():
     return df
 
 def get_df(cols=None):
-    df = pd.read_csv("data/data_sus/INFLUD22-26-06-2025.csv", sep=";", usecols=cols)
+    df = pd.read_csv("../data/data_sus/INFLUD22-26-06-2025.csv", sep=";", usecols=cols)
     return df

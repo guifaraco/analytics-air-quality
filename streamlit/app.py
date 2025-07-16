@@ -11,18 +11,18 @@ st.set_page_config(
     layout="wide"
 )
 
-sidebar()
+filters = sidebar()
 
 st.title("🏥 MonitorAr x DataSUS")
 
 dashboard, monitorar, datasus = st.tabs(["Dashboard", "MonitorAr", "DataSUS"])
 
 with monitorar:
-    ma_df = render_monitorar()
+    ma_df = render_monitorar(filters)
 
 with datasus:
-    ds_df = render_datasus()
+    ds_df = render_datasus(filters)
 
 with dashboard:
-    render_dashboard(ma_df, ds_df)
+    render_dashboard(ma_df, ds_df, filters)
 
