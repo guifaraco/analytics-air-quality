@@ -6,10 +6,15 @@ dist/
 wheels/
 *.egg-info
 logs
+.pytest_cache
 
 # Virtual environments
 .venv
 
 # Dados Sensíveis
-data/*
 .env
+
+data/*.csv
+data/opendatasus/*.csv
+data/monitor_ar/*.csv
+data/monitor_ar/dados_qualidade/*.csv

@@ -1,0 +1,38 @@
+sigla,pollutant_units
+ACETAL, μg/m³
+BEN, μg/m³
+BTEX, μg/m³
+CH4, μg/m³
+CO, ppm
+ERT, μg/m³
+ETIL, μg/m³
+FMC, μg/m³
+FORMAL, μg/m³
+H2S, μg/m³
+HCNM, μg/m³
+HCT, μg/m³
+M E P XILENO, μg/m³
+MP10, μg/m³
+"MP2,5", μg/m³
+NH3, μg/m³
+NO, μg/m³
+NO2, μg/m³
+NOX, μg/m³
+O3, μg/m³
+ORTO XIL, μg/m3
+PTS, μg/m³
+SO2, μg/m³
+SOX, μg/m³
+TOL, μg/m³
+XIL, μg/m³
+CHO, μg/m³
+PB, μg/m³
+COV, μg/m
+TEMP, graus Celsius
+VV, Km/h
+CH, mm
+U, %
+DV, graus
+UR, %
+RAD, W/m²
+PRESS, hPa (hectoPascal)

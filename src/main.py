@@ -1,7 +1,10 @@
 import os
-import psycopg2
+import psycopg
 import subprocess
 from dotenv import load_dotenv
+from src.extract import from_csv
+from src.load import to_postgres
+from src.transform.transformation import transform_air_measurements, transform_srag
 
 # Executa a função para carregar as variáveis do arquivo .env no ambiente
 load_dotenv()
@@ -9,7 +12,7 @@ load_dotenv()
 def get_db_connection():
     """Cria e retorna uma conexão com o banco de dados."""
     try:
-        conn = psycopg2.connect(
+        conn = psycopg.connect(
             host="localhost",
             dbname=os.getenv("DB_NAME"),
             user=os.getenv("DB_USER"),
@@ -19,7 +22,7 @@ def get_db_connection():
         return conn
     except Exception as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
-        raise
+        raise e
 
 def run_dbt_transformations():
     """Executa os comandos do dbt localmente."""
@@ -43,15 +46,28 @@ def run_dbt_transformations():
 def main():
     print("Iniciando pipeline ELT localmente...")
     
-    # ETAPAS E e L
-    # Esta parte do seu código usaria get_db_connection() para se conectar.
-    # conn = get_db_connection()
-    # ...seu código de extract e load...
-    # conn.commit()
-    # conn.close()
-    print("Etapas de Extração e Carga concluídas (simulado).")
+    # Pegar a conexão com o banco de dados
+    conn = get_db_connection()
 
-    # ETAPA T
+    # Extract
+    df_air_measurements = from_csv.extract_from_csv("data/monitor_ar/dados_qualidade", "latin1")
+    df_monitoring_stations = from_csv.extract_from_csv("data/monitor_ar/estacoes.csv", "utf_8_sig")
+    df_datasus = from_csv.extract_from_csv("data/opendatasus/INFLUD22-26-06-2025.csv", "latin1")
+    
+    # Light Transform
+    df_air_measurements = transform_air_measurements(df_air_measurements)
+    df_datasus = transform_srag(df_datasus)
+    
+    # Load
+    to_postgres.load_to_postgres(df_air_measurements, conn, "bronze", "monitorar_measurements")
+    to_postgres.load_to_postgres(df_monitoring_stations, conn, "bronze", "monitorar_stations")
+    to_postgres.load_to_postgres(df_datasus, conn, "bronze", "opendatasus_srag_cases")
+
+    conn.commit()
+    conn.close()
+    print("Etapas de Extração e Carga concluídas.")
+
+    # Transform
     run_dbt_transformations()
 
     print("Pipeline ELT concluído com sucesso.")
