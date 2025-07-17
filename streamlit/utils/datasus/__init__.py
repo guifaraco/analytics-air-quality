@@ -1,26 +1,23 @@
-import streamlit as st
 import pandas as pd
 
-def render_datasus(filters):
-    st.header("DataSUS")
-    cols = [
-        'DT_SIN_PRI', 'CS_SEXO', 'DT_NASC', 'CS_GESTANT', 'CS_RACA', 'CS_ESCOL_N', 'SG_UF', 'ID_MN_RESI', 'CO_MUN_RES', 'CLASSI_FIN',
-        'CRITERIO', 'EVOLUCAO', 'DT_EVOLUCA'
-    ]
-    
-    df = get_df(cols)
+def get_datasus(cols=None, filters=[]):
+    if not cols:
+        cols = [
+            'DT_SIN_PRI', 'CS_SEXO', 'DT_NASC', 'CS_GESTANT', 'CS_RACA', 'CS_ESCOL_N', 'SG_UF', 'ID_MN_RESI', 'CO_MUN_RES', 'CLASSI_FIN',
+            'CRITERIO', 'EVOLUCAO', 'DT_EVOLUCA'
+        ]
 
+    df = pd.read_csv("../data/data_sus/INFLUD22-26-06-2025.csv", sep=";", usecols=cols)
+    
+    if filters:
+        df = apply_filters(df, filters)
+
+    return df
+
+def apply_filters(df, filters):
     if filters['uf']:
         df = df[df['SG_UF'] == filters['uf']]
         if filters['city']:
             df = df[df['ID_MN_RESI'] == filters['city']]
 
-    st.subheader("Casos")
-    st.dataframe(df.head(10))
-    st.write(f"Casos encontrados: {len(df)}")
-
-    return df
-
-def get_df(cols=None):
-    df = pd.read_csv("../data/data_sus/INFLUD22-26-06-2025.csv", sep=";", usecols=cols)
     return df

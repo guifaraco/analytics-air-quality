@@ -31,24 +31,3 @@ def render_map(df):
     )
 
     st.pydeck_chart(r)
-
-# def render_real(df):
-#     df['coordinates'] = df[['Longitude', 'Latitude']].values.tolist()
-
-#     layer = pdk.Layer(
-#         "HeatmapLayer",
-#         data=df,
-#         pickable=True,
-#         threshold=0.75,
-#         opacity=0.9,
-#         get_position='coordinates'
-#     )
-
-#     view_state = pdk.ViewState(latitude=-23, longitude=-50, zoom=3.5, bearing=0, pitch=0)
-
-#     r = pdk.Deck(
-#         layers=[layer],
-#         initial_view_state=view_state
-#     )
-
-#     st.pydeck_chart(r)

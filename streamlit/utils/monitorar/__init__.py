@@ -1,37 +1,36 @@
-import streamlit as st
 import pandas as pd
-from .map import render_map
 
-def render_monitorar(filters):
-    st.header("MonitorAr")
-    stations_df = get_stations([
-        'Nome do Município', 'Estado', 'Nome da Estação', 'Código IBGE do Município',
-        'Latitude', 'Longitude'
+def get_stations(filters=[], cols=None):
+    if not cols:
+        cols = [
+            'Nome do Município', 'Estado', 'Nome da Estação', 'Código IBGE do Município',
+            'Latitude', 'Longitude'
         ]
-    )
 
-    if filters['uf']:
-        stations_df = stations_df[stations_df['Estado'] == filters['uf']]
-        if filters['city']:
-            stations_df = stations_df[stations_df['Nome do Município'] == filters['city']]
+    df = pd.read_csv("../data/monitor_ar/EstacoesMonitorAr-Nov-2022.csv", sep=";", usecols=cols)
 
-    st.subheader("Estações")
-    render_map(stations_df)
-    st.write(f"Total de Estações: {len(stations_df)}")
+    if filters:
+        df = apply_filters(df, filters)
 
-    return stations_df
+    return df
 
-def get_stations(cols=None):
-    stations_df = pd.read_csv("../data/monitor_ar/EstacoesMonitorAr-Nov-2022.csv", sep=";", usecols=cols)
-
-    return stations_df
-
-def get_monitors(cols=None):
+def get_monitors(filters=[], cols=None):
     jan_mar_df = pd.read_csv("../data/monitor_ar/Dados_monitorar_jan_mar.csv", encoding="latin", sep=";", usecols=cols)
     abr_jun_df = pd.read_csv("../data/monitor_ar/Dados_monitorar_abr_jun.csv", encoding="latin", sep=";", usecols=cols)
     jul_nov_df = pd.read_csv("../data/monitor_ar/Dados_monitorar_jul_nov.csv", encoding="latin", sep=";", usecols=cols)
 
     # Junta as três tabelas de monitores
-    monitors_df = pd.concat([jan_mar_df, abr_jun_df, jul_nov_df], axis=0)
+    df = pd.concat([jan_mar_df, abr_jun_df, jul_nov_df], axis=0)
 
-    return monitors_df
+    df = apply_filters(df, filters)
+
+    return df
+
+
+def apply_filters(df, filters):
+    if filters['uf']:
+        df = df[df['Estado'] == filters['uf']]
+        if filters['city']:
+            df = df[df['Nome do Município'] == filters['city']]
+
+    return df
