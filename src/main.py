@@ -67,7 +67,7 @@ def main():
     conn.close()
     print("Etapas de Extração e Carga concluídas.")
 
-    # ETAPA T
+    # Transform
     run_dbt_transformations()
 
     print("Pipeline ELT concluído com sucesso.")

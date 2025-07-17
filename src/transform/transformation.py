@@ -25,7 +25,7 @@ def transform_air_measurements(df_raw: pd.DataFrame) -> pd.DataFrame:
 def transform_srag(df_raw: pd.DataFrame) -> pd.DataFrame:
     df = df_raw.copy()
     cols_to_convert = [
-        'CS_SEXO', 'CS_RACA', 'CS_ESCOL_N', 'CS_GESTANT', 'FATOR_RISC',
+        'CO_MUN_RES', 'CS_RACA', 'CS_ESCOL_N', 'CS_GESTANT', 'FATOR_RISC',
         'PUERPERA', 'CARDIOPATI', 'HEMATOLOGI', 'SIND_DOWN', 'HEPATICA',
         'ASMA', 'DIABETES', 'NEUROLOGIC', 'PNEUMOPATI', 'IMUNODEPRE',
         'RENAL', 'OBESIDADE', 'FEBRE', 'TOSSE', 'GARGANTA',
