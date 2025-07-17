@@ -43,8 +43,7 @@ renamed_and_casted AS (
         TRIM(UPPER("Sigla")) AS pollutant_code,
         TRIM(UPPER("pollutant_name_source")) AS pollutant_name,
         TO_TIMESTAMP("Data" || ' ' || "Hora", 'DD/MM/YYYY HH24:MI:SS') AS measured_at,
-        REPLACE(REPLACE("Concentracao", '.', ''), ',', '.')::NUMERIC AS measurement_value,
-        REPLACE(REPLACE("air_quality_index", '.', ''), ',', '.')::NUMERIC AS air_quality_index,
+        "Concentracao"::NUMERIC AS measurement_value,
         -- Usamos COALESCE para tratar casos onde o JOIN não encontrou uma unidade
         COALESCE(measurement_unit, 'N/A') AS measurement_unit
     FROM
@@ -66,17 +65,18 @@ deduplicated AS (
 SELECT
     state_code || '-' || city_name || '-' || station_name AS station_business_key,
     {{ dbt_utils.generate_surrogate_key(['state_code', 'city_name', 'station_name', 'measured_at', 'pollutant_name']) }} AS measurement_id,
+    state_code,
     measured_at,
     station_name,
     pollutant_code,
     pollutant_name,
     measurement_value,
-    measurement_unit,
-    air_quality_index
+    measurement_unit
 FROM
     deduplicated
 WHERE
     duplicate_rank = 1
     AND measurement_value IS NOT NULL
-    AND air_quality_index >= 1
+    AND measurement_value >= 0.1
+    AND measurement_value < 200
     AND measured_at IS NOT NULL

@@ -8,7 +8,7 @@ WITH measurements AS (
         station_name,
         pollutant_code,
         pollutant_name,
-        air_quality_index
+        measurement_value
     FROM {{ ref('silver_measurements') }}
 ),
 
@@ -43,7 +43,7 @@ SELECT
     p.pollutant_id,
     s.location_id,
     -- Métrica
-    m.air_quality_index
+    m.measurement_value
 FROM
     measurements AS m   
 -- JOIN para buscar a chave da dimensão de estações

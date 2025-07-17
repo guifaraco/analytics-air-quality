@@ -9,9 +9,12 @@ def correct_numbers(value):
         if value.count('.') > 1:
             # Remove o primeiro ponto
             # O valor.count('.')-1 no final do replace diz para ele deixar apenas a última ocorrência do ponto
-            return value.replace('.', '', value.count('.') - 1)
+            first_dot_index = value.find(".")
+            first_part_of_string = value[:first_dot_index + 1]
+            return first_part_of_string + value[first_dot_index + 1:].replace('.', '', value.count('.') - 1)
     # Se não for uma string ou se tiver 1 ou 0 pontos, retorna o valor como está
     return value
+
 
 def transform_air_measurements(df_raw: pd.DataFrame) -> pd.DataFrame:
     """Aplica as transformações leves específicas para os dados do MonitorAr."""
@@ -38,3 +41,7 @@ def transform_srag(df_raw: pd.DataFrame) -> pd.DataFrame:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
     return df
+
+
+if __name__ == "__main__":
+    print(correct_numbers("1.004.552"))

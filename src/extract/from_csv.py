@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-def extract_from_csv(path: str, encoding: str="utf8") -> pd.DataFrame:
+def extract_from_csv(path: str, encoding: str="utf8", decimal: str=".") -> pd.DataFrame:
     """
         Extrai os dados de todos os CSVs (Precisa conter as mesmas colunas) dentro do caminho do diretório informado ou extrai os dados do caminho do CSV informado. Após a extração dos dados é feita a conversão em DataFrame.
         Será retornado um DataFrame.
@@ -34,13 +34,13 @@ def extract_from_csv(path: str, encoding: str="utf8") -> pd.DataFrame:
             for csv in csv_files:
                 csv_path = os.path.join(abs_path, csv)
 
-                df_csv = pd.read_csv(csv_path, encoding=encoding, sep=';', decimal=',', low_memory=False)
+                df_csv = pd.read_csv(csv_path, encoding=encoding, sep=';', decimal='.', low_memory=False)
                 df_list.append(df_csv)
             
             # Concatena os Dataframes em um só
             return pd.concat(df_list, axis=0)
         
-        df_csv = pd.read_csv(abs_path, encoding=encoding, sep=";", decimal=",", low_memory=False)
+        df_csv = pd.read_csv(abs_path, encoding=encoding, sep=";", decimal=".", low_memory=False)
         return df_csv
         
     except Exception as e:
