@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 
 def join_df(map_df: pd.DataFrame, data_df: pd.DataFrame) -> pd.DataFrame:
     # Faz uma cópia para não modificar o DataFrame original fora da função
@@ -6,7 +7,6 @@ def join_df(map_df: pd.DataFrame, data_df: pd.DataFrame) -> pd.DataFrame:
 
     # Renomeia, normaliza a chave IBGE (7->6 dígitos) e converte tipos em uma única cadeia
     coords = coords.rename(columns={"Código IBGE do Município": "Código IBGE"})
-    coords['Código IBGE'] = (coords['Código IBGE'] / 10).astype(int)
 
     coords['Latitude'] = coords['Latitude'].str.replace(',','.')
     coords['Longitude'] = coords['Longitude'].str.replace(',','.')
@@ -15,7 +15,6 @@ def join_df(map_df: pd.DataFrame, data_df: pd.DataFrame) -> pd.DataFrame:
     coords['Latitude'] = pd.to_numeric(coords['Latitude'], errors='coerce')
     coords['Longitude'] = pd.to_numeric(coords['Longitude'], errors='coerce')
     coords.dropna(subset=['Latitude', 'Longitude', 'Código IBGE'], inplace=True)
-
     
     # A otimização principal: cria um DataFrame com UMA coordenada média por IBGE
     lookup_coordenadas = coords.groupby('Código IBGE', as_index=False).agg(

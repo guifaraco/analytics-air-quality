@@ -9,7 +9,6 @@ st.set_page_config(
     layout="wide"
 )
 
-
 st.title("🏥 MonitorAr x DataSUS")
 
 filters = render_filters()

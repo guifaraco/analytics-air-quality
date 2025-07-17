@@ -1,4 +1,6 @@
+import numpy as np
 import pandas as pd
+import streamlit as st
 
 def get_stations(filters=[], cols=None):
     if not cols:
@@ -19,25 +21,41 @@ def get_stations(filters=[], cols=None):
     return df
 
 def get_monitors(filters=[], cols=None):
-    if cols:
-        cols = cols + ['iqar']
-
-    jan_mar_df = pd.read_csv("data/monitor_ar/Dados_monitorar_jan_mar.csv", encoding="latin", sep=";", usecols=cols)
-    abr_jun_df = pd.read_csv("data/monitor_ar/Dados_monitorar_abr_jun.csv", encoding="latin", sep=";", usecols=cols)
-    jul_nov_df = pd.read_csv("data/monitor_ar/Dados_monitorar_jul_nov.csv", encoding="latin", sep=";", usecols=cols)
-
+    jan_mar_df = pd.read_csv("data/monitor_ar/Dados_monitorar_jan_mar.csv", encoding="latin", sep=";")
+    abr_jun_df = pd.read_csv("data/monitor_ar/Dados_monitorar_abr_jun.csv", encoding="latin", sep=";")
+    jul_nov_df = pd.read_csv("data/monitor_ar/Dados_monitorar_jul_nov.csv", encoding="latin", sep=";")
 
     # Junta as três tabelas de monitores
     df = pd.concat([jan_mar_df, abr_jun_df, jul_nov_df], axis=0)
 
     df = apply_filters(df, filters)
 
-    df['iqar'] = pd.to_numeric(df['iqar'], errors='coerce')
+    df['Concentracao'] = pd.to_numeric(df['Concentracao'], errors='coerce')
+    df = df.dropna(subset=['Concentracao'])
 
-    df = df.dropna(subset=['iqar'])
-    df = df[df['iqar'] >= 0]
+    if 'Sigla' in cols or cols == None:
+        df['Sigla'] = df['Sigla'].apply(filter_siglas)
+        df = df.dropna(subset=['Sigla'])
 
+    df = df[
+        (df['Concentracao'].astype(float) >= 0.1) &
+        (df['Concentracao'].astype(float) < 200)
+    ]
+
+    if cols:
+        df = df[cols]
+    
     return df
+
+def filter_siglas(sigla):
+    sigla = sigla.replace(' ', '')
+    if sigla in ('MP2,5', 'PM2,5'):
+        return 'MP2,5'
+    elif sigla in ('MP10','NO2','SO2','O3','CO'):
+        return sigla
+    else:
+        return np.nan
+
 
 def apply_filters(df, filters):
     if filters['uf']:
@@ -52,7 +70,6 @@ def get_valid_ibge(filters):
         'Nome do Município', 'Estado', 'Nome da Estação'
     ]
     monitors_df = get_monitors(filters=filters, cols=cols)
-
 
     station_cols = [
         'Código IBGE do Município', 'Nome do Município', 'Estado', 'Nome da Estação'

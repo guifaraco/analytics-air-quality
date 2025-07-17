@@ -1,83 +1,56 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
 
 from utils.datasus import get_datasus
 from utils.monitorar import get_monitors, get_valid_ibge
 
 def evolucao_mensal(filters):
-    datasus_count = get_datasus_count(filters)
-    monitors_mean = get_monitors_mean(filters)
-
-    month_evo = pd.merge(
-        left=datasus_count,
-        right=monitors_mean,
-        on='Mes',
-        how='inner'
-    )
-
-    st.write(month_evo)
-    st.write(month_evo.dtypes)
-
-    st.line_chart(
-        month_evo,
-        y=['datasus_count', 'monitors_mean']
-    )
-
-def get_datasus_count(filters):
     cols = [
-        'DT_SIN_PRI', 'CS_SEXO', 'SG_UF', 'ID_MN_RESI', 'CO_MUN_RES', 'CLASSI_FIN'
+        'Sigla', 'Concentracao', 'Data' 
     ]
-        
-    df = get_datasus(filters=filters, cols=cols)
 
-    df = df.rename(columns={
-        'DT_SIN_PRI': "Data",
-        'CS_SEXO':"Sexo", 
-        'SG_UF': "Estado", 
-        'ID_MN_RESI': "Municipio", 
-        'CO_MUN_RES': "Codigo_IBGE",
-        'CLASSI_FIN' : "Classificacao_Final"
-    })
+    monitors_df = get_monitors(filters=filters, cols=cols)
+    monitors_df['Sigla'] = monitors_df['Sigla'].apply(apply_measure_unit)
+    monitors_df['Data'] = pd.to_datetime(monitors_df['Data'])
+    monitors_df['Mes'] = monitors_df['Data'].dt.month_name(locale='pt_BR')
+    monitors_df.sort_values(by='Data', inplace=True)
+
+    # Captura a ordem dos meses
+    ordem_cronologica = list(monitors_df['Mes'].unique())
     
-    df = filter_iqar(df, filters)
-
-    ### 2. Plotar o gráfico
-    df['Data'] = pd.to_datetime(df['Data'])
-    df['Mes'] = df['Data'].dt.month_name(locale='pt_BR')
-    df.sort_values(by='Data', inplace=True)
-
-    # Agrupando com sort=False para manter a ordem cronológica
-    datasus_count = df.groupby('Mes', sort=False).size()
-
-    return datasus_count.to_frame('datasus_count')
-
-def get_monitors_mean(filters):
-    cols = [
-        'Nome do Município', 'Estado', 'Sigla', 'iqar', 'Data'
-    ]
-        
-    df = get_monitors(filters=filters, cols=cols)
-
-    df = df.rename(columns={
-        'Nome do Município': "Nome_Municipio"
-    })
-
-    ### 2. Plotar o gráfico
-    df['Data'] = pd.to_datetime(df['Data'])
-    df['Mes'] = df['Data'].dt.month_name(locale='pt_BR')
-    df.sort_values(by='Data', inplace=True)
-
-    # Agrupando com sort=False para manter a ordem cronológica
-    monitors_mean = df.groupby('Mes', sort=False)['iqar'].mean()
-
-    return monitors_mean.to_frame('monitors_mean')
+    grouped = (
+        monitors_df
+        .groupby(['Sigla', 'Mes'])['Concentracao']
+        .mean()
+        .reset_index()
+    )
 
 
-def filter_iqar(df, filters):
-    ibge_codes = get_valid_ibge(filters)
+    # Cria a seleção e o gráfico Altair com todos os seus requisitos
+    selecao_legenda = alt.selection_multi(fields=['Sigla'], bind='legend')
 
-    ## 2. ``Filter`` entre Códigos IBGE no ``DataSUS`` e Métricas com ``iqar``
-    df = df[df['Codigo_IBGE'].isin(list(ibge_codes))]
+    chart = alt.Chart(grouped).mark_line(point=True).encode(
+        x=alt.X('Mes', sort=ordem_cronologica, title='Mês'),
+        y=alt.Y('Concentracao', title='Concentração Média'),
+        color=alt.Color('Sigla', title='Métrica'),
+        opacity=alt.condition(selecao_legenda, alt.value(1.0), alt.value(0.2)),
+        tooltip=[
+            alt.Tooltip('Mes', title='Período'),
+            alt.Tooltip('Sigla', title='Métrica'),
+            alt.Tooltip('Concentracao', title='Valor Médio', format='.2f')
+        ]
+    ).add_selection(
+        selecao_legenda
+    ).properties(
+        title='Análise Comparativa Mensal Interativa'
+    ).interactive()
 
-    return df
+    # 4. Remove o st.line_chart e exibe o novo gráfico Altair
+    st.altair_chart(chart, use_container_width=True)
 
+def apply_measure_unit(pollutant):
+    if pollutant == 'CO':
+        return (f"{pollutant} (ppm)")
+    else:
+        return (f"{pollutant} (µg/m³)")
