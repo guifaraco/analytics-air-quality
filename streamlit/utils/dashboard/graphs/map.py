@@ -1,7 +1,19 @@
 import streamlit as st
 import pydeck as pdk
 
-def render_map(df):
+from ..tools import join_df
+
+from utils.datasus import get_datasus
+from utils.monitorar import get_stations
+
+def render_map(filters):
+    stations_df = get_stations(filters=filters)
+    datasus_df = get_datasus(filters=filters)
+
+    df = join_df(stations_df, datasus_df)
+
+    found = len(df)
+
     df['coordinates'] = df[['Longitude', 'Latitude']].values.tolist()
     df = df[['ID_MN_RESI', 'coordinates']]
     df = df.rename(columns={"ID_MN_RESI":"municipio"})
@@ -31,3 +43,6 @@ def render_map(df):
     )
 
     st.pydeck_chart(r)
+
+    return found
+

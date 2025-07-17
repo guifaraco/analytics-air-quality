@@ -1,25 +1,8 @@
 import pandas as pd
 
 def join_df(map_df: pd.DataFrame, data_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Enriquece um DataFrame de dados com coordenadas de um DataFrame de mapa.
-
-    A função realiza uma junção otimizada, garantindo que haja apenas uma
-    coordenada por município para evitar a multiplicação de linhas.
-
-    Args:
-        map_df: DataFrame contendo coordenadas e um código IBGE de 7 dígitos
-                (ex: "Código IBGE do Município").
-        data_df: DataFrame de dados contendo um código IBGE de 6 ou 7 dígitos
-                 (ex: "CO_MUN_RES").
-
-    Returns:
-        Um novo DataFrame resultante da junção dos dois originais.
-    """
-    # --- 1. Preparar a tabela de consulta de coordenadas (Lookup Table) ---
-    
     # Faz uma cópia para não modificar o DataFrame original fora da função
-    coords = map_df
+    coords = map_df.copy()
 
     # Renomeia, normaliza a chave IBGE (7->6 dígitos) e converte tipos em uma única cadeia
     coords = coords.rename(columns={"Código IBGE do Município": "Código IBGE"})

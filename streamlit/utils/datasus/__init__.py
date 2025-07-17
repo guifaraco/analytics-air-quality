@@ -7,7 +7,7 @@ def get_datasus(cols=None, filters=[]):
             'CRITERIO', 'EVOLUCAO', 'DT_EVOLUCA'
         ]
 
-    df = pd.read_csv("../data/data_sus/INFLUD22-26-06-2025.csv", sep=";", usecols=cols)
+    df = pd.read_csv("data/data_sus/INFLUD22-26-06-2025.csv", sep=";", usecols=cols)
     
     if filters:
         df = apply_filters(df, filters)
