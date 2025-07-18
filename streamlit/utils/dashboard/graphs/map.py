@@ -1,14 +1,15 @@
 import streamlit as st
 import pydeck as pdk
 
+from utils.execute_query import select
+
 from ..tools import join_df
 
-from utils.datasus import get_datasus
 from utils.monitorar import get_stations
 
 def render_map(filters):
     stations_df = get_stations(filters=filters)
-    datasus_df = get_datasus(filters=filters)
+    datasus_df = select('silver_srag_cases', filters)
 
     df = join_df(stations_df, datasus_df)
 
