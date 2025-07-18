@@ -1,4 +1,4 @@
--- Este modelo cria a dimensão de localidades, unindo informações das fontes de dados para criar uma lista de cidades e estados.
+-- Cria a dimensão de localidades.
 
 -- Pega as localidades únicas das estações de monitoramento
 WITH monitorar_locations AS (
@@ -29,7 +29,7 @@ all_locations_unioned AS (
 SELECT
     -- Gera a chave primária a partir do código IBGE, que é um identificador único para municípios.
     {{ dbt_utils.generate_surrogate_key(['city_ibge_code']) }} AS location_id,
-    
+
     city_ibge_code,
     city_name,
     state_code

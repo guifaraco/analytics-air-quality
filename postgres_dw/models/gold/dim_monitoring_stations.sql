@@ -1,5 +1,6 @@
 -- Cria a dimensão de estações de monitoramento.
 
+-- Pega as colunas relevantes da ref silver_stations
 WITH silver_stations AS (
     SELECT
         station_business_key,
@@ -15,6 +16,7 @@ WITH silver_stations AS (
         {{ ref('silver_stations') }}
 ),
 
+-- Pega as colunas relevantes da ref dim_locations
 dim_locations AS (
     SELECT
         location_id,
@@ -23,7 +25,6 @@ dim_locations AS (
         {{ ref('dim_locations') }}
 )
 
--- Seleção Final
 SELECT
     s.station_business_key,
     s.station_id AS monitoring_station_id,
@@ -36,5 +37,5 @@ SELECT
     s.longitude
 FROM
     silver_stations AS s
-LEFT JOIN
+JOIN
     dim_locations AS l ON s.city_ibge_code = l.city_ibge_code

@@ -1,4 +1,4 @@
--- Este Data Mart une os dados por ESTADO e MÊS.
+-- Este Data Mart une os dados das diferentes sources por ESTADO e MÊS.
 
 -- CTE para os casos de saúde.
 WITH health_cases_monthly AS (
@@ -9,9 +9,9 @@ WITH health_cases_monthly AS (
         l.state_code,
         -- Soma todos os casos daquele mês e estado
         SUM(hc.case_count) AS total_health_cases
-    FROM 
+    FROM
         {{ ref('fact_health_cases') }} AS hc
-    LEFT JOIN 
+    LEFT JOIN
         {{ ref('dim_date') }} AS d ON hc.notification_date_id = d.date_id
     LEFT JOIN
         {{ ref('dim_locations') }} AS l ON hc.location_id = l.location_id
@@ -31,7 +31,7 @@ air_quality_monthly_avg AS (
         p.pollutant_code,
         -- Calculamos a média mensal do poluente para o estado
         AVG(f.measurement_value) AS monthly_avg_pollution
-    FROM 
+    FROM
         {{ ref('fact_air_quality_measurements') }} AS f
     LEFT JOIN
         {{ ref('dim_pollutants') }} AS p ON f.pollutant_id = p.pollutant_id
@@ -52,7 +52,7 @@ SELECT
     a.pollutant_code,
     h.total_health_cases,
     a.monthly_avg_pollution
-    
+
 FROM
     health_cases_monthly AS h
 

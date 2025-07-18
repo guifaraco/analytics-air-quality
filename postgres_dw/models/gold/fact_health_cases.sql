@@ -53,16 +53,16 @@ SELECT
 
 FROM
     silver_cases AS s
-    
+
 -- JOIN para buscar a chave de localidade
-LEFT JOIN dim_locations AS loc 
+LEFT JOIN dim_locations AS loc
     ON s.residence_city_ibge_code = loc.city_ibge_code
 
 -- JOIN para buscar a chave do perfil demográfico do paciente
 LEFT JOIN dim_patients AS p
-    ON s.gender = p.gender 
-    AND s.race = p.race 
-    AND s.education_level = p.education_level 
+    ON s.gender = p.gender
+    AND s.race = p.race
+    AND s.education_level = p.education_level
     AND DATE_PART('year', AGE(s.notification_date, s.birth_date)) = p.age_at_notification
 
 -- JOIN para buscar a chave do perfil de sintomas
@@ -94,7 +94,7 @@ LEFT JOIN dim_risk_factors AS rf ON
     AND s.has_chronic_kidney_disease = rf.has_chronic_kidney_disease
     AND s.has_obesity = rf.has_obesity
 -- JOIN para buscar a chave da classificação do caso
-LEFT JOIN dim_case_classifications AS cc 
+LEFT JOIN dim_case_classifications AS cc
     ON s.final_classification = cc.final_classification AND s.case_outcome = cc.case_outcome
 -- JOINs para as datas
 LEFT JOIN dim_date_notification AS d_notification ON s.notification_date = d_notification.full_date

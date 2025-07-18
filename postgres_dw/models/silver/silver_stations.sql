@@ -6,7 +6,7 @@ WITH source_data AS (
         TRIM(UPPER("Nome da Estação")) AS station_name,
         TRIM(UPPER("Nome do Município")) AS city_name,
         TRIM(UPPER("Estado")) AS state_code,
-        "Código IBGE do Município" AS city_ibge_code,
+        SUBSTRING(TRIM("Código IBGE do Município"), 1, 6) AS city_ibge_code,
         UPPER(TRIM("no_fonte_dados")) AS data_source_organization,
         NULLIF(REPLACE("Latitude", ',', '.'), '')::NUMERIC AS latitude,
         NULLIF(REPLACE("Longitude", ',', '.'), '')::NUMERIC AS longitude
