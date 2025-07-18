@@ -1,14 +1,10 @@
 import streamlit as st
-import pandas as pd
-import altair as alt
-
-from utils.monitorar import get_monitors
 
 def media_estado(filters):
     cols = [
         'Estado', 'Sigla', 'Concentracao'
     ]
-    monitors_df = get_monitors(filters=filters, cols=cols)
+    monitors_df = get_measurements(filters=filters, cols=cols)
 
     monitors_df['Sigla'] = monitors_df['Sigla'].apply(apply_measure_unit)
     

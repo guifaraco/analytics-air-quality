@@ -1,16 +1,10 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-
-from utils.datasus import get_datasus
-from utils.monitorar import get_monitors, get_valid_ibge
+from utils.execute_query import select
 
 def evolucao_mensal(filters):
-    cols = [
-        'Sigla', 'Concentracao', 'Data' 
-    ]
-
-    monitors_df = get_monitors(filters=filters, cols=cols)
+    month_evolution = select('mart_health_vs_air_quality', cols=['year_month', 'state_code', 'pollutant_code', 'monthly_avg_pollution'], filters=filters)
     monitors_df['Sigla'] = monitors_df['Sigla'].apply(apply_measure_unit)
     monitors_df['Data'] = pd.to_datetime(monitors_df['Data'])
     monitors_df['Mes'] = monitors_df['Data'].dt.month_name(locale='pt_BR')
