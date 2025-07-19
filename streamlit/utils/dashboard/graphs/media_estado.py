@@ -1,15 +1,18 @@
 import streamlit as st
 
+from utils.execute_query import select
+
 def media_estado(filters):
     cols = [
         'Estado', 'Sigla', 'Concentracao'
     ]
-    monitors_df = get_measurements(filters=filters, cols=cols)
+    # df = get_measurements(filters=filters, cols=cols)
+    df = select('mart_health_vs_air_quality', cols=['state_code', 'pollutant_code', 'monthly_avg_pollution'], filters=filters)
 
-    monitors_df['Sigla'] = monitors_df['Sigla'].apply(apply_measure_unit)
+    df['Sigla'] = df['Sigla'].apply(apply_measure_unit)
     
     grouped = (
-        monitors_df
+        df
         .groupby(['Estado', 'Sigla'])['Concentracao']
         .mean()
         .to_frame()
@@ -24,9 +27,3 @@ def media_estado(filters):
         height=400,
         horizontal=True
     )
-
-def apply_measure_unit(pollutant):
-    if pollutant == 'CO':
-        return (f"{pollutant} (ppm)")
-    else:
-        return (f"{pollutant} (µg/m³)")

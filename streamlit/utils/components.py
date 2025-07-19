@@ -11,7 +11,7 @@ def render_filters():
 
         with col1:
             # 1. Armazena a seleção do estado em uma variável temporária
-            filters['state_code'] = st.selectbox(
+            state = st.selectbox(
                 "Estado", 
                 state_code_list, 
                 key='state_code', 
@@ -19,19 +19,22 @@ def render_filters():
                 placeholder="Selecione um estado"
             )
 
-
-        with col2:
-            # 2. Se um estado foi selecionado, adiciona ao dicionário e mostra o filtro de cidade
-            if filters['state_code']:
-                city_list = list(select('dim_locations', ['city_name'], filters={'state_code': filters['state_code']} , distinct=True))
+        if state:
+            filters['state_code'] = state
+            with col2:
+                # 2. Se um estado foi selecionado, adiciona ao dicionário e mostra o filtro de cidade
+                city_list = list(select('dim_locations', ['city_name'], filters={'state_code': state} , distinct=True))
                 # 3. Armazena a seleção da cidade em outra variável
-                filters['city_name'] = st.selectbox(
+                city = st.selectbox(
                     "Município", 
                     city_list, 
                     key='city_name', 
                     index=None, 
                     placeholder="Selecione um município"
                 )
+        
+                if city:
+                    filters['city_name'] = city
 
     # Retorna o dicionário apenas com os filtros que foram de fato selecionados
     return filters
