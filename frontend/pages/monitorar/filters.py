@@ -2,7 +2,8 @@ import streamlit as st
 from utils.execute_query import select
 
 def render_filters():
-    state_code_list = list(select('dim_locations', ['state_code'], distinct=True))
+    state_df = select('dim_locations', ['state_code'], distinct=True)
+    state_list = list(state_df['state_code'].sort_values())
 
     filters = {}
     
@@ -13,17 +14,18 @@ def render_filters():
             # 1. Armazena a seleção do estado em uma variável temporária
             state = st.selectbox(
                 "Estado", 
-                state_code_list, 
+                state_list, 
                 key='state_code', 
                 index=None, 
                 placeholder="Selecione um estado"
             )
 
         if state:
-            filters['state_code'] = state
+            filters['dl.state_code'] = state
             with col2:
                 # 2. Se um estado foi selecionado, adiciona ao dicionário e mostra o filtro de cidade
-                city_list = list(select('dim_locations', ['city_name'], filters={'state_code': state} , distinct=True))
+                city_df = select('dim_locations', ['city_name'], filters={'state_code': state} , distinct=True)
+                city_list = list(city_df['city_name'].sort_values())
                 # 3. Armazena a seleção da cidade em outra variável
                 city = st.selectbox(
                     "Município", 
@@ -34,9 +36,7 @@ def render_filters():
                 )
         
                 if city:
-                    filters['city_name'] = city
+                    filters['dl.city_name'] = city
 
     # Retorna o dicionário apenas com os filtros que foram de fato selecionados
     return filters
-
-

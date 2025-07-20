@@ -31,7 +31,7 @@ def select(view, cols, schema='gold', filters={}, distinct=False):
         query += "DISTINCT "
     query += f"{', '.join(cols)} FROM {schema}.{view} "
 
-    filters = [f"{column} = {value}" for column, value in filters.items()]
+    filters = [f"{column} = '{value}'" for column, value in filters.items()]
 
     if filters:
         query += f"WHERE {' AND '.join(filters)}"
