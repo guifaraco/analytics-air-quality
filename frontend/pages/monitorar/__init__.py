@@ -2,7 +2,7 @@ import streamlit as st
 
 from utils.monitorar import format_month, get_monitorar
 
-from .graphs import grafico_duplo, media_mensal
+from .graphs import big_numbers, grafico_duplo, media_mensal
 
 from .filters import render_filters
 
@@ -13,11 +13,16 @@ def render_monitorar():
 
     # df = format_month(df)
 
-    st.subheader("Concentração Mensal")
-    media_mensal(filters)
-    st.write("Gráfico relação Mes x Média de Concentração por cada poluente")
+    st.header("Big Numbers")
+    big_numbers(filters)
 
-    st.divider()
+    st.divider
+
+    # st.subheader("Concentração Mensal")
+    # media_mensal(filters)
+    # st.write("Gráfico relação Mes x Média de Concentração por cada poluente")
+
+    # st.divider()
 
     # st.subheader("Gráfico Duplo")
     # st.write("linha -> Série Temporal dos poluentes")

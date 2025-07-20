@@ -4,7 +4,35 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.express as px
 
-from utils.monitorar.graph_queries import query_media_mensal
+from utils.monitorar.graph_queries import query_big_numbers, query_media_mensal
+
+def big_numbers(filters):
+    metrics = query_big_numbers(filters)
+    
+    rows = list(metrics.itertuples(index=False))
+    for i in range(0, len(rows), 3):
+        cols = st.columns(3)
+        for j in range(3):
+            if i + j < len(rows):
+                row = rows[i + j]
+                pc = row.pollutant_code
+                sc = row.state_code
+                ap = round(row.avg_pollution, 2)
+                with cols[j].container(border=True):
+                    st.header(pc)
+
+                    st.metric(
+                        label=f"**Estado com Maior média de Concentração**",
+                        value=sc
+                    )
+
+                    st.metric(
+                        label=f"**Concentração Média do Poluente**",
+                        value=f"{ap:.2f}"
+                    )
+
+
+
 
 def media_mensal(filters):
     df = query_media_mensal(filters)
