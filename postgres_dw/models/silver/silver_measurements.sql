@@ -9,7 +9,6 @@ WITH source_data AS (
         CASE
             WHEN ("Sigla" = 'NH?') THEN REPLACE(UPPER(TRIM("Sigla")), '?', '3')
             WHEN ("Sigla" = 'CH?') THEN REPLACE(UPPER(TRIM("Sigla")), '?', '4')
-            WHEN ("Sigla" = 'PM 2,5') THEN REPLACE(UPPER(TRIM("Sigla")), 'PM 2,5', 'MP2,5')
             ELSE UPPER(TRIM("Sigla"))
         END AS pollutant_code,
         "Item_monitorado" AS pollutant_name_source,

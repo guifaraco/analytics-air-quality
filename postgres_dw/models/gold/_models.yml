@@ -1,154 +1,230 @@
 version: 2
 
 models:
-    # ====================================================================
-    #                             DIMENSIONS
-    # ====================================================================
+  # ====================================================================
+  #                             DIMENSIONS
+  # ====================================================================
 
-    - name: dim_date
-      description: "Dimensão de datas, com um registro para cada dia."
-      columns:
-          - name: date_id
-            description: "Chave primária da dimensão de data."
-            tests:
-                - unique
-                - not_null
+  - name: dim_date
+    description: "Dimensão de datas, com um registro para cada dia."
+    columns:
+      - name: date_id
+        description: "Chave primária da dimensão de data."
+        tests:
+          - unique
+          - not_null
 
-    - name: dim_locations
-      description: "Dimensão conformada de localidades, contendo cidades, estados e regiões. Usada por ambas as tabelas de fatos."
-      columns:
-          - name: location_id
-            description: "Chave primária da dimensão de localidades."
-            tests:
-                - unique
-                - not_null
+  - name: dim_locations
+    description: "Dimensão conformada de localidades, contendo cidades, estados e regiões. Usada por ambas as tabelas de fatos."
+    columns:
+      - name: location_id
+        description: "Chave primária da dimensão de localidades."
+        tests:
+          - unique
+          - not_null
 
-    - name: dim_monitoring_stations
-      description: "Dimensão que descreve cada estação de monitoramento de qualidade do ar."
-      columns:
-          - name: monitoring_station_id
-            description: "Chave primária da dimensão de estações."
-            tests:
-                - unique
-                - not_null
-          - name: location_id
-            description: "Chave estrangeira que conecta a estação à sua localidade."
-            tests:
-                - relationships:
-                      to: ref('dim_locations')
-                      field: location_id
+  - name: dim_monitoring_stations
+    description: "Dimensão que descreve cada estação de monitoramento de qualidade do ar."
+    columns:
+      - name: monitoring_station_id
+        description: "Chave primária da dimensão de estações."
+        tests:
+          - unique
+          - not_null
+      - name: location_id
+        description: "Chave estrangeira que conecta a estação à sua localidade."
+        tests:
+          - relationships:
+              to: ref('dim_locations')
+              field: location_id
 
-    - name: dim_pollutants
-      description: "Dimensão que descreve cada tipo de poluente medido."
-      columns:
-          - name: pollutant_id
-            description: "Chave primária da dimensão de poluentes."
-            tests:
-                - unique
-                - not_null
+  - name: dim_pollutants
+    description: "Dimensão que descreve cada tipo de poluente medido."
+    columns:
+      - name: pollutant_id
+        description: "Chave primária da dimensão de poluentes."
+        tests:
+          - unique
+          - not_null
 
-    - name: dim_patients
-      description: "Dimensão com o perfil demográfico anônimo dos pacientes."
-      columns:
-          - name: patient_id
-            description: "Chave primária da dimensão de pacientes."
-            tests:
-                - unique
-                - not_null
-          - name: gender
-            description: "Sexo do paciente."
-            tests:
-                - accepted_values:
-                      values: ["Masculino", "Feminino", "Ignorado"]
+  - name: dim_patients
+    description: "Dimensão com o perfil demográfico anônimo dos pacientes."
+    columns:
+      - name: patient_id
+        description: "Chave primária da dimensão de pacientes."
+        tests:
+          - unique
+          - not_null
+      - name: gender
+        description: "Sexo do paciente."
+        tests:
+          - accepted_values:
+              values: ["MASCULINO", "FEMININO", "IGNORADO"]
+      - name: race
+        description: "Raça."
+        tests:
+          - accepted_values:
+              values:
+                ["BRANCA", "PRETA", "AMARELA", "PARDA", "INDIGENA", "IGNORADO"]
+      - name: education_level
+        description: "Escolaridade."
+        tests:
+          - accepted_values:
+              values:
+                [
+                  "SEM ESCOLARIDADE",
+                  "FUNDAMENTAL1",
+                  "FUNDAMENTAL2",
+                  "ENSINO MEDIO",
+                  "ENSINO SUPERIOR",
+                  "NAO SE APLICA",
+                  "IGNORADO",
+                ]
 
-    - name: dim_case_classifications
-      description: "Dimensão que descreve o diagnóstico e a evolução dos casos de saúde."
-      columns:
-          - name: case_classification_id
-            description: "Chave primária da dimensão de classificações."
-            tests:
-                - unique
-                - not_null
-          - name: case_outcome
-            description: "Resultado final do caso."
-            tests:
-                - accepted_values:
-                      values:
-                          [
-                              "Cura",
-                              "Óbito",
-                              "Óbito por outras causas",
-                              "Ignorado",
-                          ]
+  - name: dim_case_classifications
+    description: "Dimensão que descreve o diagnóstico e a evolução dos casos de saúde."
+    columns:
+      - name: case_classification_id
+        description: "Chave primária da dimensão de classificações."
+        tests:
+          - unique
+          - not_null
+      - name: final_classification
+        description: "Classificação final do caso."
+        tests:
+          - accepted_values:
+              values:
+                [
+                  "SRAG POR INFLUENZA",
+                  "SRAG POR OUTRO VIRUS RESPIRATORIO",
+                  "SRAG POR OUTRO AGENTE ETIOLOGICO",
+                  "SRAG NAO ESPECIFICADO",
+                  "SRAG POR COVID-19",
+                  "IGNORADO",
+                ]
+      - name: closure_criteria
+        description: "Critério de encerramento."
+        tests:
+          - accepted_values:
+              values:
+                [
+                  "LABORATORIAL",
+                  "CLINICO EPIDEMOLOGICO",
+                  "CLINICO",
+                  "CLINICO IMAGEM",
+                  "IGNORADO",
+                ]
+      - name: case_outcome
+        description: "Evolução final do caso."
+        tests:
+          - accepted_values:
+              values: ["CURA", "OBITO", "OBITO POR OUTRAS CAUSAS", "IGNORADO"]
 
-    # ====================================================================
-    #                               FACTS
-    # ====================================================================
+  - name: dim_risk_factors
+    description: "Dimensão que descreve combinações únicas de fatores de risco."
+    columns:
+      - name: risk_factors_id
+        description: "Chave primária da dimensão de fatores de risco."
+        tests:
+          - unique
+          - not_null
 
-    - name: fact_air_quality_measurements
-      description: "Tabela de fatos contendo cada medição de qualidade do ar. O 'grain' é uma medição por estação, por poluente, por tempo."
-      columns:
-          - name: measurement_id
-            description: "Chave primária da tabela de fatos de medições."
-            tests:
-                - unique
-                - not_null
-          - name: date_id
-            description: "Chave estrangeira para a dimensão de data."
-            tests:
-                - not_null
-                - relationships:
-                      to: ref('dim_date')
-                      field: date_id
-          - name: monitoring_station_id
-            description: "Chave estrangeira para a dimensão de estações."
-            tests:
-                - not_null
-                - relationships:
-                      to: ref('dim_monitoring_stations')
-                      field: monitoring_station_id
-          - name: pollutant_id
-            description: "Chave estrangeira para a dimensão de poluentes."
-            tests:
-                - not_null
-                - relationships:
-                      to: ref('dim_pollutants')
-                      field: pollutant_id
+  - name: dim_symptoms
+    description: "Dimensão que descreve combinações únicas de sintomas."
+    columns:
+      - name: symptoms_id
+        description: "Chave primária da dimensão de sintomas."
+        tests:
+          - unique
+          - not_null
+  # ====================================================================
+  #                               FACTS
+  # ====================================================================
 
-    - name: fact_health_cases
-      description: "Tabela de fatos 'sem fatos' (factless fact table) que registra a ocorrência de um caso de doença. O 'grain' é um caso por paciente, por local, por tempo."
-      columns:
-          - name: health_case_id
-            description: "Chave primária da tabela de fatos de casos de saúde."
-            tests:
-                - unique
-                - not_null
-          - name: date_id
-            tests:
-                - not_null
-                - relationships:
-                      to: ref('dim_date')
-                      field: date_id
-          - name: location_id
-            tests:
-                - not_null
-                - relationships:
-                      to: ref('dim_locations')
-                      field: location_id
-          - name: patient_id
-            tests:
-                - not_null
-                - relationships:
-                      to: ref('dim_patients')
-                      field: patient_id
-          - name: case_classification_id
-            tests:
-                - not_null
-                - relationships:
-                      to: ref('dim_case_classifications')
-                      field: case_classification_id
-          - name: case_count
-            description: "Uma métrica fixa com valor 1 para facilitar a contagem de casos."
-            tests:
-                - accepted_values:
-                      values: [1]
+  - name: fact_air_quality_measurements
+    description: "Tabela de fatos contendo cada medição de qualidade do ar. O 'grain' é uma medição por estação, por poluente, por tempo."
+    columns:
+      - name: date_id
+        description: "Chave estrangeira para a dimensão de data."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_id
+      - name: monitoring_station_id
+        description: "Chave estrangeira para a dimensão de estações."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_monitoring_stations')
+              field: monitoring_station_id
+      - name: pollutant_id
+        description: "Chave estrangeira para a dimensão de poluentes."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_pollutants')
+              field: pollutant_id
+      - name: location_id
+        description: "Chave estrangeira para a dimensão de localidades."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_locations')
+              field: location_id
+
+  - name: fact_health_cases
+    description: "Tabela de fatos que registra a ocorrência de um caso de doença. O 'grain' é um caso por paciente, por local, por tempo."
+    columns:
+      - name: health_case_id
+        description: "Chave primária da tabela de fatos de casos de saúde."
+        tests:
+          - unique
+          - not_null
+      - name: first_symptoms_date_id
+        description: "Chave estrangeira para a dimensão de datas."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_id
+      - name: location_id
+        description: "Chave estrangeira para a dimensão de localidades."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_locations')
+              field: location_id
+      - name: patient_id
+        description: "Chave estrangeira para a dimensão de pacientes."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_patients')
+              field: patient_id
+      - name: symptoms_id
+        description: "Chave estrangeira para a dimensão de sintomas."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_symptoms')
+              field: symptoms_id
+      - name: risk_factors_id
+        description: "Chave estrangeira para a dimensão de fatores de risco."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_risk_factors')
+              field: risk_factors_id
+      - name: case_classification_id
+        description: "Chave estrangeira para a dimensão de classificações."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_case_classifications')
+              field: case_classification_id
+      - name: case_count
+        description: "Uma métrica fixa com valor 1 para facilitar a contagem de casos."
+        tests:
+          - accepted_values:
+              values: [1]
