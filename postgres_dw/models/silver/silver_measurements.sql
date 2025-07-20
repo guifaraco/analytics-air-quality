@@ -6,7 +6,12 @@ WITH source_data AS (
         "Nome da Estação",
         "Data",
         "Hora",
-        "Sigla",
+        CASE
+            WHEN ("Sigla" = 'NH?') THEN REPLACE(UPPER(TRIM("Sigla")), '?', '3')
+            WHEN ("Sigla" = 'CH?') THEN REPLACE(UPPER(TRIM("Sigla")), '?', '4')
+            WHEN ("Sigla" = 'PM 2,5') THEN REPLACE(UPPER(TRIM("Sigla")), 'PM 2,5', 'MP2,5')
+            ELSE UPPER(TRIM("Sigla"))
+        END AS pollutant_code,
         "Item_monitorado" AS pollutant_name_source,
         "Concentracao",
         "iqar" AS air_quality_index
@@ -31,7 +36,7 @@ enriched_data AS (
     FROM
         source_data AS s
     JOIN
-        pollutant_units_source AS u ON TRIM(UPPER(s."Sigla")) = u.pollutant_code
+        pollutant_units_source AS u ON s.pollutant_code = u.pollutant_code
 ),
 
 renamed_and_casted AS (
@@ -40,7 +45,7 @@ renamed_and_casted AS (
         TRIM(UPPER("Estado")) AS state_code,
         TRIM(UPPER("Nome do Município")) AS city_name,
         TRIM(UPPER("Nome da Estação")) AS station_name,
-        TRIM(UPPER("Sigla")) AS pollutant_code,
+        pollutant_code,
         TRIM(UPPER("pollutant_name_source")) AS pollutant_name,
         TO_TIMESTAMP("Data" || ' ' || "Hora", 'DD/MM/YYYY HH24:MI:SS') AS measured_at,
         "Concentracao"::NUMERIC AS measurement_value,
