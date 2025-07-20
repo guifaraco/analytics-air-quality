@@ -11,9 +11,9 @@ WITH health_cases_monthly AS (
         SUM(hc.case_count) AS total_health_cases
     FROM
         {{ ref('fact_health_cases') }} AS hc
-    LEFT JOIN
-        {{ ref('dim_date') }} AS d ON hc.notification_date_id = d.date_id
-    LEFT JOIN
+    JOIN
+        {{ ref('dim_date') }} AS d ON hc.first_symptoms_date_id = d.date_id
+    JOIN
         {{ ref('dim_locations') }} AS l ON hc.location_id = l.location_id
     WHERE
         l.state_code IS NOT NULL
@@ -33,11 +33,11 @@ air_quality_monthly_avg AS (
         AVG(f.measurement_value) AS monthly_avg_pollution
     FROM
         {{ ref('fact_air_quality_measurements') }} AS f
-    LEFT JOIN
+    JOIN
         {{ ref('dim_pollutants') }} AS p ON f.pollutant_id = p.pollutant_id
-    LEFT JOIN
+    JOIN
         {{ ref('dim_date') }} AS d ON f.date_id = d.date_id
-    LEFT JOIN
+    JOIN
         {{ ref('dim_locations') }} AS l ON f.location_id = l.location_id
     WHERE
         p.pollutant_code IN ('MP2.5', 'SO2', 'NO2', 'MP10', 'CO', 'O3')
@@ -56,8 +56,6 @@ SELECT
 FROM
     health_cases_monthly AS h
 
--- O INNER JOIN garante que só teremos resultados para mês/estado que
--- existem em AMBAS as tabelas de métricas.
 INNER JOIN air_quality_monthly_avg AS a
     ON h.year_month = a.year_month
     AND h.state_code = a.state_code

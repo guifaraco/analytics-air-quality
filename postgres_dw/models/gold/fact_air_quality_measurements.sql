@@ -2,7 +2,7 @@
 
 WITH measurements AS (
     -- Seleciona os dados de medições já limpos da camada Silver
-    SELECT 
+    SELECT
         station_business_key,
         measured_at,
         station_name,
@@ -13,24 +13,23 @@ WITH measurements AS (
 ),
 
 dim_stations AS (
-    SELECT 
+    SELECT
         monitoring_station_id,
         station_business_key,
-        source_station_code,
         station_name,
         location_id
     FROM {{ ref('dim_monitoring_stations') }}
 ),
 
 dim_pollutants AS (
-    SELECT 
+    SELECT
         pollutant_id,
         pollutant_code
     FROM {{ ref('dim_pollutants') }}
 ),
 
 dim_date AS (
-    SELECT 
+    SELECT
         date_id,
         full_date
     FROM {{ ref('dim_date') }}
@@ -45,15 +44,15 @@ SELECT
     -- Métrica
     m.measurement_value
 FROM
-    measurements AS m   
+    measurements AS m
 -- JOIN para buscar a chave da dimensão de estações
-LEFT JOIN dim_stations AS s 
+LEFT JOIN dim_stations AS s
     ON m.station_business_key = s.station_business_key
 -- JOIN para buscar a chave da dimensão de poluentes
-LEFT JOIN dim_pollutants AS p 
+LEFT JOIN dim_pollutants AS p
     ON m.pollutant_code = p.pollutant_code
 -- JOIN para buscar a chave da dimensão de data
-LEFT JOIN dim_date AS d 
+LEFT JOIN dim_date AS d
     ON CAST(m.measured_at AS DATE) = d.full_date
 WHERE
     d.date_id IS NOT NULL

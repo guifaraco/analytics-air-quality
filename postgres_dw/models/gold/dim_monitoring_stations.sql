@@ -5,7 +5,6 @@ WITH silver_stations AS (
     SELECT
         station_business_key,
         station_id,
-        source_station_code,
         station_name,
         city_ibge_code,
         city_name,
@@ -26,10 +25,9 @@ dim_locations AS (
 )
 
 SELECT
-    s.station_business_key,
     s.station_id AS monitoring_station_id,
+    s.station_business_key,
     l.location_id,
-    s.source_station_code,
     s.station_name,
     s.city_name,
     s.state_code,

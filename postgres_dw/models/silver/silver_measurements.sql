@@ -1,6 +1,6 @@
 WITH source_data AS (
     -- Seleciona os dados da fonte principal de medições
-    SELECT 
+    SELECT DISTINCT
         "Estado",
         "Nome do Município",
         "Nome da Estação",
@@ -8,15 +8,15 @@ WITH source_data AS (
         "Hora",
         "Sigla",
         "Item_monitorado" AS pollutant_name_source,
-        "Concentracao", 
+        "Concentracao",
         "iqar" AS air_quality_index
-    FROM 
+    FROM
         {{ source("monitor_ar", "monitorar_measurements") }}
 ),
 
 pollutant_units_source AS (
     -- Seleciona os dados da fonte de unidades
-    SELECT DISTINCT
+    SELECT
         "sigla" AS pollutant_code,
         "pollutant_units" AS measurement_unit
     FROM
@@ -30,7 +30,7 @@ enriched_data AS (
         u.measurement_unit -- Adiciona a coluna de unidade do JOIN
     FROM
         source_data AS s
-    LEFT JOIN 
+    JOIN
         pollutant_units_source AS u ON TRIM(UPPER(s."Sigla")) = u.pollutant_code
 ),
 
@@ -50,7 +50,6 @@ renamed_and_casted AS (
         enriched_data
 ),
 
--- 5. DE-DUPLICAÇÃO: Aplicamos o ROW_NUMBER na tabela
 deduplicated AS (
     SELECT
         *,
@@ -63,8 +62,8 @@ deduplicated AS (
 )
 
 SELECT
-    state_code || '-' || city_name || '-' || station_name AS station_business_key,
     {{ dbt_utils.generate_surrogate_key(['state_code', 'city_name', 'station_name', 'measured_at', 'pollutant_name']) }} AS measurement_id,
+    state_code || '-' || city_name || '-' || station_name AS station_business_key,
     state_code,
     measured_at,
     station_name,
