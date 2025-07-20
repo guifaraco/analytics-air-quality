@@ -17,9 +17,9 @@ A análise cruza informações históricas sobre a **qualidade do ar**, obtidas 
 -   **Coletar e Consolidar:** Agregar dados de diferentes fontes em um banco de dados estruturado e confiável.
 -   **Analisar:** Identificar tendências, padrões e correlações estatísticas entre os níveis de poluentes e os registros de saúde.
 -   **Visualizar:** Criar gráficos e mapas interativos que facilitem a compreensão dos resultados por um público não técnico.
--   **Disponibilizar:** Apresentar os _insights_ em um dashboard interativo, permitindo a exploração dos dados por capital e por período.
+-   **Disponibilizar:** Apresentar os _insights_ em um dashboard interativo, permitindo a exploração dos dados por estado e por período.
 
-## 🔗 Links importantes relacionados as APIs/CSVs utilizados
+## 🔗 Links importantes relacionados aos dados utilizados
 
 -   [MonitorAr](https://dados.gov.br/dados/conjuntos-dados/ar-puro-monitorar)
 -   [openDataSUS](https://opendatasus.saude.gov.br/dataset/srag-2021-a-2024)
@@ -99,6 +99,10 @@ A arquitetura do projeto foi pensada para ser robusta, escalável e reprodutíve
 
 ```
 
+## Modelagem dos dados
+
+![Fluxo dos dados](./assets/data-architecture.png)
+
 ## 🚀 Como Executar o Projeto
 
 Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento localmente.
@@ -132,26 +136,74 @@ Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento loca
     uv sync
     ```
 
-4.  **Ative um ambiente virtual Python:**
+4.  **Ative o ambiente virtual Python:**
 
     ```bash
-    source .venv/bin/activate  # No Windows: .venv\bin\activate.bat
+    source .venv/bin/activate  # No Windows: .venv\Scripts\activate
     ```
 
 5.  **Inicie o banco de dados com Docker:**
     Este comando irá criar e iniciar o container do PostgreSQL em segundo plano.
 
     ```bash
-    docker-compose up -d
+    docker compose up -d # ou para versões antigas docker-compose up -d
     ```
 
 6.  **Para utilizar o dbt:**
-    Teste o dbt
+    Crie um arquivo chamado profiles.yml dentro da pasta `/home/{seu_usuario}/.dbt/`.
+    OBS: Pode criar a pasta caso não exista.
+    No Windows: `C:\Users\{seu_usuario}\.dbt`.
+
+    ```yml
+    postgres_dw:
+        outputs:
+            dev:
+                # MESMAS INFORMAÇÕES DA .env
+                dbname: your_database_name
+                host: localhost
+                pass: database_password
+                port: 5432
+                schema: public
+                threads: 4
+                type: postgres
+                user: postgres
+        target: dev
+    ```
+
+    Entre na pasta do projeto dbt.
+
     ```bash
-    dbt debug --project-dir ./postgres_dw
+    cd postgres_dw
+    ```
+
+    Instala as dependências do dbt.
+
+    ```bash
+    dbt deps
+    ```
+
+    Cria as tabelas com base nos CSVs do diretório `postgres_dw/seeds`.
+
+    ```bash
+    dbt seed
+    ```
+
+    Teste o dbt
+
+    ```bash
+    dbt debug --connection
     ```
 
 ### Utilização
+
+-   **Extraia os arquivos `*.zip` dentro da pasta `data`:**
+
+-   **Para executar o a pipeline de extração, carregamento e transformação dos dados:**
+    Dentro da sessão do ambiente virtual no terminal.
+
+    ```bash
+    python3 -m src.main # No Windows: python -m src.main
+    ```
 
 -   **Para análise exploratória:**
     Inicie o Jupyter Lab para interagir com os notebooks de análise.
@@ -162,8 +214,9 @@ Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento loca
 
 -   **Para visualizar o dashboard:**
     Execute a aplicação Streamlit. O dashboard será aberto automaticamente no seu navegador.
+
     ```bash
-    streamlit run src/app.py
+    python3 -m streamlit run streamlit.app # No Windows: python -m streamlit run streamlit.app
     ```
 
 ## 📄 Licença

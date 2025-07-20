@@ -1,5 +1,5 @@
 WITH source_data AS (
-    SELECT
+    SELECT DISTINCT
         "NU_NOTIFIC",
         "DT_NOTIFIC",
         "DT_SIN_PRI",
@@ -22,11 +22,11 @@ WITH source_data AS (
         "CRITERIO",
         "EVOLUCAO",
         "PUERPERA",
-        "CARDIOPATI", 
-        "HEMATOLOGI", 
+        "CARDIOPATI",
+        "HEMATOLOGI",
         "SIND_DOWN",
         "HEPATICA",
-        "ASMA",       
+        "ASMA",
         "DIABETES",
         "NEUROLOGIC",
         "PNEUMOPATI",
@@ -34,7 +34,7 @@ WITH source_data AS (
         "RENAL",
         "OBESIDADE",
         "FEBRE",
-        "TOSSE", 
+        "TOSSE",
         "GARGANTA",
         "DISPNEIA",
         "DESC_RESP",
@@ -65,21 +65,21 @@ cleaned_and_casted AS (
         UPPER(TRIM("SG_UF")) AS residence_state_code,
         UPPER(TRIM("ID_MN_RESI")) AS residence_city_name,
         -- Decodificação Demográfica
-        CASE "CS_SEXO" 
-            WHEN 'M' THEN 'MASCULINO' 
-            WHEN 'F' THEN 'FEMININO' 
-            ELSE 'IGNORADO' 
+        CASE "CS_SEXO"
+            WHEN 'M' THEN 'MASCULINO'
+            WHEN 'F' THEN 'FEMININO'
+            ELSE 'IGNORADO'
         END AS gender,
 
-        CASE "CS_RACA" 
-            WHEN '1' THEN 'BRANCA' 
-            WHEN '2' THEN 'PRETA' 
-            WHEN '3' THEN 'AMARELA' 
-            WHEN '4' THEN 'PARDA' 
-            WHEN '5' THEN 'INDIGENA' 
-            ELSE 'IGNORADO' 
+        CASE "CS_RACA"
+            WHEN '1' THEN 'BRANCA'
+            WHEN '2' THEN 'PRETA'
+            WHEN '3' THEN 'AMARELA'
+            WHEN '4' THEN 'PARDA'
+            WHEN '5' THEN 'INDIGENA'
+            ELSE 'IGNORADO'
         END AS race,
-        
+
         -- Decodificação da Escolaridade
         CASE "CS_ESCOL_N"
             WHEN '0' THEN 'SEM ESCOLARIDADE'
@@ -92,172 +92,172 @@ cleaned_and_casted AS (
         END AS education_level,
 
          -- TRATAMENTO DOS SINTOMAS
-        CASE "FEBRE" 
+        CASE "FEBRE"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_fever,
-        
-        CASE "TOSSE"     
+
+        CASE "TOSSE"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'      
+            ELSE 'IGNORADO'
         END AS had_cough,
-        
-        CASE "GARGANTA"  
+
+        CASE "GARGANTA"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_sore_throat,
-        
-        CASE "DISPNEIA"  
+
+        CASE "DISPNEIA"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_dyspnea,
-        
-        CASE "DESC_RESP" 
+
+        CASE "DESC_RESP"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_respiratory_distress,
-        
-        CASE "SATURACAO" 
+
+        CASE "SATURACAO"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_low_saturation,
-        
-        CASE "DIARREIA"  
+
+        CASE "DIARREIA"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_diarrhea,
-        
-        CASE "VOMITO"    
+
+        CASE "VOMITO"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_vomiting,
-        
-        CASE "FADIGA"    
+
+        CASE "FADIGA"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_fatigue,
-        
-        CASE "PERD_OLFT" 
+
+        CASE "PERD_OLFT"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_loss_of_smell,
-        
-        CASE "PERD_PALA" 
+
+        CASE "PERD_PALA"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_loss_of_taste,
 
         -- TRATAMENTO DOS FATORES DE RISCO
-        CASE "PUERPERA" 
+        CASE "PUERPERA"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS is_puerpera,
-        
-        CASE "CARDIOPATI" 
+
+        CASE "CARDIOPATI"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_chronic_cardiovascular_disease,
-        
-        CASE "HEMATOLOGI" 
+
+        CASE "HEMATOLOGI"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_chronic_hematologic_disease,
-        
-        CASE "SIND_DOWN" 
+
+        CASE "SIND_DOWN"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_down_syndrome,
-        
-        CASE "HEPATICA" 
+
+        CASE "HEPATICA"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_chronic_liver_disease,
-        
-        CASE "ASMA" 
+
+        CASE "ASMA"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_asthma,
-        
-        CASE "DIABETES" 
+
+        CASE "DIABETES"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_diabetes,
-        
-        CASE "NEUROLOGIC" 
+
+        CASE "NEUROLOGIC"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_chronic_neurological_disease,
-        
-        CASE "PNEUMOPATI" 
+
+        CASE "PNEUMOPATI"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_other_chronic_pneumopathy,
-        
-        CASE "IMUNODEPRE" 
+
+        CASE "IMUNODEPRE"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_immunodeficiency,
-        
-        CASE "RENAL" 
+
+        CASE "RENAL"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_chronic_kidney_disease,
-        
-        CASE "OBESIDADE" 
+
+        CASE "OBESIDADE"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_obesity,
 
 
         -- Decodificação Clínica
-        CASE "FATOR_RISC" 
+        CASE "FATOR_RISC"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'        
+            ELSE 'IGNORADO'
         END AS has_risk_factors,
-        
-        CASE "HOSPITAL" 
+
+        CASE "HOSPITAL"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'         
+            ELSE 'IGNORADO'
         END AS was_hospitalized,
-        
-        CASE "UTI" 
+
+        CASE "UTI"
             WHEN '1' THEN 'SIM'
             WHEN '2' THEN 'NAO'
-            ELSE 'IGNORADO'         
+            ELSE 'IGNORADO'
         END AS required_icu,
-        
-        CASE "SUPORT_VEN" 
-            WHEN '1' THEN 'INVASIVO' 
-            WHEN '2' THEN 'NAO INVASIVO' 
-            WHEN '3' THEN 'NAO' 
-            ELSE 'IGNORADO' 
+
+        CASE "SUPORT_VEN"
+            WHEN '1' THEN 'INVASIVO'
+            WHEN '2' THEN 'NAO INVASIVO'
+            WHEN '3' THEN 'NAO'
+            ELSE 'IGNORADO'
         END AS ventilatory_support_type,
-        
+
         -- Decodificação da Classificação Final
         CASE "CLASSI_FIN"
             WHEN '1' THEN 'SRAG POR INFLUENZA'
@@ -278,11 +278,11 @@ cleaned_and_casted AS (
         END AS closure_criteria,
 
         -- Decodificação da Evolução do caso
-        CASE "EVOLUCAO" 
-            WHEN '1' THEN 'CURA' 
-            WHEN '2' THEN 'OBITO' 
-            WHEN '3' THEN 'OBITO POR OUTRAS CAUSAS' 
-            ELSE 'IGNORADO' 
+        CASE "EVOLUCAO"
+            WHEN '1' THEN 'CURA'
+            WHEN '2' THEN 'OBITO'
+            WHEN '3' THEN 'OBITO POR OUTRAS CAUSAS'
+            ELSE 'IGNORADO'
         END AS case_outcome
     FROM
         source_data
@@ -291,7 +291,20 @@ cleaned_and_casted AS (
 SELECT
     -- Gera a chave primária
     {{ dbt_utils.generate_surrogate_key(['notification_id']) }} AS health_case_id,
-    
+
+    {{ dbt_utils.generate_surrogate_key([
+        'had_fever', 'had_cough', 'had_sore_throat', 'had_dyspnea', 'had_respiratory_distress',
+        'had_low_saturation', 'had_diarrhea', 'had_vomiting', 'had_fatigue',
+        'had_loss_of_smell', 'had_loss_of_taste'
+    ]) }} AS symptoms_id,
+
+    {{ dbt_utils.generate_surrogate_key([
+            'is_puerpera', 'has_chronic_cardiovascular_disease', 'has_chronic_hematologic_disease',
+            'has_down_syndrome', 'has_chronic_liver_disease', 'has_asthma', 'has_diabetes',
+            'has_chronic_neurological_disease', 'has_other_chronic_pneumopathy',
+            'has_immunodeficiency', 'has_chronic_kidney_disease', 'has_obesity'
+    ]) }} AS risk_factors_id,
+
     notification_id,
     notification_date,
     first_symptoms_date,
@@ -321,8 +334,8 @@ SELECT
     had_loss_of_smell,
     had_loss_of_taste,
     is_puerpera,
-    has_chronic_cardiovascular_disease, 
-    has_chronic_hematologic_disease, 
+    has_chronic_cardiovascular_disease,
+    has_chronic_hematologic_disease,
     has_down_syndrome,
     has_chronic_liver_disease,
     has_asthma,
@@ -337,13 +350,12 @@ SELECT
 FROM
     cleaned_and_casted
 WHERE
-    notification_id IS NOT NULL 
-        AND 
+    notification_id IS NOT NULL
+        AND
     birth_date IS NOT NULL
-        AND 
+        AND
     notification_date IS NOT NULL
         AND
     residence_city_ibge_code IS NOT NULL
         AND
     residence_city_name IS NOT NULL
-
