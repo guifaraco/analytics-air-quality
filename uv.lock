@@ -30,6 +30,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
+    { name = "plotly" },
     { name = "psycopg" },
     { name = "psycopg-binary" },
     { name = "pytest" },
