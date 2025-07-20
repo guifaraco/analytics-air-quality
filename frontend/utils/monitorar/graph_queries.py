@@ -1,6 +1,40 @@
 from utils.execute_query import execute_query
 
-import streamlit as st
+def query_big_numbers(filters={}):
+    query = ('''
+        SELECT DISTINCT ON (dp.pollutant_code)
+            dp.pollutant_code,
+            dl.state_code,
+            AVG(f.measurement_value) AS avg_pollution
+        FROM
+            gold.fact_air_quality_measurements f
+        JOIN
+            gold.dim_date dd ON f.date_id = dd.date_id
+        JOIN
+            gold.dim_pollutants dp ON f.pollutant_id = dp.pollutant_id
+        JOIN
+            gold.dim_locations dl ON f.location_id = dl.location_id
+        WHERE
+            dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')
+        '''
+    )
+    if filters:
+        query += ' AND '
+        query = apply_filters(query, filters)
+
+    query += ('''
+        GROUP BY 
+            dp.pollutant_code,
+            dl.state_code
+        ORDER BY
+            dp.pollutant_code,
+            AVG(f.measurement_value) DESC;
+    ''')
+
+    df = execute_query(query)
+
+    return df
+
 
 def query_media_mensal(filters={}):
     query = ('''
@@ -17,7 +51,7 @@ def query_media_mensal(filters={}):
         join
             gold.dim_locations dl on f.location_id = dl.location_id
         where
-            dp.pollutant_code in ('PM10', 'NO2', 'SO2', 'O3', 'CO')
+            dp.pollutant_code in ('MP10', 'NO2', 'SO2', 'O3', 'CO')
         '''
     )
     if filters:
@@ -31,9 +65,6 @@ def query_media_mensal(filters={}):
         order by
             dd.month;
     ''')
-
-    st.write(query)
-    print(query)
 
     df = execute_query(query)
 
