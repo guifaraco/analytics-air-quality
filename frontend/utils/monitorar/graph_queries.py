@@ -1,9 +1,12 @@
 from utils.execute_query import execute_query
 
 def query_big_numbers(filters={}):
-    query = ('''
+    where_clause = apply_filters("dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')",filters)
+
+    query = (f'''
         SELECT DISTINCT ON (dp.pollutant_code)
             dp.pollutant_code,
+            dp.measurement_unit,
             dl.state_code,
             AVG(f.measurement_value) AS avg_pollution
         FROM
@@ -15,16 +18,10 @@ def query_big_numbers(filters={}):
         JOIN
             gold.dim_locations dl ON f.location_id = dl.location_id
         WHERE
-            dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')
-        '''
-    )
-    if filters:
-        query += ' AND '
-        query = apply_filters(query, filters)
-
-    query += ('''
+            {where_clause}
         GROUP BY 
             dp.pollutant_code,
+            dp.measurement_unit,
             dl.state_code
         ORDER BY
             dp.pollutant_code,
@@ -35,9 +32,10 @@ def query_big_numbers(filters={}):
 
     return df
 
-
 def query_media_mensal(filters={}):
-    query = ('''
+    where_clause = apply_filters("dp.pollutant_code in ('MP10', 'NO2', 'SO2', 'O3', 'CO')",filters)
+    
+    query = (f'''
         select
             dd.month,
             dp.pollutant_code,
@@ -51,14 +49,7 @@ def query_media_mensal(filters={}):
         join
             gold.dim_locations dl on f.location_id = dl.location_id
         where
-            dp.pollutant_code in ('MP10', 'NO2', 'SO2', 'O3', 'CO')
-        '''
-    )
-    if filters:
-        query += ' AND '
-        query = apply_filters(query, filters)
-
-    query += ('''
+            {where_clause}
         group by 
             dp.pollutant_code,
             dd.month
@@ -70,10 +61,13 @@ def query_media_mensal(filters={}):
 
     return df
 
-def apply_filters(query, filters):
-    filters = [f"{column} = '{value}'" for column, value in filters.items()]
+def apply_filters(initial, filters):
+    clauses = [initial]
+    if 'state_code' in filters:
+        clauses.append(f"dl.state_code = '{filters['state_code']}'")
+    if 'pollutant_code' in filters:
+        clauses.append(f"dp.pollutant_code = '{filters['pollutant_code']}'")
+    if 'city_name' in filters:
+        clauses.append(f"dl.city_name = '{filters['city_name']}'")
 
-    if filters:
-        query += f" {' AND '.join(filters)}"
-    
-    return query
+    return ' AND '.join(clauses)

@@ -2,12 +2,14 @@ import streamlit as st
 from utils.execute_query import select
 
 def render_filters():
-    filters = {}
-
     state_df = select('dim_locations', ['state_code'], distinct=True)
     state_list = list(state_df['state_code'].sort_values())
 
-    pollutant_list = ["CO", "MP10", "MP2,5", "NO2", "SO2","O3"]
+    srag_df = select('dim_case_classifications', ['final_classification'], distinct=True)
+    srag_list = list(srag_df['final_classification'].sort_values())
+    srag_list.remove("IGNORADO")
+
+    filters = {}
     
     with st.expander("Filtros"):
         col1, col2, col3 = st.columns(3, gap='medium')
@@ -22,16 +24,16 @@ def render_filters():
             )
 
         with col2:
-            pollutant = st.selectbox(
-                "Poluente", 
-                pollutant_list, 
-                key='pollutant_code', 
+            srag = st.selectbox(
+                "SRAG", 
+                srag_list, 
+                key='final_classification', 
                 index=None, 
-                placeholder="Selecione um poluente"
+                placeholder="Selecione uma SRAG"
             )
 
-            if pollutant:
-                filters['pollutant_code'] = pollutant
+            if srag:
+                filters['final_classification'] = srag
 
         if state:
             filters['state_code'] = state
