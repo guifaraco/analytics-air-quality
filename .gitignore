@@ -7,7 +7,7 @@ wheels/
 *.egg-info
 logs
 .pytest_cache
-
+uv.lock
 # Virtual environments
 .venv
 
