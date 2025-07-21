@@ -25,16 +25,35 @@ def execute_query(query, params=None):
     df = pd.DataFrame(rows, columns=colnames)
     return df
 
-def select(view, cols, schema='gold', filters={}, distinct=False):
-    query = "SELECT "
-    if distinct:
-        query += "DISTINCT "
-    query += f"{', '.join(cols)} FROM {schema}.{view} "
+def get_month_name(number):
+    meses = [
+        "",          # índice 0 (vazio, para que 1 = Janeiro)
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro"
+    ]
 
-    filters = [f"{column} = '{value}'" for column, value in filters.items()]
+    return meses[number]
 
-    if filters:
-        query += f"WHERE {' AND '.join(filters)}"
+def get_states_list():
+    states_df = execute_query('''
+        SELECT DISTINCT
+            state_code 
+        FROM 
+            gold.dim_locations 
+        ORDER BY 
+            state_code'''
+    )
     
-    df = execute_query(query)
-    return df
+    states_list= list(states_df['state_code'])
+
+    return states_list

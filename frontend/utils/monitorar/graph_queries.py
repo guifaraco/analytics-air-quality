@@ -1,9 +1,7 @@
-from utils.execute_query import execute_query
+from frontend.utils import get_month_name ,execute_query
 
-def query_big_numbers(filters={}):
-    where_clause = apply_filters("dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')",filters)
-
-    query = (f'''
+def query_big_numbers():
+    query = ('''
         SELECT DISTINCT ON (dp.pollutant_code)
             dp.pollutant_code,
             dp.measurement_unit,
@@ -18,7 +16,7 @@ def query_big_numbers(filters={}):
         JOIN
             gold.dim_locations dl ON f.location_id = dl.location_id
         WHERE
-            {where_clause}
+            dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')
         GROUP BY 
             dp.pollutant_code,
             dp.measurement_unit,
@@ -33,7 +31,7 @@ def query_big_numbers(filters={}):
     return df
 
 def query_media_mensal(filters={}):
-    where_clause = apply_filters("dp.pollutant_code in ('MP10', 'NO2', 'SO2', 'O3', 'CO')",filters)
+    where_clause = apply_filters("dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')",filters)
     
     query = (f'''
         select
@@ -59,6 +57,8 @@ def query_media_mensal(filters={}):
 
     df = execute_query(query)
 
+    df['month_name'] = df['month'].astype(int).apply(get_month_name)
+
     return df
 
 def apply_filters(initial, filters):
@@ -67,7 +67,5 @@ def apply_filters(initial, filters):
         clauses.append(f"dl.state_code = '{filters['state_code']}'")
     if 'pollutant_code' in filters:
         clauses.append(f"dp.pollutant_code = '{filters['pollutant_code']}'")
-    if 'city_name' in filters:
-        clauses.append(f"dl.city_name = '{filters['city_name']}'")
 
     return ' AND '.join(clauses)

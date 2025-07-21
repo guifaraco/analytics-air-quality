@@ -1,58 +1,55 @@
-from utils.execute_query import execute_query
+import streamlit as st
 
-def query_big_numbers(filters={}):
-    where_clause = apply_filters("dc.final_classification <> 'IGNORADO'", filters)
+from frontend.utils import get_month_name, execute_query
 
-    query = (f'''
-        WITH cases_by_classification_age AS (
+def query_big_numbers():
+    first_query = ('''
+        SELECT
+            SUM(f.case_count) AS total_cases,
+            ROUND(100.0 * SUM(f.case_count) FILTER (WHERE f.required_icu = 'SIM') / NULLIF(SUM(f.case_count), 0), 2) AS icu_percentage,
+            ROUND(100.0 * SUM(f.case_count) FILTER (WHERE dc.case_outcome = 'OBITO') / NULLIF(SUM(f.case_count), 0), 2) AS death_percentage
+        FROM
+            gold.fact_health_cases f
+        JOIN
+            gold.dim_case_classifications dc ON f.case_classification_id = dc.case_classification_id
+        '''
+    )
+
+    first_row = execute_query(first_query)
+
+    second_query = ('''
+        WITH classification_metrics AS (
             SELECT
                 dc.final_classification,
-                dp.age_group,
+                replace(replace(DC.FINAL_CLASSIFICATION, 'SRAG ', ''), 'POR ', '') as replaced,
                 SUM(f.case_count) AS total_cases,
-                SUM(f.case_count) FILTER (WHERE dc.case_outcome = 'OBITO') AS total_deaths
+                ROUND(100.0 * SUM(f.case_count) FILTER (WHERE f.required_icu = 'SIM') / NULLIF(SUM(f.case_count), 0), 2) AS icu_percentage,
+                ROUND(100.0 * SUM(f.case_count) FILTER (WHERE dc.case_outcome = 'OBITO') / NULLIF(SUM(f.case_count), 0), 2) AS death_percentage
             FROM
                 gold.fact_health_cases f
             JOIN
                 gold.dim_case_classifications dc ON f.case_classification_id = dc.case_classification_id
-            JOIN
-                gold.dim_patients dp ON f.patient_id = dp.patient_id
-            JOIN
-                gold.dim_locations dl ON f.location_id = dl.location_id
             WHERE
-                {where_clause}
+                dc.final_classification <> 'IGNORADO'
             GROUP BY
-                dc.final_classification,
-                dp.age_group
-        ),
-        ranked_by_cases AS (
-            SELECT *,
-                ROW_NUMBER() OVER (
-                    PARTITION BY final_classification 
-                    ORDER BY total_cases DESC
-                ) AS rn
-            FROM cases_by_classification_age
+                dc.final_classification
         )
         SELECT
-            final_classification,
-            age_group,
-            total_cases,
-            total_deaths,
-            ROUND(
-                100.0 * total_deaths / NULLIF(total_cases, 0),
-                2
-            ) AS death_percentage
-        FROM
-            ranked_by_cases
-        WHERE
-            rn = 1
-        ORDER BY
-            death_percentage DESC;
+            (SELECT replaced FROM classification_metrics ORDER BY total_cases DESC LIMIT 1) AS srag_total_cases,
+            (SELECT MAX(total_cases) FROM classification_metrics) AS max_total_cases,
+            (SELECT replaced FROM classification_metrics ORDER BY icu_percentage DESC LIMIT 1) AS srag_icu_percentage,
+            (SELECT MAX(icu_percentage) FROM classification_metrics) AS max_icu_percentage,
+            (SELECT replaced FROM classification_metrics ORDER BY death_percentage DESC LIMIT 1) AS srag_death_percentage,
+            (SELECT MAX(death_percentage) FROM classification_metrics) AS max_death_percentage;
         '''
     )
 
-    df = execute_query(query)
+    second_row = execute_query(second_query)
 
-    return df
+    first_row = first_row.to_dict(orient='index')[0]
+    second_row = second_row.to_dict(orient='index')[0]
+
+    return first_row, second_row
 
 def query_casos_mensais(filters={}):
     where_clause = apply_filters("dc.final_classification <> 'IGNORADO'", filters)
@@ -80,6 +77,8 @@ def query_casos_mensais(filters={}):
     ''')
 
     df = execute_query(query)
+
+    df['month_name'] = df['month'].astype(int).apply(get_month_name)
 
     return df
 
@@ -126,7 +125,5 @@ def apply_filters(initial, filters):
         clauses.append(f"dl.state_code = '{filters['state_code']}'")
     if 'final_classification' in filters:
         clauses.append(f"dc.final_classification = '{filters['final_classification']}'")
-    if 'city_name' in filters:
-        clauses.append(f"dl.city_name = '{filters['city_name']}'")
 
     return ' AND '.join(clauses)
