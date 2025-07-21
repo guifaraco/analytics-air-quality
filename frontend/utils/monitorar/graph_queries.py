@@ -1,14 +1,7 @@
 from utils.execute_query import execute_query
 
 def query_big_numbers(filters={}):
-    where_clauses = ["dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')"]
-
-    if 'state_code' in filters:
-        where_clauses.append(f"dl.state_code = '{filters['state_code']}'")
-    if 'city_name' in filters:
-        where_clauses.append(f"dl.city_name = '{filters['city_name']}'")
-
-    where_clause = ' AND '.join(where_clauses)
+    where_clause = apply_filters("dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')",filters)
 
     query = (f'''
         SELECT DISTINCT ON (dp.pollutant_code)
@@ -40,14 +33,8 @@ def query_big_numbers(filters={}):
     return df
 
 def query_media_mensal(filters={}):
-    where_clauses = ["dp.pollutant_code in ('MP10', 'NO2', 'SO2', 'O3', 'CO')"]
-
-    if 'state_code' in filters:
-        where_clauses.append(f"dl.state_code = '{filters['state_code']}'")
-    if 'city_name' in filters:
-        where_clauses.append(f"dl.city_name = '{filters['city_name']}'")
-
-    where_clause = ' AND '.join(where_clauses)
+    where_clause = apply_filters("dp.pollutant_code in ('MP10', 'NO2', 'SO2', 'O3', 'CO')",filters)
+    
     query = (f'''
         select
             dd.month,
@@ -73,3 +60,14 @@ def query_media_mensal(filters={}):
     df = execute_query(query)
 
     return df
+
+def apply_filters(initial, filters):
+    clauses = [initial]
+    if 'state_code' in filters:
+        clauses.append(f"dl.state_code = '{filters['state_code']}'")
+    if 'pollutant_code' in filters:
+        clauses.append(f"dp.pollutant_code = '{filters['pollutant_code']}'")
+    if 'city_name' in filters:
+        clauses.append(f"dl.city_name = '{filters['city_name']}'")
+
+    return ' AND '.join(clauses)

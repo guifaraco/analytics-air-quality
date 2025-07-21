@@ -10,8 +10,8 @@ st.set_page_config(
 )
 
 pg = st.navigation([
-    st.Page(render_monitorar, title="Monitorar", icon="📈"),
-    st.Page(render_datasus, title="DataSus", icon="🏥")
+    st.Page(render_datasus, title="DataSus", icon="🏥"),
+    st.Page(render_monitorar, title="Monitorar", icon="📈")
 ])
 
 pg.run()

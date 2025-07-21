@@ -1,14 +1,7 @@
 from utils.execute_query import execute_query
 
 def query_big_numbers(filters={}):
-    where_clauses = ["dc.final_classification <> 'IGNORADO'"]
-
-    if 'state_code' in filters:
-        where_clauses.append(f"dl.state_code = '{filters['state_code']}'")
-    if 'city_name' in filters:
-        where_clauses.append(f"dl.city_name = '{filters['city_name']}'")
-
-    where_clause = ' AND '.join(where_clauses)
+    where_clause = apply_filters("dc.final_classification <> 'IGNORADO'", filters)
 
     query = (f'''
         WITH cases_by_classification_age AS (
@@ -62,14 +55,7 @@ def query_big_numbers(filters={}):
     return df
 
 def query_casos_mensais(filters={}):
-    where_clauses = ["dc.final_classification <> 'IGNORADO'"]
-
-    if 'state_code' in filters:
-        where_clauses.append(f"dl.state_code = '{filters['state_code']}'")
-    if 'city_name' in filters:
-        where_clauses.append(f"dl.city_name = '{filters['city_name']}'")
-
-    where_clause = ' AND '.join(where_clauses)
+    where_clause = apply_filters("dc.final_classification <> 'IGNORADO'", filters)
 
     query = (f'''
         select
@@ -79,7 +65,7 @@ def query_casos_mensais(filters={}):
         from
             gold.fact_health_cases f 
         join
-            gold.dim_date dd on f.notification_date_id = dd.date_id
+            gold.dim_date dd on f.first_symptoms_date_id = dd.date_id
         join
             gold.dim_case_classifications dc ON f.case_classification_id = dc.case_classification_id
         join
@@ -98,37 +84,49 @@ def query_casos_mensais(filters={}):
     return df
 
 def query_casos_map(filters={}):
-    where_clauses = ['1=1']
-
-    if 'state_code' in filters:
-        where_clauses.append(f"dl.state_code = '{filters['state_code']}'")
-    if 'city_name' in filters:
-        where_clauses.append(f"dl.city_name = '{filters['city_name']}'")
-
-    where_clause = ' AND '.join(where_clauses)
+    where_clause = apply_filters("1=1", filters)
 
     query = (f'''
-        select
-            dd.month,
-            dc.final_classification,
-            SUM(f.case_count) AS total_cases
-        from
-            gold.fact_health_cases f 
-        join
-            gold.dim_date dd on f.notification_date_id = dd.date_id
-        join
-            gold.dim_case_classifications dc ON f.case_classification_id = dc.case_classification_id
-        join
-            gold.dim_locations dl on f.location_id = dl.location_id
-        where
-            {where_clause}
-        group by 
-            dc.final_classification,
-            dd.month
-        order by
-            dd.month;
+        SELECT
+            dms.city_name,
+            ARRAY[
+                AVG(dms.longitude)::double precision,
+                AVG(dms.latitude)::double precision
+            ] AS coordinates,
+            f.total_cases
+        FROM
+            gold.dim_monitoring_stations dms
+        join (
+            SELECT 
+                f.location_id,
+                SUM(f.case_count) AS total_cases
+            FROM 
+                gold.fact_health_cases f
+            join
+                gold.dim_locations dl on f.location_id = dl.location_id
+            join
+                gold.dim_case_classifications dc on f.case_classification_id = dc.case_classification_id
+            WHERE
+                {where_clause}
+            GROUP BY 
+                f.location_id
+        ) f on f.location_id = dms.location_id
+        GROUP BY
+            dms.city_name,
+            f.total_cases
     ''')
 
     df = execute_query(query)
 
     return df
+
+def apply_filters(initial, filters):
+    clauses = [initial]
+    if 'state_code' in filters:
+        clauses.append(f"dl.state_code = '{filters['state_code']}'")
+    if 'final_classification' in filters:
+        clauses.append(f"dc.final_classification = '{filters['final_classification']}'")
+    if 'city_name' in filters:
+        clauses.append(f"dl.city_name = '{filters['city_name']}'")
+
+    return ' AND '.join(clauses)

@@ -11,7 +11,10 @@ def big_numbers(filters):
     for row in rows:
         final_class = row.final_classification
         total_cases = row.total_cases
-        death_percentage = float(row.death_percentage)
+        try:
+            death_percentage = float(row.death_percentage)
+        except:
+            death_percentage = 0
         age_group = row.age_group
 
         with st.expander(final_class):
@@ -64,11 +67,13 @@ def casos_mensais(filters):
 def casos_map(filters):
     df = query_casos_map(filters)
 
+    st.write(df)
+
     layer = pdk.Layer(
         'ColumnLayer',
         data=df,
-        get_position=['longitude', 'latitude'],
-        get_elevation='total_casos',
+        get_position='coordinates',
+        get_elevation='total_cases',
         elevation_scale=10,
         radius=5000,
         get_fill_color=[255, 140, 0, 150],
@@ -87,7 +92,7 @@ def casos_map(filters):
     r = pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
-        tooltip={"text": "{municipio} \nCasos: {total_casos}"},
+        tooltip={"text": "{city_name} \nCasos: {total_cases}"},
     )
 
     st.pydeck_chart(r)
