@@ -17,9 +17,9 @@ A análise cruza informações históricas sobre a **qualidade do ar**, obtidas 
 -   **Coletar e Consolidar:** Agregar dados de diferentes fontes em um banco de dados estruturado e confiável.
 -   **Analisar:** Identificar tendências, padrões e correlações estatísticas entre os níveis de poluentes e os registros de saúde.
 -   **Visualizar:** Criar gráficos e mapas interativos que facilitem a compreensão dos resultados por um público não técnico.
--   **Disponibilizar:** Apresentar os _insights_ em um dashboard interativo, permitindo a exploração dos dados por capital e por período.
+-   **Disponibilizar:** Apresentar os _insights_ em um dashboard interativo, permitindo a exploração dos dados por estado e por período.
 
-## 🔗 Links importantes relacionados as APIs/CSVs utilizados
+## 🔗 Links importantes relacionados aos dados utilizados
 
 -   [MonitorAr](https://dados.gov.br/dados/conjuntos-dados/ar-puro-monitorar)
 -   [openDataSUS](https://opendatasus.saude.gov.br/dataset/srag-2021-a-2024)
@@ -98,6 +98,10 @@ A arquitetura do projeto foi pensada para ser robusta, escalável e reprodutíve
 └── uv.lock                 # 🔒 Garante que todos usem as mesmas versões das bibliotecas.
 
 ```
+
+## Modelagem dos dados
+
+![Fluxo dos dados](./assets/data-architecture.png)
 
 ## 🚀 Como Executar o Projeto
 
@@ -192,6 +196,8 @@ Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento loca
 
 ### Utilização
 
+-   **Extraia os arquivos `*.zip` dentro da pasta `data`:**
+
 -   **Para executar o a pipeline de extração, carregamento e transformação dos dados:**
     Dentro da sessão do ambiente virtual no terminal.
 
@@ -210,7 +216,7 @@ Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento loca
     Execute a aplicação Streamlit. O dashboard será aberto automaticamente no seu navegador.
 
     ```bash
-    streamlit run src/app.py
+    python3 -m streamlit run streamlit.app # No Windows: python -m streamlit run streamlit.app
     ```
 
 ## 📄 Licença

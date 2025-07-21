@@ -1,11 +1,12 @@
--- Cria a dimensão de pacientes, agrupando perfis demográficos únicos.
+-- Cria a dimensão de pacientes.
 
+-- Seleciona todos os perfis únicos dos pacientes.
 WITH patient_profiles AS (
     SELECT DISTINCT
         gender,
         race,
         education_level,
-        -- Calculamos a idade atual ou no momento da notificação para criar faixas etárias
+        -- Calculamos a idade no momento da notificação para criar faixas etárias
         DATE_PART('year', AGE(notification_date, birth_date)) AS age_at_notification
     FROM
         {{ ref('silver_srag_cases') }}

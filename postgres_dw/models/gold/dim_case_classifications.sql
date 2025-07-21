@@ -8,6 +8,7 @@ WITH classifications AS (
         {{ ref('silver_srag_cases') }}
 )
 SELECT
+    -- Cria uma chave primária com as colunas ['final_classification', 'closure_criteria', 'case_outcome']
     {{ dbt_utils.generate_surrogate_key(['final_classification', 'closure_criteria', 'case_outcome']) }} AS case_classification_id,
     final_classification,
     closure_criteria,
