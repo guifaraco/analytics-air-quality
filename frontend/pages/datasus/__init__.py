@@ -27,5 +27,5 @@ def render_datasus():
 
     with col2:
         st.subheader("Mapa de Casos Encontrados")
-        with st.expander("Mapa de Casos Encontrados"):
+        with st.expander("Mapa de Casos Encontrados", expanded=True):
             casos_map(filters)

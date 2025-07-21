@@ -33,10 +33,10 @@ def big_numbers():
             """, unsafe_allow_html=True)
     st.write('')
 
-def media_mensal(filters):
+def media_mensal(filters, key=''):
     df = query_media_mensal(filters)
 
-    fig = px.line(
+    fig = px.area(
         df,
         x='month_name',
         y='monthly_avg_pollution',
@@ -51,4 +51,4 @@ def media_mensal(filters):
     )
 
     # Usa st.plotly_chart para exibir o gráfico interativo
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key=key)

@@ -39,7 +39,7 @@ def render_big_number(title, value):
 def casos_mensais(filters):
     df = query_casos_mensais(filters)
 
-    fig = px.line(
+    fig = px.area(
         df,
         x='month_name',
         y='total_cases',

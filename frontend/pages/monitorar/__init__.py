@@ -9,6 +9,7 @@ def render_monitorar():
     
     st.divider()
 
+    st.subheader("Maior Impacto por Poluente")
     big_numbers()
 
     st.divider()
@@ -21,10 +22,10 @@ def render_monitorar():
 
     with col1:
         st.subheader("Concentração Mensal")
-        media_mensal(filters)
+        media_mensal(filters, key=0)
         st.write("Gráfico relação Mes x Média de Concentração por cada poluente")
         
     with col2:
         st.subheader("Concentração Mensal")
-        media_mensal(filters)
+        media_mensal(filters, key=1)
         st.write("Gráfico relação Mes x Média de Concentração por cada poluente")
