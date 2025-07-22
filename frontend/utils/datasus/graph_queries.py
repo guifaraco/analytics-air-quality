@@ -2,7 +2,7 @@ import streamlit as st
 
 from frontend.utils import get_month_name, execute_query
 
-def query_big_numbers_primeira_linha():
+def query_big_numbers_primeira_linha(): # ok
     '''
         Retorna os valores utilizados na primeira linha de big numbers.
         Colunas retornadas:
@@ -21,7 +21,7 @@ def query_big_numbers_primeira_linha():
 
     return execute_query(query)
 
-def query_big_numbers_segunda_linha():
+def query_big_numbers_segunda_linha(): # ok
     '''
         Retorna os valores utilizados na segunda linha de big numbers.
         Colunas retornadas:
@@ -42,7 +42,7 @@ def query_big_numbers_segunda_linha():
 
     return execute_query(query)
 
-def query_casos_mensais(filters={}):
+def query_casos_mensais(): # ok
 
     ''' 
         Retorna o DataFrame Utilizado para fazer o gráfico de Série Temporal de Casos.
@@ -59,27 +59,6 @@ def query_casos_mensais(filters={}):
             '''
 
     return execute_query(query)
-
-def df_melted(df, total_cases):
-    '''
-        Retorna o DataFrame melted no model utilizado nos gráficos com duas colunas apenas:
-        Colunas retornadas:
-            - Fator de risco
-            - Numero total de casos
-    '''
-
-    colunas_para_melt = [col for col in df.columns if col != total_cases]
-
-    df_melted = df.melt(
-        value_vars=colunas_para_melt,
-        var_name='fator_risco',
-        value_name='numero_total_casos'
-    ).sort_values(
-        by='numero_total_casos',
-        ascending=False
-    )
-
-    return df_melted
 
 def query_fatores_risco():
 
@@ -117,7 +96,7 @@ def query_casos_por_faixa_etaria():
     
     return execute_query(query)
 
-def query_casos_por_srag_e_evolucao():
+def query_casos_por_srag_e_evolucao(): # ok
     '''
         Retorna o DataFrame utilizado para elabora o Gráfico Total de Casos por SRAG e evolução.
         Colunas retornadas:
@@ -131,11 +110,12 @@ def query_casos_por_srag_e_evolucao():
                     *
                 FROM
                     gold.mart_total_cases_per_srag_and_evolution
+                WHERE evolucao != 'OBITO POR OUTRAS CAUSAS'
             '''
     
     return execute_query(query)
 
-def query_casos_map():
+def query_casos_map(): #Ok
     '''
         Retorna o dataframe utilizado para renderizar o mapa.
         Colunas retornadas:
@@ -154,6 +134,63 @@ def query_casos_map():
                     total_health_cases AS numero_total_cases
                 FROM
                     gold.mart_map
+            '''
+
+    return execute_query(query)
+
+def query_evolucao_mensal_por_srag(): # Ok
+    '''
+        Retorna o DataFrame utilizado na elaboração do gráfico de Mês x Total Casos X SRAG
+        Colunas retornadas:
+            - final_classification: srag
+            - month: mês
+            - sum: número total de casos por srag
+    '''
+
+    query = '''
+                SELECT
+                    final_classification,
+                    month,
+                    SUM(sum)
+                FROM
+                    gold.mart_monthly_evolution_monthly_srag
+                GROUP BY
+                    final_classification,
+                    month
+            '''
+    
+    return execute_query(query)
+
+def query_quantidade_total_casos_por_srag(): # Ok
+    '''
+        Retorna o DataFrame utilizado na elaboração do gráfico de pizza de distribuição de srag
+        Colunas Retornadas:
+            - srag: nome srag
+            - numero_total_casos
+    '''
+
+    query = '''
+                SELECT
+                    srag,
+                    SUM(numero_total_casos)
+                FROM
+                    gold.mart_total_cases_per_srag_and_evolution
+                GROUP BY
+                    srag
+            '''
+    
+    return execute_query(query)
+
+def query_casos_por_sintomas():
+    '''
+        Retorna o DataFrame utilizado na elaboração do gráfico de barras com a quantidade de casos por sintomas
+    '''
+
+    query = '''
+                SELECT
+                    *
+                FROM
+                    gold.mart_total_cases_per_symptoms
             '''
 
     return execute_query(query)

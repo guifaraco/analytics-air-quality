@@ -1,6 +1,8 @@
 import streamlit as st
 
-from .graphs import big_numbers, casos_map, casos_mensais
+from .graphs import big_numbers, casos_map, casos_mensais, casos_mensais_por_srag, grafico_pizza_casos_por_srag
+from .graphs import casos_por_srag_evolucao, casos_por_srag_evolucao_pizza, casos_por_sintomas
+
 
 from .filters import render_filters
 
@@ -20,12 +22,27 @@ def render_datasus():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Casos Mensais")
+        # st.subheader("Casos Mensais")
         casos_mensais(filters)
-        st.write("Gráfico relação Mes x Casos por cada SRAG")
 
+    with col2:
+        grafico_pizza_casos_por_srag()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        casos_por_srag_evolucao()
+    
+    with col2:
+        casos_por_srag_evolucao_pizza()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        casos_por_sintomas()
+    
     # with col2:
-
+        
 
     # with col2:
     #     st.subheader("Mapa de Casos Encontrados")
