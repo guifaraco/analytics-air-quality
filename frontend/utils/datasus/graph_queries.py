@@ -52,7 +52,7 @@ def query_big_numbers():
     return first_row, second_row
 
 def query_casos_mensais(filters={}):
-    where_clause = apply_filters("dc.final_classification <> 'IGNORADO'", filters)
+    where_clause = apply_filters(filters, clauses=["dc.final_classification <> 'IGNORADO'", "dd.month <> 12"])
 
     query = (f'''
         select
@@ -83,7 +83,7 @@ def query_casos_mensais(filters={}):
     return df
 
 def query_casos_map(filters={}):
-    where_clause = apply_filters("1=1", filters)
+    where_clause = apply_filters(filters, clauses=['1=1'])
 
     query = (f'''
         SELECT
@@ -119,8 +119,7 @@ def query_casos_map(filters={}):
 
     return df
 
-def apply_filters(initial, filters):
-    clauses = [initial]
+def apply_filters(filters, clauses=[]):
     if 'state_code' in filters:
         clauses.append(f"dl.state_code = '{filters['state_code']}'")
     if 'final_classification' in filters:

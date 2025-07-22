@@ -41,6 +41,7 @@ def media_mensal(filters, key=''):
         x='month_name',
         y='monthly_avg_pollution',
         color='pollutant_code',
+        symbol='pollutant_code',
         markers=True,
         labels={
             "month_name": "Mês",
@@ -49,6 +50,8 @@ def media_mensal(filters, key=''):
         },
         title="Média Mensal de Poluição por Poluente",
     )
+
+    fig.update_traces(marker=dict(size=7.5))
 
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True, key=key)
