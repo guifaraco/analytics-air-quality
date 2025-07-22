@@ -2,6 +2,7 @@ import streamlit as st
 
 from frontend.utils import get_month_name, execute_query
 
+@st.cache_data
 def query_big_numbers_primeira_linha():
     '''
         Retorna os valores utilizados na primeira linha de big numbers.
@@ -21,6 +22,7 @@ def query_big_numbers_primeira_linha():
 
     return execute_query(query)
 
+@st.cache_data
 def query_big_numbers_segunda_linha():
     '''
         Retorna os valores utilizados na segunda linha de big numbers.
@@ -42,6 +44,7 @@ def query_big_numbers_segunda_linha():
 
     return execute_query(query)
 
+@st.cache_data
 def query_casos_mensais(filters={}):
 
     ''' 
@@ -60,6 +63,7 @@ def query_casos_mensais(filters={}):
 
     return execute_query(query)
 
+@st.cache_data
 def df_melted(df, total_cases):
     '''
         Retorna o DataFrame melted no model utilizado nos gráficos com duas colunas apenas:
@@ -81,6 +85,7 @@ def df_melted(df, total_cases):
 
     return df_melted
 
+@st.cache_data
 def query_fatores_risco():
 
     ''' 
@@ -99,6 +104,7 @@ def query_fatores_risco():
 
     return execute_query(query)
 
+@st.cache_data
 def query_casos_por_faixa_etaria():
     '''
         Retorna o DataFrame utilizado para elaborar o gráfico de Distribuição Demográfica dos Casos:
@@ -117,6 +123,7 @@ def query_casos_por_faixa_etaria():
     
     return execute_query(query)
 
+@st.cache_data
 def query_casos_por_srag_e_evolucao():
     '''
         Retorna o DataFrame utilizado para elabora o Gráfico Total de Casos por SRAG e evolução.
@@ -135,6 +142,7 @@ def query_casos_por_srag_e_evolucao():
     
     return execute_query(query)
 
+@st.cache_data
 def query_casos_map():
     '''
         Retorna o dataframe utilizado para renderizar o mapa.

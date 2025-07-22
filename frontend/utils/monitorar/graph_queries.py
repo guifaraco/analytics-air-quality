@@ -1,7 +1,9 @@
+import streamlit as st
 import pandas as pd 
 
 from frontend.utils import execute_query
 
+@st.cache_data
 def query_big_numbers():
     query = ('''
         SELECT distinct on (pollutant_code)
@@ -20,6 +22,7 @@ def query_big_numbers():
 
     return df
 
+@st.cache_data
 def query_media_mensal(filters={}):
     clauses = ["dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')"]
 
@@ -56,7 +59,8 @@ def query_media_mensal(filters={}):
 
     return df
 
-def query_map(filters={}):
+@st.cache_data
+def query_map():
     query = (f'''
         select
             state_code,
@@ -87,7 +91,8 @@ def query_map(filters={}):
     final_df['avg_pollution'] = final_df['avg_pollution'].fillna(0)
 
     return final_df
-    
+
+@st.cache_data   
 def query_poluicao_estado(filters={}):
     where_clause = apply_filters("1=1",filters)
     
