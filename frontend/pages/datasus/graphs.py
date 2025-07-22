@@ -19,9 +19,9 @@ def big_numbers():
         'Taxa de Mortalidade': f"{first_row['death_percentage'].mean():.2f}%"
         },
         {
-        'SRAG com maior número de casos': f"{second_row['top_classification_by_total_cases'].values[0]} <br> {second_row['max_total_cases'].values[0]} casos",
-        'SRAG com maior taxa de Internação': f"{second_row['top_classification_by_icu_rate'].values[0]} <br> {second_row['max_icu_rate'].values[0]}%",
-        'SRAG com maior taxa de Mortalidade': f"{second_row['top_classification_by_death_rate'].values[0]} <br> {second_row['max_death_rate'].values[0]:.2f}%"
+        'SRAG com maior número de casos': f"{second_row['top_classification_by_total_cases'].values[0]} - {second_row['max_total_cases'].values[0]} casos",
+        'SRAG com maior taxa de Internação': f"{second_row['top_classification_by_icu_rate'].values[0]} - {second_row['max_icu_rate'].values[0]}%",
+        'SRAG com maior taxa de Mortalidade': f"{second_row['top_classification_by_death_rate'].values[0]} - {second_row['max_death_rate'].values[0]:.2f}%"
     }]
 
     for row_dict in rows_list:
