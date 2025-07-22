@@ -66,9 +66,7 @@ def pollution_map(filters):
     fig = go.Figure(data=go.Choropleth(
         geojson=geojson,
         locations=df['state_code'],
-        z = df['avg_pollution'].astype(float),
-        colorscale = 'Reds',
-        colorbar_title = "Millions USD"
+        z = df['avg_pollution'].astype(float)
     ))
 
     fig.update_layout(
