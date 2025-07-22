@@ -8,9 +8,11 @@
 
 ## 🎯 Sobre o Projeto
 
-Este projeto nasceu da necessidade de demonstrar, com dados concretos, a correlação entre a poluição do ar em centros urbanos e a incidência de doenças respiratórias na população. Como consultora ambiental, o objetivo é transformar dados brutos em visualizações claras e impactantes, que possam ser utilizadas em campanhas de conscientização e na formulação de políticas públicas.
+Este projeto nasceu da necessidade de demonstrar, com dados concretos, a correlação entre a poluição do ar em centros urbanos e a incidência de doenças respiratórias na população.
 
-A análise cruza informações históricas sobre a **qualidade do ar**, obtidas através de fontes como o sistema **MonitorAr**, com dados de internações e procedimentos relacionados a doenças respiratórias, disponibilizados pelo **DATASUS**.
+User Story: Como consultora ambiental, o objetivo é transformar dados brutos em visualizações claras e impactantes, que possam ser utilizadas em campanhas de conscientização e na formulação de políticas públicas.
+
+A análise cruza informações do ano de 2022 sobre a **qualidade do ar**, obtidas através de fontes como o sistema **MonitorAr**, com dados de internações e procedimentos relacionados a doenças respiratórias, disponibilizados pelo **DATASUS**.
 
 ## ✨ Objetivos Principais
 
@@ -196,10 +198,12 @@ Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento loca
 
 ### Utilização
 
+
 -   **Extraia os arquivos `*.zip` dentro da pasta `data`:**
 
 -   **Para executar o a pipeline de extração, carregamento e transformação dos dados:**
     Dentro da sessão do ambiente virtual no terminal.
+    OBS: pasta raiz do projeto
 
     ```bash
     python3 -m src.main # No Windows: python -m src.main
@@ -216,7 +220,7 @@ Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento loca
     Execute a aplicação Streamlit. O dashboard será aberto automaticamente no seu navegador.
 
     ```bash
-    python3 -m streamlit run streamlit.app # No Windows: python -m streamlit run streamlit.app
+    python3 -m streamlit run frontend/app.py # No Windows: python -m streamlit run frontend/app.py
     ```
 
 ## 📄 Licença
