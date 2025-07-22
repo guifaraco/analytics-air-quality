@@ -1,3 +1,4 @@
+-- CTE para extrair os dados da camada bronze(raw data)
 WITH source_data AS (
     SELECT DISTINCT
         "NU_NOTIFIC",
@@ -48,10 +49,16 @@ WITH source_data AS (
         {{ source('opendatasus', 'opendatasus_srag_cases') }}
 ),
 
+-- CTE para transformar os dados
+-- Padroniza o nome das colunas,
+-- Faz o casting dos dados,
+-- Limpa espaços vazios antes e depois da string,
+-- Deixa os textos em maiusculo,
+-- Tranforma algumas colunas categóricas, que estavam sendo representadas por números, para a string equivalente
 cleaned_and_casted AS (
     SELECT
         TRIM("NU_NOTIFIC") AS notification_id,
-        -- Datas
+        -- Tranforma em datas
         TO_DATE("DT_NOTIFIC", 'YYYY-MM-DD') AS notification_date,
         TO_DATE("DT_SIN_PRI", 'YYYY-MM-DD') AS first_symptoms_date,
         TO_DATE("DT_NASC", 'YYYY-MM-DD') AS birth_date,

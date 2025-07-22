@@ -6,6 +6,8 @@ WITH source_data AS (
         "Nome da Estação",
         "Data",
         "Hora",
+        -- Quando a Sigla tiver um dos dois valores com '?' precisamos substituir
+        -- Alguma estação deve ter guardado os registros com erro
         CASE
             WHEN ("Sigla" = 'NH?') THEN REPLACE(UPPER(TRIM("Sigla")), '?', '3')
             WHEN ("Sigla" = 'CH?') THEN REPLACE(UPPER(TRIM("Sigla")), '?', '4')
@@ -27,7 +29,7 @@ pollutant_units_source AS (
         {{ source('monitor_ar', 'pollutant_units') }}
 ),
 
--- Juntamos as duas fontes
+-- Juntamos as duas CTEs para pegar as unidades de medida da concentração de cada poluente
 enriched_data AS (
     SELECT
         s.*, -- Pega todas as colunas da fonte principal
@@ -54,6 +56,8 @@ renamed_and_casted AS (
         enriched_data
 ),
 
+-- Define um número inteiro e sequencial para cada linha com base na combinação das colunas no PARTITION
+-- Para cada registro identico, será adicionado uma coluna com o número sequencial
 deduplicated AS (
     SELECT
         *,
@@ -66,7 +70,10 @@ deduplicated AS (
 )
 
 SELECT
+    -- Chave primária
     {{ dbt_utils.generate_surrogate_key(['state_code', 'city_name', 'station_name', 'measured_at', 'pollutant_name']) }} AS measurement_id,
+
+    -- Chave de negócio com as estações de monitoramento da qualidade do ar
     state_code || '-' || city_name || '-' || station_name AS station_business_key,
     state_code,
     measured_at,
