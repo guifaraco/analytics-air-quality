@@ -7,7 +7,7 @@ from .filters import render_filters
 def render_datasus():
     st.title("DataSus")
 
-    st.divider()
+    st.subheader('', divider=True)
 
     big_numbers()
 
@@ -24,8 +24,10 @@ def render_datasus():
         casos_mensais(filters)
         st.write("Gráfico relação Mes x Casos por cada SRAG")
 
+    # with col2:
 
-    with col2:
-        st.subheader("Mapa de Casos Encontrados")
-        with st.expander("Mapa de Casos Encontrados", expanded=True):
-            casos_map(filters)
+
+    # with col2:
+    #     st.subheader("Mapa de Casos Encontrados")
+    #     with st.expander("Mapa de Casos Encontrados", expanded=True):
+    #         casos_map(filters)

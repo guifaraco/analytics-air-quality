@@ -25,24 +25,45 @@ def execute_query(query, params=None):
     df = pd.DataFrame(rows, columns=colnames)
     return df
 
-def get_month_name(number):
-    meses = [
-        "",          # índice 0 (vazio, para que 1 = Janeiro)
-        "Janeiro",
-        "Fevereiro",
-        "Março",
-        "Abril",
-        "Maio",
-        "Junho",
-        "Julho",
-        "Agosto",
-        "Setembro",
-        "Outubro",
-        "Novembro",
-        "Dezembro"
-    ]
-
-    return meses[number]
+def get_month_name(df, coluna_mes='month'):
+    """
+    Converte uma coluna numérica de meses (1-12) para nomes em português.
+    
+    Args:
+        df: DataFrame pandas.
+        coluna_mes: Nome da coluna com os números dos meses.
+    
+    Returns:
+        DataFrame com a coluna modificada e ordenada corretamente.
+    """
+    # Mapeamento número -> nome do mês
+    meses_pt = {
+        1: 'Janeiro',
+        2: 'Fevereiro',
+        3: 'Março',
+        4: 'Abril',
+        5: 'Maio',
+        6: 'Junho',
+        7: 'Julho',
+        8: 'Agosto',
+        9: 'Setembro',
+        10: 'Outubro',
+        11: 'Novembro',
+        12: 'Dezembro'
+    }
+    
+    # Converte os números para nomes
+    df[coluna_mes] = df[coluna_mes].map(meses_pt)
+    
+    # Garante a ordem cronológica
+    ordem_meses = list(meses_pt.values())
+    df[coluna_mes] = pd.Categorical(
+        df[coluna_mes],
+        categories=ordem_meses,
+        ordered=True
+    )
+    
+    return df.sort_values(coluna_mes)
 
 def get_states_list():
     states_df = execute_query('''

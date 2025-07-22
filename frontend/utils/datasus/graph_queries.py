@@ -2,127 +2,158 @@ import streamlit as st
 
 from frontend.utils import get_month_name, execute_query
 
-def query_big_numbers():
-    first_query = ('''
-        SELECT
-            SUM(f.case_count) AS total_cases,
-            ROUND(100.0 * SUM(f.case_count) FILTER (WHERE f.required_icu = 'SIM') / NULLIF(SUM(f.case_count), 0), 2) AS icu_percentage,
-            ROUND(100.0 * SUM(f.case_count) FILTER (WHERE dc.case_outcome = 'OBITO') / NULLIF(SUM(f.case_count), 0), 2) AS death_percentage
-        FROM
-            gold.fact_health_cases f
-        JOIN
-            gold.dim_case_classifications dc ON f.case_classification_id = dc.case_classification_id
-        '''
-    )
+def query_big_numbers_primeira_linha():
+    '''
+        Retorna os valores utilizados na primeira linha de big numbers.
+        Colunas retornadas:
+            - final_classification: nome da srag
+            - total_cases: numero total de casos da srag
+            - icu_percentage: taxa de internações na uti
+            - death_percentage: taxa de mortalidade por srag 
+    '''
 
-    first_row = execute_query(first_query)
-
-    second_query = ('''
-        WITH classification_metrics AS (
-            SELECT
-                dc.final_classification,
-                replace(replace(DC.FINAL_CLASSIFICATION, 'SRAG ', ''), 'POR ', '') as replaced,
-                SUM(f.case_count) AS total_cases,
-                ROUND(100.0 * SUM(f.case_count) FILTER (WHERE f.required_icu = 'SIM') / NULLIF(SUM(f.case_count), 0), 2) AS icu_percentage,
-                ROUND(100.0 * SUM(f.case_count) FILTER (WHERE dc.case_outcome = 'OBITO') / NULLIF(SUM(f.case_count), 0), 2) AS death_percentage
+    query = '''
+            SELECT 
+                *
             FROM
-                gold.fact_health_cases f
-            JOIN
-                gold.dim_case_classifications dc ON f.case_classification_id = dc.case_classification_id
-            WHERE
-                dc.final_classification <> 'IGNORADO'
-            GROUP BY
-                dc.final_classification
-        )
-        SELECT
-            (SELECT replaced FROM classification_metrics ORDER BY total_cases DESC LIMIT 1) AS srag_total_cases,
-            (SELECT MAX(total_cases) FROM classification_metrics) AS max_total_cases,
-            (SELECT replaced FROM classification_metrics ORDER BY icu_percentage DESC LIMIT 1) AS srag_icu_percentage,
-            (SELECT MAX(icu_percentage) FROM classification_metrics) AS max_icu_percentage,
-            (SELECT replaced FROM classification_metrics ORDER BY death_percentage DESC LIMIT 1) AS srag_death_percentage,
-            (SELECT MAX(death_percentage) FROM classification_metrics) AS max_death_percentage;
-        '''
-    )
+                gold.mart_datasus_total_big_numbers
+            '''
 
-    second_row = execute_query(second_query)
+    return execute_query(query)
 
-    first_row = first_row.to_dict(orient='index')[0]
-    second_row = second_row.to_dict(orient='index')[0]
+def query_big_numbers_segunda_linha():
+    '''
+        Retorna os valores utilizados na segunda linha de big numbers.
+        Colunas retornadas:
+            - top_classification_by_total_cases: nome da srag com maior número de casos
+            - max_total_cases: numero total de casos relativo a srag anterior
+            - top_classification_by_icu_rate: nome da srag com maior taxa de uti
+            - max_icu_rate: taxa de uti relativo a srag anterior
+            - top_classification_by_death_rate: nome da srag com maior taxa de mortalidade
+            - max_death_rate: taxa de mortalidade relativa a srag anterior
+    '''
 
-    return first_row, second_row
+    query = '''
+                SELECT 
+                    * 
+                FROM
+                    gold.mart_datasus_big_numbers_per_rank
+            '''
+
+    return execute_query(query)
 
 def query_casos_mensais(filters={}):
-    where_clause = apply_filters(filters, clauses=["dc.final_classification <> 'IGNORADO'", "dd.month <> 12"])
 
-    query = (f'''
-        select
-            dd.month,
-            dc.final_classification,
-            SUM(f.case_count) AS total_cases
-        from
-            gold.fact_health_cases f 
-        join
-            gold.dim_date dd on f.first_symptoms_date_id = dd.date_id
-        join
-            gold.dim_case_classifications dc ON f.case_classification_id = dc.case_classification_id
-        join
-            gold.dim_locations dl on f.location_id = dl.location_id
-        where
-            {where_clause}
-        group by 
-            dc.final_classification,
-            dd.month
-        order by
-            dd.month;
-    ''')
+    ''' 
+        Retorna o DataFrame Utilizado para fazer o gráfico de Série Temporal de Casos.
+        Colunas retornadas: 
+            - sum: total de casos por mês
+            - month: mês 
+    '''
 
-    df = execute_query(query)
+    query = '''
+                SELECT 
+                    *
+                FROM
+                    gold.mart_total_cases_monthly
+            '''
 
-    df['month_name'] = df['month'].astype(int).apply(get_month_name)
+    return execute_query(query)
 
-    return df
+def df_melted(df, total_cases):
+    '''
+        Retorna o DataFrame melted no model utilizado nos gráficos com duas colunas apenas:
+        Colunas retornadas:
+            - Fator de risco
+            - Numero total de casos
+    '''
 
-def query_casos_map(filters={}):
-    where_clause = apply_filters(filters, clauses=['1=1'])
+    colunas_para_melt = [col for col in df.columns if col != total_cases]
 
-    query = (f'''
-        SELECT
-            dms.city_name,
-            ARRAY[
-                AVG(dms.longitude)::double precision,
-                AVG(dms.latitude)::double precision
-            ] AS coordinates,
-            f.total_cases
-        FROM
-            gold.dim_monitoring_stations dms
-        join (
-            SELECT 
-                f.location_id,
-                SUM(f.case_count) AS total_cases
-            FROM 
-                gold.fact_health_cases f
-            join
-                gold.dim_locations dl on f.location_id = dl.location_id
-            join
-                gold.dim_case_classifications dc on f.case_classification_id = dc.case_classification_id
-            WHERE
-                {where_clause}
-            GROUP BY 
-                f.location_id
-        ) f on f.location_id = dms.location_id
-        GROUP BY
-            dms.city_name,
-            f.total_cases
-    ''')
+    df_melted = df.melt(
+        value_vars=colunas_para_melt,
+        var_name='fator_risco',
+        value_name='numero_total_casos'
+    ).sort_values(
+        by='numero_total_casos',
+        ascending=False
+    )
 
-    df = execute_query(query)
+    return df_melted
 
-    return df
+def query_fatores_risco():
 
-def apply_filters(filters, clauses=[]):
-    if 'state_code' in filters:
-        clauses.append(f"dl.state_code = '{filters['state_code']}'")
-    if 'final_classification' in filters:
-        clauses.append(f"dc.final_classification = '{filters['final_classification']}'")
+    ''' 
+        Retorna o DataFrame Utilizado para fazer o gráfico de Análise dos Fatores de Risco.
+        Colunas retornadas: 
+            - total_cases_(nome do fator de risco): total de casos por mês de acordo com o fator de risco
+            - icu_cases_(nome do fator de risco): total de casos por mês que precisou de uti de acordo com o fator de risco
+    '''
 
-    return ' AND '.join(clauses)
+    query = '''
+                SELECT 
+                    *
+                FROM
+                    gold.mart_total_cases_per_risk_factor
+            '''
+
+    return execute_query(query)
+
+def query_casos_por_faixa_etaria():
+    '''
+        Retorna o DataFrame utilizado para elaborar o gráfico de Distribuição Demográfica dos Casos:
+        Colunas retornadas:
+            - genero: masculino x feminino
+            - faixa_etaria: faixa etária 
+            - numero_total_casos: número total de casos por faixa etária e gênero
+    '''
+
+    query = '''
+                SELECT 
+                    *
+                FROM
+                    gold.mart_total_cases_per_age_group_and_gender
+            '''
+    
+    return execute_query(query)
+
+def query_casos_por_srag_e_evolucao():
+    '''
+        Retorna o DataFrame utilizado para elabora o Gráfico Total de Casos por SRAG e evolução.
+        Colunas retornadas:
+            - srag: nome da srag
+            - evolução: cura, óbito e óbito por outras causas
+            - numero_total_casos: número total de casos por srag e evolução
+    '''
+
+    query = '''
+                SELECT
+                    *
+                FROM
+                    gold.mart_total_cases_per_srag_and_evolution
+            '''
+    
+    return execute_query(query)
+
+def query_casos_map():
+    '''
+        Retorna o dataframe utilizado para renderizar o mapa.
+        Colunas retornadas:
+            - city_name: nome da cidade
+            - state_code: uf
+            - latitude: latitude referente a cidade
+            - longitude: longitude referente a cidade
+            - total_health_cases: numero total de casos por cidade
+    '''
+
+    query = '''
+                SELECT
+                    city_name,
+                    latitude,
+                    longitude,
+                    total_health_cases AS numero_total_cases
+                FROM
+                    gold.mart_map
+            '''
+
+    return execute_query(query)
