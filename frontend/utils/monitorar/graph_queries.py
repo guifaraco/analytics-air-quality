@@ -1,3 +1,5 @@
+import pandas as pd 
+
 from frontend.utils import get_month_name ,execute_query
 
 def query_big_numbers():
@@ -60,6 +62,39 @@ def query_media_mensal(filters={}):
     df['month_name'] = df['month'].astype(int).apply(get_month_name)
 
     return df
+
+def query_map(filters={}):
+    query = (f'''
+        select
+            state_code,
+            avg(avg_pollution_value) as avg_pollution
+        from
+            gold.mart_map dl
+        group by
+            state_code 
+    ''')
+
+    df = execute_query(query)
+
+    br_states = [
+        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
+        'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
+        'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+    ]
+    
+    # Cria um DataFrame "base" que servirá como a lista completa
+    df_todos_estados = pd.DataFrame(br_states, columns=['state_code'])
+
+    # Junta o DataFrame completo com os dados da query
+    # O 'how="left"' garante que todos os estados da lista completa sejam mantidos.
+    # Para os estados que não estavam no resultado da query, o valor de 'avg_pollution' será NaN (nulo).
+    final_df = pd.merge(df_todos_estados, df, on='state_code', how='left')
+
+    # Todos os campos de média de poluição Nulos serão tratados como 0 para que apareça no mapa
+    final_df['avg_pollution'] = final_df['avg_pollution'].fillna(0)
+
+    return final_df
+    
 
 def apply_filters(initial, filters):
     clauses = [initial]

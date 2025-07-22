@@ -1,6 +1,6 @@
 import streamlit as st
 
-from .graphs import big_numbers, media_mensal
+from .graphs import big_numbers, media_mensal, pollution_map
 
 from .filters import render_filters
 
@@ -21,11 +21,10 @@ def render_monitorar():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Concentração Mensal")
-        media_mensal(filters, key=0)
-        st.write("Gráfico relação Mes x Média de Concentração por cada poluente")
+        st.subheader("Qualidade do Ar por Estado")
+        pollution_map(filters)
         
     with col2:
         st.subheader("Concentração Mensal")
-        media_mensal(filters, key=1)
+        media_mensal(filters)
         st.write("Gráfico relação Mes x Média de Concentração por cada poluente")

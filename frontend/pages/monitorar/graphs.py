@@ -1,7 +1,9 @@
+import json
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 
-from utils.monitorar.graph_queries import query_big_numbers, query_media_mensal
+from utils.monitorar.graph_queries import query_big_numbers, query_media_mensal, query_map
 
 def big_numbers():
     metrics = query_big_numbers()
@@ -33,7 +35,7 @@ def big_numbers():
             """, unsafe_allow_html=True)
     st.write('')
 
-def media_mensal(filters, key=''):
+def media_mensal(filters):
     df = query_media_mensal(filters)
 
     fig = px.area(
@@ -55,3 +57,26 @@ def media_mensal(filters, key=''):
 
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True, key=key)
+
+def pollution_map(filters):
+    df = query_map(filters)
+
+    geojson = json.load(open("./assets/geojson.json"))
+
+    fig = go.Figure(data=go.Choropleth(
+        geojson=geojson,
+        locations=df['state_code'],
+        z = df['avg_pollution'].astype(float),
+        colorscale = 'Reds',
+        colorbar_title = "Millions USD"
+    ))
+
+    fig.update_layout(
+        title_text = 'Poluição Média em cada estado',
+        margin={"r":0, "t":0, "l":0, "b":0},
+    )
+
+    fig.update_geos(fitbounds="locations", visible=False)
+
+    # Usa st.plotly_chart para exibir o gráfico interativo
+    st.plotly_chart(fig, use_container_width=True)
