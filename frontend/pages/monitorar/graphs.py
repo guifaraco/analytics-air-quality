@@ -56,7 +56,7 @@ def media_mensal(filters):
     fig.update_traces(marker=dict(size=7.5))
 
     # Usa st.plotly_chart para exibir o gráfico interativo
-    st.plotly_chart(fig, use_container_width=True, key=key)
+    st.plotly_chart(fig, use_container_width=True)
 
 def pollution_map(filters):
     df = query_map(filters)
