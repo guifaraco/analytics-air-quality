@@ -2,7 +2,9 @@ import streamlit as st
 
 from frontend.utils import get_month_name, execute_query
 
-def query_big_numbers_primeira_linha(): # ok
+
+@st.cache_data
+def query_big_numbers_primeira_linha():
     '''
         Retorna os valores utilizados na primeira linha de big numbers.
         Colunas retornadas:
@@ -21,7 +23,8 @@ def query_big_numbers_primeira_linha(): # ok
 
     return execute_query(query)
 
-def query_big_numbers_segunda_linha(): # ok
+@st.cache_data
+def query_big_numbers_segunda_linha():
     '''
         Retorna os valores utilizados na segunda linha de big numbers.
         Colunas retornadas:
@@ -42,8 +45,8 @@ def query_big_numbers_segunda_linha(): # ok
 
     return execute_query(query)
 
-def query_casos_mensais(): # ok
-
+@st.cache_data
+def query_casos_mensais(filters={}):
     ''' 
         Retorna o DataFrame Utilizado para fazer o gráfico de Série Temporal de Casos.
         Colunas retornadas: 
@@ -60,6 +63,29 @@ def query_casos_mensais(): # ok
 
     return execute_query(query)
 
+@st.cache_data
+def df_melted(df, total_cases):
+    '''
+        Retorna o DataFrame melted no model utilizado nos gráficos com duas colunas apenas:
+        Colunas retornadas:
+            - Fator de risco
+            - Numero total de casos
+    '''
+
+    colunas_para_melt = [col for col in df.columns if col != total_cases]
+
+    df_melted = df.melt(
+        value_vars=colunas_para_melt,
+        var_name='fator_risco',
+        value_name='numero_total_casos'
+    ).sort_values(
+        by='numero_total_casos',
+        ascending=False
+    )
+
+    return df_melted
+
+@st.cache_data
 def query_fatores_risco():
 
     ''' 
@@ -78,6 +104,7 @@ def query_fatores_risco():
 
     return execute_query(query)
 
+@st.cache_data
 def query_casos_por_faixa_etaria():
     '''
         Retorna o DataFrame utilizado para elaborar o gráfico de Distribuição Demográfica dos Casos:
@@ -96,7 +123,9 @@ def query_casos_por_faixa_etaria():
     
     return execute_query(query)
 
-def query_casos_por_srag_e_evolucao(): # ok
+@st.cache_data
+def query_casos_por_srag_e_evolucao():
+
     '''
         Retorna o DataFrame utilizado para elabora o Gráfico Total de Casos por SRAG e evolução.
         Colunas retornadas:
@@ -115,7 +144,8 @@ def query_casos_por_srag_e_evolucao(): # ok
     
     return execute_query(query)
 
-def query_casos_map(): #Ok
+@st.cache_data
+def query_casos_map():
     '''
         Retorna o dataframe utilizado para renderizar o mapa.
         Colunas retornadas:

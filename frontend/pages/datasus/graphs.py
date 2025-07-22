@@ -57,7 +57,7 @@ def big_numbers():
         'Taxa de Mortalidade': f"{first_row['death_percentage'].mean():.2f}%"
         },
         {
-        'SRAG com maior número de casos': f"{second_row['top_classification_by_total_cases'].values[0]} <br> {second_row['max_total_cases'].values[0]} casos",
+        'SRAG com maior número de casos': f"{second_row['top_classification_by_total_cases'].values[0]} <br> {second_row['max_total_cases'].values[0]} Casos",
         'SRAG com maior taxa de Internação': f"{second_row['top_classification_by_icu_rate'].values[0]} <br> {second_row['max_icu_rate'].values[0]}%",
         'SRAG com maior taxa de Mortalidade': f"{second_row['top_classification_by_death_rate'].values[0]} <br> {second_row['max_death_rate'].values[0]:.2f}%"
     }]
@@ -66,19 +66,23 @@ def big_numbers():
         cols = st.columns(3, gap='small')
         col_index = 0
         for title, value in row_dict.items():
-            with cols[col_index].container(border=True):
+            with cols[col_index].container():
                 render_big_number(title, value)
             col_index = (col_index + 1) % 3
+        st.markdown('')
 
-            
 def render_big_number(title, value):
-    st.markdown(f"""
-        <div style="text-align:center; line-height:1.6;">
-            <p style="margin:0; font-size:15px; color:#888;">{title}</p>
-            <h4 style="margin:0; margin-left:20px">{value}</h4>
-        </div>
-    """, unsafe_allow_html=True)
-    
+    value = str(value).replace('SRAG', '').replace('POR', '')
+    st.markdown(
+        f'''
+            <div class='metric-datasus'>
+                <p>{title}</p>
+                <h4>{value}</h4>
+            </div>
+        ''',
+        unsafe_allow_html=True
+    )
+
 
 def casos_mensais(filters):
     df = query_casos_mensais()
@@ -101,7 +105,6 @@ def casos_mensais(filters):
     # Personalizar a linha e marcadores
     fig.update_traces(
         line=dict(width=3),
-        marker=dict(size=10),
         text=df['sum'],  # Valores que aparecem nos marcadores
         textposition="top center"
     )
@@ -138,7 +141,7 @@ def casos_map(filters):
     view_state = pdk.ViewState(
         latitude=-23,
         longitude=-50,
-        zoom=4, 
+        zoom=4,
         bearing=-45,
         pitch=45
     )
@@ -309,3 +312,4 @@ def casos_por_sintomas():
     df = df_melted(query_casos_por_sintomas(), filter_type='total')
 
     st.write(df)
+

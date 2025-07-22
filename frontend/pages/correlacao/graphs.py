@@ -12,13 +12,13 @@ def compara_mensal(filters):
     # Cria os gráficos separados com px
     fig_casos = px.bar(
         df_casos,
-        x='month_name',
-        y='total_cases'
+        x='month',
+        y='sum'
     )
 
     fig_pol = px.line(
         df_pol,
-        x='month_name',
+        x='month',
         y='monthly_avg_pollution',
         color='pollutant_code',
         symbol='pollutant_code',

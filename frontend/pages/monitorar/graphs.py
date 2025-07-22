@@ -3,7 +3,8 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 
-from utils.monitorar.graph_queries import query_big_numbers, query_media_mensal, query_map
+from frontend.utils import get_month_name
+from utils.monitorar.graph_queries import query_big_numbers, query_media_mensal, query_map, query_poluicao_estado
 
 def big_numbers():
     metrics = query_big_numbers()
@@ -23,52 +24,95 @@ def big_numbers():
         val = float(row.avg_pollution)
         icon = emoji_map.get(pol, "")
 
-        with cols[j].container():
+        with cols[j]:
             st.markdown(f"""
-                <div style="text-align:center; line-height:1.6;">
-                    <h3 style="margin-bottom:0;">{icon} {pol}</h3>
+                <div class='metric-datasus' style="text-align:center; line-height:1.6; height:300px">
+                    <h3 style="margin-bottom:0;margin-left:25px;">{icon} {pol}</h3>
                     <p style="margin:0; font-size:15px; color:#888;">Estado mais impactado</p>
-                    <h4 style="margin:0;">{uf}</h4>
+                    <h4 style="margin:0;margin-left:25px;">{uf}</h4>
                     <p style="margin:0; font-size:15px; color:#888;">Média registrada</p>
-                    <h3 style="margin:0; margin-left:25px">{val:.2f} {unit}</h3>
+                    <h3 style="margin:0; margin-left:25px;">{val:.2f} {unit}</h3>
                 </div>
             """, unsafe_allow_html=True)
     st.write('')
 
-def media_mensal(filters):
+def line_mensal(filters):
     df = query_media_mensal(filters)
+
+    df = get_month_name(df)
 
     fig = px.area(
         df,
-        x='month_name',
+        x='month',
         y='monthly_avg_pollution',
         color='pollutant_code',
         symbol='pollutant_code',
         markers=True,
         labels={
-            "month_name": "Mês",
+            "month": "Mês",
             "monthly_avg_pollution": "Concentração Média",
             "pollutant_code": "Poluente"
         },
         title="Média Mensal de Poluição por Poluente",
     )
 
-    fig.update_traces(marker=dict(size=7.5))
+    # Usa st.plotly_chart para exibir o gráfico interativo
+    st.plotly_chart(fig, use_container_width=True)
+
+def bar_mensal(filters):
+    df = query_media_mensal(filters)
+
+    df = get_month_name(df)
+
+    fig = px.histogram(
+        df, 
+        x="month", 
+        y="monthly_avg_pollution",
+        color='pollutant_code', 
+        barmode='group',
+        histfunc='avg',
+        labels={
+            "month": "Mês",
+            "monthly_avg_pollution": "Concentração Média",
+            "pollutant_code": "Poluente"
+        },
+        height=400
+    )
 
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
 
-def pollution_map(filters):
-    df = query_map(filters)
+def poluicao_estado(filters):
+    df = query_poluicao_estado(filters)
 
-    geojson = json.load(open("./assets/geojson.json"))
+    fig = px.histogram(
+        df, 
+        x="state_code", 
+        y="avg_pollution",
+        color='pollutant_code', 
+        barmode='group',
+        histfunc='avg',
+        labels={
+            "state_code": "Estado",
+            "avg_pollution": "Concentração Média",
+            "pollutant_code": "Poluente"
+        },
+        height=400
+    )
+
+    # Usa st.plotly_chart para exibir o gráfico interativo
+    st.plotly_chart(fig, use_container_width=True)
+    
+
+def pollution_map(filters):
+    df = query_map()
+
+    geojson = get_geojson()
 
     fig = go.Figure(data=go.Choropleth(
         geojson=geojson,
         locations=df['state_code'],
-        z = df['avg_pollution'].astype(float),
-        colorscale = 'Reds',
-        colorbar_title = "Millions USD"
+        z = df['avg_pollution'].astype(float)
     ))
 
     fig.update_layout(
@@ -80,3 +124,9 @@ def pollution_map(filters):
 
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
+
+@st.cache_data
+def get_geojson():
+    geojson = json.load(open("./assets/geojson.json"))
+
+    return geojson

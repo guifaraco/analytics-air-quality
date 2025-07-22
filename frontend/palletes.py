@@ -1,9 +1,14 @@
 import streamlit as st
+import plotly.graph_objects as go
 import plotly.io as pio
 
-PALETTES = {
+# --------------------------------------------------------------------------
+# DICIONÁRIO 1: PALETAS PARA GRÁFICOS (CORES DISTINTAS)
+# Mantivemos a paleta que você forneceu para ser usada em gráficos de barras, linhas, pizza, etc.
+# --------------------------------------------------------------------------
+CHART_PALETTES = {
     # Paleta principal, projetada para ser universalmente legível e a melhor escolha padrão.
-     'inclusive_standard': [
+    'inclusive_standard': [
         '#A9D6E5',  # Azul Gelo
         '#61A5C2',  # Azul Aço Claro
         '#2C7DA0',  # Azul Petróleo
@@ -26,24 +31,62 @@ PALETTES = {
         '#8C564B',  # Marrom
         '#4B0082'   # Índigo
     ],
+    # Para Acromatopsia, a paleta de cinzas funciona bem para ambos os casos.
     'for_achromatopsia': [
-        '#F0F0F0',  # Branco
-        '#BDBDBD',  # Cinza Claro
-        '#757575',  # Cinza Médio
-        '#424242',  # Cinza Escuro
-        '#000000',  # Preto
+        '#F0F0F0', '#BDBDBD', '#757575', '#424242', '#000000'
     ]
 }
 
+# --------------------------------------------------------------------------
+# DICIONÁRIO 2: PALETAS PARA MAPAS (GRADIENTE DO BRANCO A UMA COR)
+# Novas paletas, onde cada uma é um gradiente do branco a uma cor de alto contraste.
+# --------------------------------------------------------------------------
+MAP_PALETTES = {
+    # Padrão: Branco para um azul escuro de alta legibilidade.
+    'inclusive_standard': ['#FFFFFF', '#014F86'],
+
+    # Deuteranopia/Protanopia: Branco para Âmbar/Laranja, cor segura e de alto contraste.
+    'for_deuteranopia_protanopia': ['#FFFFFF', '#EE9B00'],
+
+    # Tritanopia: Branco para Vermelho, cor segura para esta condição e de alto contraste.
+    'for_tritanopia': ['#FFFFFF', '#D62728'],
+    
+    # Acromatopsia: Branco para Preto, o gradiente de cinza de maior contraste possível.
+    'for_achromatopsia': ['#FFFFFF', '#000000']
+}
+
+
+# --------------------------------------------------------------------------
+# FUNÇÃO ATUALIZADA PARA APLICAR AMBAS AS PALETAS
+# --------------------------------------------------------------------------
 def apply_palette(color_vision_deficiency: str):
-    # Fetch the corresponding color list from the master dictionary
-    palette = PALETTES.get(color_vision_deficiency, PALETTES['inclusive_standard'])
+    """
+    Aplica um tema global que define paletas separadas para gráficos e para mapas.
+    """
+    # Define a chave padrão caso uma inválida seja passada
+    key = color_vision_deficiency if color_vision_deficiency in CHART_PALETTES else 'inclusive_standard'
+    
+    # Busca a paleta correspondente em cada dicionário
+    chart_palette = CHART_PALETTES[key]
+    map_palette = MAP_PALETTES[key]
 
-    # Create a new template object to avoid modifying the base template
+    # Cria um novo objeto de template para aplicar as configurações
     custom_theme = pio.templates["plotly_white"]
-    custom_theme.layout.colorway = palette
+    
+    # 1. Aplica a paleta de GRÁFICOS (cores distintas) ao 'colorway'
+    custom_theme.layout.colorway = chart_palette
 
-    # Set the new theme as the default for all subsequent charts
+    # 2. Aplica a paleta de MAPAS (gradiente) ao 'colorscale' padrão dos coropléticos
+    custom_theme.data.choropleth = [go.Choropleth(colorscale=map_palette)]
+
+    # Aplica estilos globais de marker e linha para px.line / px.area
+    custom_theme.data.scatter = [
+        go.Scatter(
+            marker=dict(size=10)
+        )
+    ]
+
+    # Define o novo tema como padrão global para todos os gráficos
     pio.templates.default = custom_theme
 
 def render_select_pallete():
@@ -54,14 +97,14 @@ def render_select_pallete():
         "Acromatopsia (tons de cinza)": "for_achromatopsia"
     }
 
-    # Creates the radio button selector in the sidebar
+    # Cria um selectbox para a seleção do grau de daltonismo
     selected_vision_label = st.sidebar.selectbox(
         "Acessibilidade",
         options=list(palette_options.keys())
     )
 
-    # Gets the key corresponding to the user's selection
+    # Busca a chave correta para a paleta selecionada pelo usuário
     selected_vision_key = palette_options[selected_vision_label]
 
-    # Applies the selected palette globally
+    # Aplica a paleta selecionada
     apply_palette(selected_vision_key)
