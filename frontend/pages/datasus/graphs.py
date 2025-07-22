@@ -19,9 +19,9 @@ def big_numbers():
         'Taxa de Mortalidade': f"{first_row['death_percentage'].mean():.2f}%"
         },
         {
-        'SRAG com maior número de casos': f"{second_row['top_classification_by_total_cases'].values[0]} - {second_row['max_total_cases'].values[0]} casos",
-        'SRAG com maior taxa de Internação': f"{second_row['top_classification_by_icu_rate'].values[0]} - {second_row['max_icu_rate'].values[0]}%",
-        'SRAG com maior taxa de Mortalidade': f"{second_row['top_classification_by_death_rate'].values[0]} - {second_row['max_death_rate'].values[0]:.2f}%"
+        'SRAG com maior número de casos': f"{second_row['top_classification_by_total_cases'].values[0]} <br> {second_row['max_total_cases'].values[0]} Casos",
+        'SRAG com maior taxa de Internação': f"{second_row['top_classification_by_icu_rate'].values[0]} <br> {second_row['max_icu_rate'].values[0]}%",
+        'SRAG com maior taxa de Mortalidade': f"{second_row['top_classification_by_death_rate'].values[0]} <br> {second_row['max_death_rate'].values[0]:.2f}%"
     }]
 
     for row_dict in rows_list:
@@ -31,10 +31,20 @@ def big_numbers():
             with cols[col_index].container():
                 render_big_number(title, value)
             col_index = (col_index + 1) % 3
-
+        st.markdown('')
 
 def render_big_number(title, value):
-    st.metric(label=title, value=value)
+    # st.metric(label=title, value=value)
+    value = str(value).replace('SRAG', '').replace('POR', '')
+    st.markdown(
+        f'''
+            <div class='metric-datasus'>
+                <p>{title}</p>
+                <h4>{value}</h4>
+            </div>
+        ''',
+        unsafe_allow_html=True
+    )
 
 
 def casos_mensais(filters):

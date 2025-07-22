@@ -3,7 +3,8 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 
-from utils.monitorar.graph_queries import query_big_numbers, query_media_mensal, query_map
+from frontend.utils import get_month_name
+from utils.monitorar.graph_queries import query_big_numbers, query_media_mensal, query_map, query_poluicao_estado
 
 def big_numbers():
     metrics = query_big_numbers()
@@ -23,7 +24,7 @@ def big_numbers():
         val = float(row.avg_pollution)
         icon = emoji_map.get(pol, "")
 
-        with cols[j].container():
+        with cols[j]:
             st.markdown(f"""
                 <div style="text-align:center; line-height:1.6;">
                     <h3 style="margin-bottom:0;">{icon} {pol}</h3>
@@ -35,18 +36,20 @@ def big_numbers():
             """, unsafe_allow_html=True)
     st.write('')
 
-def media_mensal(filters):
+def line_mensal(filters):
     df = query_media_mensal(filters)
+
+    df = get_month_name(df)
 
     fig = px.area(
         df,
-        x='month_name',
+        x='month',
         y='monthly_avg_pollution',
         color='pollutant_code',
         symbol='pollutant_code',
         markers=True,
         labels={
-            "month_name": "Mês",
+            "month": "Mês",
             "monthly_avg_pollution": "Concentração Média",
             "pollutant_code": "Poluente"
         },
@@ -57,6 +60,51 @@ def media_mensal(filters):
 
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
+
+def bar_mensal(filters):
+    df = query_media_mensal(filters)
+
+    df = get_month_name(df)
+
+    fig = px.histogram(
+        df, 
+        x="month", 
+        y="monthly_avg_pollution",
+        color='pollutant_code', 
+        barmode='group',
+        histfunc='avg',
+        labels={
+            "month": "Mês",
+            "monthly_avg_pollution": "Concentração Média",
+            "pollutant_code": "Poluente"
+        },
+        height=400
+    )
+
+    # Usa st.plotly_chart para exibir o gráfico interativo
+    st.plotly_chart(fig, use_container_width=True)
+
+def poluicao_estado(filters):
+    df = query_poluicao_estado(filters)
+
+    fig = px.histogram(
+        df, 
+        x="state_code", 
+        y="avg_pollution",
+        color='pollutant_code', 
+        barmode='group',
+        histfunc='avg',
+        labels={
+            "state_code": "Estado",
+            "avg_pollution": "Concentração Média",
+            "pollutant_code": "Poluente"
+        },
+        height=400
+    )
+
+    # Usa st.plotly_chart para exibir o gráfico interativo
+    st.plotly_chart(fig, use_container_width=True)
+    
 
 def pollution_map(filters):
     df = query_map(filters)
