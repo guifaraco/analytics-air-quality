@@ -1,31 +1,19 @@
 import pandas as pd 
 
-from frontend.utils import get_month_name ,execute_query
+from frontend.utils import execute_query
 
 def query_big_numbers():
     query = ('''
-        SELECT DISTINCT ON (dp.pollutant_code)
-            dp.pollutant_code,
-            dp.measurement_unit,
-            dl.state_code,
-            AVG(f.measurement_value) AS avg_pollution
+        SELECT distinct on (pollutant_code)
+            pollutant_code,
+            measurement_unit,
+            state_code,
+            avg_pollution
         FROM
-            gold.fact_air_quality_measurements f
-        JOIN
-            gold.dim_date dd ON f.date_id = dd.date_id
-        JOIN
-            gold.dim_pollutants dp ON f.pollutant_id = dp.pollutant_id
-        JOIN
-            gold.dim_locations dl ON f.location_id = dl.location_id
-        WHERE
-            dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')
-        GROUP BY 
-            dp.pollutant_code,
-            dp.measurement_unit,
-            dl.state_code
+            gold.mart_monitorar_big_numbers
         ORDER BY
-            dp.pollutant_code,
-            AVG(f.measurement_value) DESC;
+            pollutant_code,
+            avg_pollution DESC;
     ''')
 
     df = execute_query(query)
@@ -33,7 +21,14 @@ def query_big_numbers():
     return df
 
 def query_media_mensal(filters={}):
-    where_clause = apply_filters("dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')",filters)
+    clauses = ["dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')"]
+
+    if 'state_code' in filters:
+        clauses.append(f"dl.state_code = '{filters['state_code']}'")
+    if 'pollutant_code' in filters:
+        clauses.append(f"dp.pollutant_code = '{filters['pollutant_code']}'")
+
+    where_clause = ' AND '.join(clauses)
     
     query = (f'''
         select
@@ -58,8 +53,6 @@ def query_media_mensal(filters={}):
     ''')
 
     df = execute_query(query)
-
-    df['month_name'] = df['month'].astype(int).apply(get_month_name)
 
     return df
 
@@ -95,12 +88,32 @@ def query_map(filters={}):
 
     return final_df
     
+def query_poluicao_estado(filters={}):
+    where_clause = apply_filters("1=1",filters)
+    
+    query = (f'''
+        SELECT
+            pollutant_code,
+            measurement_unit,
+            state_code,
+            avg_pollution
+        FROM
+            gold.mart_monitorar_big_numbers
+        WHERE
+            {where_clause}
+        ORDER BY
+            pollutant_code
+    ''')
+
+    df = execute_query(query)
+
+    return df
 
 def apply_filters(initial, filters):
     clauses = [initial]
     if 'state_code' in filters:
-        clauses.append(f"dl.state_code = '{filters['state_code']}'")
+        clauses.append(f"state_code = '{filters['state_code']}'")
     if 'pollutant_code' in filters:
-        clauses.append(f"dp.pollutant_code = '{filters['pollutant_code']}'")
+        clauses.append(f"pollutant_code = '{filters['pollutant_code']}'")
 
     return ' AND '.join(clauses)
