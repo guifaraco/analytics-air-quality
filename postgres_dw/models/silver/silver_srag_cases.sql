@@ -299,12 +299,13 @@ SELECT
     -- Gera a chave primária
     {{ dbt_utils.generate_surrogate_key(['notification_id']) }} AS health_case_id,
 
+    -- Gera uma chave única para cada combinação de valores diferentes
     {{ dbt_utils.generate_surrogate_key([
         'had_fever', 'had_cough', 'had_sore_throat', 'had_dyspnea', 'had_respiratory_distress',
         'had_low_saturation', 'had_diarrhea', 'had_vomiting', 'had_fatigue',
         'had_loss_of_smell', 'had_loss_of_taste'
     ]) }} AS symptoms_id,
-
+    -- Mesma coisa que o symptoms_id
     {{ dbt_utils.generate_surrogate_key([
             'is_puerpera', 'has_chronic_cardiovascular_disease', 'has_chronic_hematologic_disease',
             'has_down_syndrome', 'has_chronic_liver_disease', 'has_asthma', 'has_diabetes',
