@@ -1,57 +1,133 @@
-WITH fact_health_cases AS (
+-- CTE para unir os fatos com a dimensão de fatores de risco apenas uma vez.
+WITH joined_data AS (
     SELECT
-        *
+        rf.is_puerpera,
+        rf.has_chronic_cardiovascular_disease,
+        rf.has_chronic_hematologic_disease,
+        rf.has_down_syndrome,
+        rf.has_chronic_liver_disease,
+        rf.has_asthma,
+        rf.has_diabetes,
+        rf.has_chronic_neurological_disease,
+        rf.has_other_chronic_pneumopathy,
+        rf.has_immunodeficiency,
+        rf.has_chronic_kidney_disease,
+        rf.has_obesity,
+        -- E a chave de UTI da tabela de fatos
+        hc.required_icu
     FROM
-        {{ ref('fact_health_cases') }}
-),
-
-dim_risk_factors AS (
-    SELECT
-        *
-    FROM
-        {{ ref('dim_risk_factors') }}
+        {{ ref('fact_health_cases') }} AS hc
+    LEFT JOIN
+        {{ ref('dim_risk_factors') }} AS rf ON hc.risk_factors_id = rf.risk_factors_id
 )
 
+-- Desempilhamos cada coluna de fator de risco usando UNION ALL
+
 SELECT
-    SUM(CASE WHEN rf.is_puerpera='SIM' THEN 1 ELSE 0 END) AS total_cases_puerpera,
-    SUM(CASE WHEN rf.is_puerpera='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_puerpera,
+    'Puérpera' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE is_puerpera = 'SIM'
 
-    SUM(CASE WHEN rf.has_chronic_cardiovascular_disease='SIM' THEN 1 ELSE 0 END) AS total_cases_cardiovascular,
-    SUM(CASE WHEN rf.has_chronic_cardiovascular_disease='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_cardiovascular,
+UNION ALL
 
-    SUM(CASE WHEN rf.has_chronic_hematologic_disease='SIM' THEN 1 ELSE 0 END) AS total_cases_hematologic,
-    SUM(CASE WHEN rf.has_chronic_hematologic_disease='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_hematologic,
+SELECT
+    'Doença Cardiovascular' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_chronic_cardiovascular_disease = 'SIM'
 
-    SUM(CASE WHEN rf.has_down_syndrome='SIM' THEN 1 ELSE 0 END) AS total_cases_down_syndrome,
-    SUM(CASE WHEN rf.has_down_syndrome='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_down_syndrome,
+UNION ALL
 
-    SUM(CASE WHEN rf.has_chronic_liver_disease='SIM' THEN 1 ELSE 0 END) AS total_cases_liver_disease,
-    SUM(CASE WHEN rf.has_chronic_liver_disease='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_liver_disease,
+SELECT
+    'Doença Hematológica' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_chronic_hematologic_disease = 'SIM'
 
-    SUM(CASE WHEN rf.has_asthma='SIM' THEN 1 ELSE 0 END) AS total_cases_asthma,
-    SUM(CASE WHEN rf.has_asthma='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_asthma,
+UNION ALL
 
-    SUM(CASE WHEN rf.has_diabetes='SIM' THEN 1 ELSE 0 END) AS total_cases_diabetes,
-    SUM(CASE WHEN rf.has_diabetes='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_diabetes,
+SELECT
+    'Síndrome de Down' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_down_syndrome = 'SIM'
 
-    SUM(CASE WHEN rf.has_chronic_neurological_disease='SIM' THEN 1 ELSE 0 END) AS total_cases_neurological,
-    SUM(CASE WHEN rf.has_chronic_neurological_disease='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_neurological,
+UNION ALL
 
-    SUM(CASE WHEN rf.has_other_chronic_pneumopathy='SIM' THEN 1 ELSE 0 END) AS total_cases_pneumopathy,
-    SUM(CASE WHEN rf.has_other_chronic_pneumopathy='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_pneumopathy,
+SELECT
+    'Doença Hepática' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_chronic_liver_disease = 'SIM'
 
-    SUM(CASE WHEN rf.has_immunodeficiency='SIM' THEN 1 ELSE 0 END) AS total_cases_immunodeficiency,
-    SUM(CASE WHEN rf.has_immunodeficiency='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_immunodeficiency,
+UNION ALL
 
-    SUM(CASE WHEN rf.has_chronic_kidney_disease='SIM' THEN 1 ELSE 0 END) AS total_cases_kidney_disease,
-    SUM(CASE WHEN rf.has_chronic_kidney_disease='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_kidney_disease,
+SELECT
+    'Asma' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_asthma = 'SIM'
 
-    SUM(CASE WHEN rf.has_obesity='SIM' THEN 1 ELSE 0 END) AS total_cases_obesity,
-    SUM(CASE WHEN rf.has_obesity='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_with_obesity,
+UNION ALL
 
-    COUNT(hc.health_case_id) AS total_cases,
-    SUM(CASE WHEN hc.required_icu='SIM' THEN 1 ELSE 0 END) AS total_icu_cases
-FROM
-    fact_health_cases AS hc
-LEFT JOIN
-    dim_risk_factors AS rf ON hc.risk_factors_id = rf.risk_factors_id
+SELECT
+    'Diabetes' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_diabetes = 'SIM'
+
+UNION ALL
+
+SELECT
+    'Doença Neurológica' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_chronic_neurological_disease = 'SIM'
+
+UNION ALL
+
+SELECT
+    'Outra Pneumopatia' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_other_chronic_pneumopathy = 'SIM'
+
+UNION ALL
+
+SELECT
+    'Imunodeficiência' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_immunodeficiency = 'SIM'
+
+UNION ALL
+
+SELECT
+    'Doença Renal' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_chronic_kidney_disease = 'SIM'
+
+UNION ALL
+
+SELECT
+    'Obesidade' AS risk_factor_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM'THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE has_obesity = 'SIM'
+
+ORDER BY
+    total_icu_cases DESC

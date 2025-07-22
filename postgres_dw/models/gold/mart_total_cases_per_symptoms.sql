@@ -1,54 +1,133 @@
-WITH fact_health_cases AS (
+-- CTE para unir os fatos com a dimensão de sintomas apenas uma vez.
+WITH joined_data AS (
     SELECT
-        *
+        s.had_fever,
+        s.had_cough,
+        s.had_sore_throat,
+        s.had_dyspnea,
+        s.had_respiratory_distress,
+        s.had_low_saturation,
+        s.had_diarrhea,
+        s.had_vomiting,
+        s.had_fatigue,
+        s.had_loss_of_smell,
+        s.had_loss_of_taste,
+        hc.required_icu
     FROM
-        {{ ref('fact_health_cases') }}
-),
-
-dim_symptoms AS (
-    SELECT
-        *
-    FROM
-        {{ ref('dim_symptoms') }}
+        {{ ref('fact_health_cases') }} AS hc
+    LEFT JOIN
+        {{ ref('dim_symptoms') }} AS s ON hc.symptoms_id = s.symptoms_id
 )
 
+-- Desempilhamos cada coluna de sintoma usando UNION ALL
+
+-- Febre
 SELECT
-    SUM(CASE WHEN s.had_fever='SIM' THEN 1 ELSE 0 END) AS total_cases_had_fever,
-    SUM(CASE WHEN s.had_fever='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_fever,
+    'Febre' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_fever = 'SIM' -- Filtra apenas os casos que tiveram este sintoma
 
-    SUM(CASE WHEN s.had_cough='SIM' THEN 1 ELSE 0 END) AS total_cases_had_cough,
-    SUM(CASE WHEN s.had_cough='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_cough,
+UNION ALL
 
-    SUM(CASE WHEN s.had_sore_throat='SIM' THEN 1 ELSE 0 END) AS total_cases_had_sore_throat,
-    SUM(CASE WHEN s.had_sore_throat='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_sore_throat,
+-- Tosse
+SELECT
+    'Tosse' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_cough = 'SIM'
 
-    SUM(CASE WHEN s.had_dyspnea='SIM' THEN 1 ELSE 0 END) AS total_cases_had_dyspnea,
-    SUM(CASE WHEN s.had_dyspnea='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_dyspnea,
+UNION ALL
 
-    SUM(CASE WHEN s.had_respiratory_distress='SIM' THEN 1 ELSE 0 END) AS total_cases_had_respiratory_distress,
-    SUM(CASE WHEN s.had_respiratory_distress='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_respiratory_distress,
+-- Dor de Garganta
+SELECT
+    'Dor de Garganta' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_sore_throat = 'SIM'
 
-    SUM(CASE WHEN s.had_low_saturation='SIM' THEN 1 ELSE 0 END) AS total_cases_had_low_saturation,
-    SUM(CASE WHEN s.had_low_saturation='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_low_saturation,
+UNION ALL
 
-    SUM(CASE WHEN s.had_diarrhea='SIM' THEN 1 ELSE 0 END) AS total_cases_had_diarrhea,
-    SUM(CASE WHEN s.had_diarrhea='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_diarrhea,
+-- Dispneia
+SELECT
+    'Dispneia' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_dyspnea = 'SIM'
 
-    SUM(CASE WHEN s.had_vomiting='SIM' THEN 1 ELSE 0 END) AS total_cases_had_vomiting,
-    SUM(CASE WHEN s.had_vomiting='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_vomiting,
+UNION ALL
 
-    SUM(CASE WHEN s.had_fatigue='SIM' THEN 1 ELSE 0 END) AS total_cases_had_fatigue,
-    SUM(CASE WHEN s.had_fatigue='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_fatigue,
+-- Desconforto Respiratório
+SELECT
+    'Desconforto Respiratório' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_respiratory_distress = 'SIM'
 
-    SUM(CASE WHEN s.had_loss_of_smell='SIM' THEN 1 ELSE 0 END) AS total_cases_had_loss_of_smell,
-    SUM(CASE WHEN s.had_loss_of_smell='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_loss_of_smell,
+UNION ALL
 
-    SUM(CASE WHEN s.had_loss_of_taste='SIM' THEN 1 ELSE 0 END) AS total_cases_had_loss_of_taste,
-    SUM(CASE WHEN s.had_loss_of_taste='SIM' AND hc.required_icu='SIM' THEN 1 ELSE 0 END) AS icu_cases_had_loss_of_taste,
+-- Saturação Baixa
+SELECT
+    'Saturação < 95%' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_low_saturation = 'SIM'
 
-    COUNT(hc.health_case_id) AS total_cases,
-    SUM(CASE WHEN hc.required_icu='SIM' THEN 1 ELSE 0 END) AS total_icu_cases
-FROM
-    fact_health_cases AS hc
-LEFT JOIN
-    dim_symptoms AS s ON hc.symptoms_id = s.symptoms_id
+UNION ALL
+
+-- Diarreia
+SELECT
+    'Diarreia' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_diarrhea = 'SIM'
+
+UNION ALL
+
+-- Vômito
+SELECT
+    'Vômito' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_vomiting = 'SIM'
+
+UNION ALL
+
+-- Fadiga
+SELECT
+    'Fadiga' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_fatigue = 'SIM'
+
+UNION ALL
+
+-- Perda de Olfato
+SELECT
+    'Perda de Olfato' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_loss_of_smell = 'SIM'
+
+UNION ALL
+
+-- Perda de Paladar
+SELECT
+    'Perda de Paladar' AS symptom_name,
+    COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
+    COUNT(CASE WHEN required_icu = 'SIM' THEN 1 END) AS total_icu_cases
+FROM joined_data
+WHERE had_loss_of_taste = 'SIM'
+
+ORDER BY
+    total_icu_cases DESC
