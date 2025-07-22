@@ -1,5 +1,4 @@
 -- Cria uma dimensão de data completa.
-
 WITH date_series AS (
     SELECT
         CAST(series.date AS DATE) AS full_date

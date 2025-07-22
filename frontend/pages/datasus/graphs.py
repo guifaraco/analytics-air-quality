@@ -22,19 +22,14 @@ def big_numbers():
         cols = st.columns(3, gap='small')
         col_index = 0
         for title, value in row_dict.items():
-            with cols[col_index].container(border=True):
+            with cols[col_index].container():
                 render_big_number(title, value)
             col_index = (col_index + 1) % 3
 
-            
+
 def render_big_number(title, value):
-    st.markdown(f"""
-        <div style="text-align:center; line-height:1.6;">
-            <p style="margin:0; font-size:15px; color:#888;">{title}</p>
-            <h4 style="margin:0; margin-left:20px">{value}</h4>
-        </div>
-    """, unsafe_allow_html=True)
-    
+    st.metric(label=title, value=value)
+
 
 def casos_mensais(filters):
     df = query_casos_mensais(filters)
@@ -74,7 +69,7 @@ def casos_map(filters):
     view_state = pdk.ViewState(
         latitude=-23,
         longitude=-50,
-        zoom=4, 
+        zoom=4,
         bearing=-45,
         pitch=45
     )

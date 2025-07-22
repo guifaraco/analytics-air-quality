@@ -1,5 +1,4 @@
--- Este modelo limpa os dados das estações.
-
+-- CTE para extrair os dados da camada bronze(raw data)
 WITH source_data AS (
     SELECT DISTINCT
         "Código IBGE do Município",
@@ -13,13 +12,20 @@ WITH source_data AS (
     FROM {{source("monitor_ar", "monitorar_stations")}}
 ),
 
+-- CTE para transformar os dados
+-- Padroniza o nome das colunas,
+-- Faz o casting dos dados,
+-- Limpa espaços vazios antes e depois da string,
+-- Deixa os textos em maiusculo,
 renamed_and_casted AS (
     SELECT
         TRIM(UPPER("Nome da Estação")) AS station_name,
         TRIM(UPPER("Nome do Município")) AS city_name,
         TRIM(UPPER("Estado")) AS state_code,
+        -- Foi necessário retirar o ultimo digito do código IBGE do município, o outro CSV não continha o último digito verificador
         SUBSTRING(TRIM("Código IBGE do Município"), 1, 6) AS city_ibge_code,
         UPPER(TRIM("no_fonte_dados")) AS data_source_organization,
+        -- Retorna null se a coluna tiver uma string vazia
         NULLIF(REPLACE("Latitude", ',', '.'), '')::NUMERIC AS latitude,
         NULLIF(REPLACE("Longitude", ',', '.'), '')::NUMERIC AS longitude
     FROM
