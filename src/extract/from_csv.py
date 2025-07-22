@@ -3,7 +3,9 @@ import os
 
 def extract_from_csv(path: str, encoding: str="utf8", decimal: str=".") -> pd.DataFrame:
     """
-        Extrai os dados de todos os CSVs (Precisa conter as mesmas colunas) dentro do caminho do diretório informado ou extrai os dados do caminho do CSV informado. Após a extração dos dados é feita a conversão em DataFrame.
+        Extrai e concatena os dados de todos os CSVs (Precisa conter as mesmas colunas)
+        dentro do caminho do diretório informado ou extrai os dados do caminho do CSV informado.
+        Após a extração dos dados é feita a conversão em DataFrame.
         Será retornado um DataFrame.
     """
     try:
@@ -11,6 +13,7 @@ def extract_from_csv(path: str, encoding: str="utf8", decimal: str=".") -> pd.Da
         if not os.path.exists(path):
             raise Exception("O caminho passado não existe.")
 
+        # Pega o caminho absoluto do path
         abs_path = os.path.abspath(path)
 
         # Checa se o caminho passado não é um diretório nem um arquivo .csv

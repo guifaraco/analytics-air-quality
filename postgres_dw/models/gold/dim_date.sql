@@ -1,10 +1,10 @@
 -- Cria uma dimensão de data completa.
 
--- Usamos a função generate_series para criar uma linha para cada dia em um intervalo.
 WITH date_series AS (
     SELECT
         CAST(series.date AS DATE) AS full_date
     FROM
+        -- Usamos a função generate_series para criar uma linha para cada dia em um intervalo.
         GENERATE_SERIES('2022-01-01'::date, '2022-12-31'::date, '1 day'::interval) AS series(date)
 )
 
