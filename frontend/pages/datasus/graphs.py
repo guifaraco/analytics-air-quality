@@ -34,7 +34,6 @@ def big_numbers():
         st.markdown('')
 
 def render_big_number(title, value):
-    # st.metric(label=title, value=value)
     value = str(value).replace('SRAG', '').replace('POR', '')
     st.markdown(
         f'''
@@ -68,7 +67,6 @@ def casos_mensais(filters):
     # Personalizar a linha e marcadores
     fig.update_traces(
         line=dict(width=3),
-        marker=dict(size=10),
         text=df['sum'],  # Valores que aparecem nos marcadores
         textposition="top center"
     )

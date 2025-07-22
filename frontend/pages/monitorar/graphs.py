@@ -26,12 +26,12 @@ def big_numbers():
 
         with cols[j]:
             st.markdown(f"""
-                <div style="text-align:center; line-height:1.6;">
-                    <h3 style="margin-bottom:0;">{icon} {pol}</h3>
+                <div class='metric-datasus' style="text-align:center; line-height:1.6; height:300px">
+                    <h3 style="margin-bottom:0;margin-left:25px;">{icon} {pol}</h3>
                     <p style="margin:0; font-size:15px; color:#888;">Estado mais impactado</p>
-                    <h4 style="margin:0;">{uf}</h4>
+                    <h4 style="margin:0;margin-left:25px;">{uf}</h4>
                     <p style="margin:0; font-size:15px; color:#888;">Média registrada</p>
-                    <h3 style="margin:0; margin-left:25px">{val:.2f} {unit}</h3>
+                    <h3 style="margin:0; margin-left:25px;">{val:.2f} {unit}</h3>
                 </div>
             """, unsafe_allow_html=True)
     st.write('')
@@ -55,8 +55,6 @@ def line_mensal(filters):
         },
         title="Média Mensal de Poluição por Poluente",
     )
-
-    fig.update_traces(marker=dict(size=7.5))
 
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
@@ -107,9 +105,9 @@ def poluicao_estado(filters):
     
 
 def pollution_map(filters):
-    df = query_map(filters)
+    df = query_map()
 
-    geojson = json.load(open("./assets/geojson.json"))
+    geojson = get_geojson()
 
     fig = go.Figure(data=go.Choropleth(
         geojson=geojson,
@@ -126,3 +124,9 @@ def pollution_map(filters):
 
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
+
+@st.cache_data
+def get_geojson():
+    geojson = json.load(open("./assets/geojson.json"))
+
+    return geojson
