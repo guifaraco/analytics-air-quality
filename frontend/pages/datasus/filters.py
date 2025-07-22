@@ -7,34 +7,34 @@ def render_filters():
     srag_list = get_srag_list()
 
     filters = {}
-    
-    st.header("Filtros")
-    col1, col2 = st.columns(2, gap='medium')
 
-    with col1:
-        state = st.selectbox(
-            "Estado", 
-            states_list, 
-            key='state_code', 
-            index=None, 
-            placeholder="Selecione um estado"
-        )
 
-    if state:
-        filters['state_code'] = state
+    with st.container(border=True):
+        col1, col2 = st.columns(2, gap='medium')
+        
+        with col1:  # Agora dentro do container
+            state = st.selectbox(
+                "Estado", 
+                states_list, 
+                key='state_code', 
+                index=None, 
+                placeholder="Selecione um estado"
+            )
 
-    with col2:
-        srag = st.selectbox(
-            "SRAG", 
-            srag_list, 
-            key='final_classification', 
-            index=None, 
-            placeholder="Selecione uma SRAG"
-        )
+        if state:
+            filters['state_code'] = state
 
-    if srag:
-        filters['final_classification'] = srag
+        with col2:  # Também dentro do container
+            srag = st.selectbox(
+                "SRAG", 
+                srag_list, 
+                key='final_classification', 
+                index=None, 
+                placeholder="Selecione uma SRAG"
+            )
 
+        if srag:
+            filters['final_classification'] = srag
 
     # Retorna o dicionário apenas com os filtros que foram de fato selecionados
     return filters
