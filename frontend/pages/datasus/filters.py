@@ -1,57 +1,56 @@
 import streamlit as st
-from utils.execute_query import select
+from frontend.utils import execute_query, get_states_list
 
 def render_filters():
-    state_df = select('dim_locations', ['state_code'], distinct=True)
-    state_list = list(state_df['state_code'].sort_values())
+    states_list = get_states_list()
 
-    srag_df = select('dim_case_classifications', ['final_classification'], distinct=True)
-    srag_list = list(srag_df['final_classification'].sort_values())
-    srag_list.remove("IGNORADO")
+    srag_list = get_srag_list()
 
     filters = {}
     
-    with st.expander("Filtros"):
-        col1, col2, col3 = st.columns(3, gap='medium')
+    st.header("Filtros")
+    col1, col2 = st.columns(2, gap='medium')
 
-        with col1:
-            state = st.selectbox(
-                "Estado", 
-                state_list, 
-                key='state_code', 
-                index=None, 
-                placeholder="Selecione um estado"
-            )
+    with col1:
+        state = st.selectbox(
+            "Estado", 
+            states_list, 
+            key='state_code', 
+            index=None, 
+            placeholder="Selecione um estado"
+        )
 
-        with col2:
-            srag = st.selectbox(
-                "SRAG", 
-                srag_list, 
-                key='final_classification', 
-                index=None, 
-                placeholder="Selecione uma SRAG"
-            )
+    if state:
+        filters['state_code'] = state
 
-            if srag:
-                filters['final_classification'] = srag
+    with col2:
+        srag = st.selectbox(
+            "SRAG", 
+            srag_list, 
+            key='final_classification', 
+            index=None, 
+            placeholder="Selecione uma SRAG"
+        )
 
-        if state:
-            filters['state_code'] = state
-            with col3:
-                # Se um estado foi selecionado, adiciona ao dicionário e mostra o filtro de cidade
-                city_df = select('dim_locations', ['city_name'], filters={'state_code': state} , distinct=True)
-                city_list = list(city_df['city_name'].sort_values())
-                # Armazena a seleção da cidade em outra variável
-                city = st.selectbox(
-                    "Município", 
-                    city_list, 
-                    key='city_name', 
-                    index=None, 
-                    placeholder="Selecione um município"
-                )
-        
-                if city:
-                    filters['city_name'] = city
+    if srag:
+        filters['final_classification'] = srag
+
 
     # Retorna o dicionário apenas com os filtros que foram de fato selecionados
     return filters
+
+def get_srag_list():
+    srag_df = execute_query('''
+        SELECT DISTINCT
+            final_classification
+        FROM 
+            gold.dim_case_classifications
+        WHERE
+            final_classification <> 'IGNORADO'
+        ORDER BY 
+            final_classification'''
+    )
+    
+    srag_list= list(srag_df['final_classification'])
+
+    return srag_list

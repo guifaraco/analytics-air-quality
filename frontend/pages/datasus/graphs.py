@@ -4,57 +4,49 @@ import pydeck as pdk
 
 from utils.datasus.graph_queries import query_big_numbers, query_casos_map, query_casos_mensais
 
-def big_numbers(filters):
-    metrics = query_big_numbers(filters)
-    rows = list(metrics.itertuples(index=False))
+def big_numbers():
+    first_row, second_row = query_big_numbers()
 
-    for row in rows:
-        final_class = row.final_classification
-        total_cases = row.total_cases
-        try:
-            death_percentage = float(row.death_percentage)
-        except:
-            death_percentage = 0
-        age_group = row.age_group
+    rows_list = [{
+        'Total de casos': first_row['total_cases'],
+        'Taxa de Internação': f"{first_row['icu_percentage']}%",
+        'Taxa de Mortalidade': f"{first_row['death_percentage']}%"
+        },
+        {
+        'SRAG com maior número de casos': f"{second_row['srag_total_cases']} <br> ({second_row['max_total_cases']} casos)",
+        'SRAG com maior taxa de Internação': f"{second_row['srag_icu_percentage']} <br> ({second_row['max_icu_percentage']}%)",
+        'SRAG com maior taxa de Mortalidade': f"{second_row['srag_death_percentage']} <br> ({second_row['max_death_percentage']}%)"
+    }]
 
-        with st.expander(final_class):
-            col1, col2, col3 = st.columns(3, gap='small')
+    for row_dict in rows_list:
+        cols = st.columns(3, gap='small')
+        col_index = 0
+        for title, value in row_dict.items():
+            with cols[col_index].container(border=True):
+                render_big_number(title, value)
+            col_index = (col_index + 1) % 3
 
-        with col1:
-            st.markdown(f"""
-                <div style="text-align:center">
-                    <p style="color:#888; font-size:15px;">Total de internações</p>
-                    <h2 style="margin-top:0; color:#00d4ff;">{total_cases}</h2>
-                </div>
-            """, unsafe_allow_html=True)
-
-        with col2:
-            st.markdown(f"""
-                <div style="text-align:center">
-                    <p style="color:#888; font-size:15px;">Taxa de Mortalidade</p>
-                    <h2 style="margin-top:0; color:#ff4c4c;">{death_percentage}%</h2>
-                </div>
-            """, unsafe_allow_html=True)
-
-        with col3:
-            st.markdown(f"""
-                <div style="text-align:center">
-                    <p style="color:#888; font-size:15px;">Faixa Etária mais comum</p>
-                    <h2 style="margin-top:0; color:#facc15;">{age_group}</h2>
-                </div>
-            """, unsafe_allow_html=True)
+            
+def render_big_number(title, value):
+    st.markdown(f"""
+        <div style="text-align:center; line-height:1.6;">
+            <p style="margin:0; font-size:15px; color:#888;">{title}</p>
+            <h4 style="margin:0; margin-left:20px">{value}</h4>
+        </div>
+    """, unsafe_allow_html=True)
+    
 
 def casos_mensais(filters):
     df = query_casos_mensais(filters)
 
-    fig = px.line(
+    fig = px.area(
         df,
-        x='month',
+        x='month_name',
         y='total_cases',
         color='final_classification',
         markers=True,
         labels={
-            "month": "Mês",
+            "month_name": "Mês",
             "total_cases": "Total de Casos",
             "final_classification": "SRAG"
         },
@@ -66,8 +58,6 @@ def casos_mensais(filters):
 
 def casos_map(filters):
     df = query_casos_map(filters)
-
-    st.write(df)
 
     layer = pdk.Layer(
         'ColumnLayer',

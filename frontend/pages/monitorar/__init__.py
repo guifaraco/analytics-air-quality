@@ -5,15 +5,27 @@ from .graphs import big_numbers, media_mensal
 from .filters import render_filters
 
 def render_monitorar():
+    st.title("Monitor Ar")
+    
+    st.divider()
+
+    st.subheader("Maior Impacto por Poluente")
+    big_numbers()
+
+    st.divider()
+
     filters = render_filters()
 
-    st.header("Big Numbers")
-    big_numbers(filters)
-
     st.divider()
 
-    st.subheader("Concentração Mensal")
-    media_mensal(filters)
-    st.write("Gráfico relação Mes x Média de Concentração por cada poluente")
+    col1, col2 = st.columns(2)
 
-    st.divider()
+    with col1:
+        st.subheader("Concentração Mensal")
+        media_mensal(filters, key=0)
+        st.write("Gráfico relação Mes x Média de Concentração por cada poluente")
+        
+    with col2:
+        st.subheader("Concentração Mensal")
+        media_mensal(filters, key=1)
+        st.write("Gráfico relação Mes x Média de Concentração por cada poluente")
