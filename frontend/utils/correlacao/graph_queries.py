@@ -2,48 +2,24 @@ import streamlit as st
 
 from frontend.utils import execute_query
 
+@st.cache_data
 def query_big_numbers():
-    print()
-
-def query_total_casos():
     '''
-        Retorna o total de casos por mes.
+        Retorna os valores necessarios para os big numbers da pagina de correlacao agrupados por mes e poluente.
         Colunas retornadas:
+            - month: mes referente as métricas
+            - pollutant_code: sigla do poluente
             - total_cases: numero total de casos no mes
-            - month: mes que ocorreu o caso
+            - avg_pollution: média de poluição do poluente
+            - hospitalization_percentage: percentual de pessoas hospitalizadas
+            - icu_percentage: percentual de pessoas que foram pra UTI
+            - death_percentage: percentual de obitos
     '''
-
-    query = '''
-            SELECT 
-                month,
-                SUM(sum)
-            FROM
-                gold.mart_total_cases_monthly
-            WHERE
-                month <> 12
-            GROUP BY
-                month
-            ORDER BY
-                month
-            '''
-
-    return execute_query(query)
-
-def query_taxa_mortalidade():
-    '''
-        Retorna os valores de taxa de mortalidade agrupados por mes.
-        Colunas retornadas:
-            - final_classification: nome da srag
-            - state_code: sigla do estado do caso da srag
-            - month: mes que ocorreu o caso
-            - total_cases: numero total de casos da srag
-    '''
-
     query = '''
             SELECT 
                 *
             FROM
-                gold.mart_monthly_cases_by_state_classification
+                gold.mart_datasus_monitorar_big_numbers
             '''
 
     return execute_query(query)

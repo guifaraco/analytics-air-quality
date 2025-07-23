@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 
 from .filters import month_filter, singlepollutant_filter
 from frontend.utils import get_month_name
-from frontend.utils.correlacao.graph_queries import query_casos_mensais_estado, query_total_casos
+from frontend.utils.correlacao.graph_queries import query_big_numbers, query_casos_mensais_estado
 from frontend.utils.monitorar.graph_queries import query_media_mensal
 
 def big_numbers():
@@ -18,20 +18,85 @@ def big_numbers():
         pollutant = singlepollutant_filter()
 
     # taxa_mortalidade = query_taxa_mortalidade()
-    total_casos = query_total_casos()
+    df = query_big_numbers()
+    
+    row = df[
+        (df['month'] == month) &
+        (df['pollutant_code'] == pollutant)
+    ]
+
+    prev_row = df[
+        (df['month'] == month - 1) &
+        (df['pollutant_code'] == pollutant)
+    ]
 
     col3, col4 = st.columns(2)
+    col5, col6 = st.columns(2)
 
-    big_total_casos(total_casos, month)
+    with col3:
+        render_big_number(
+            row=row,
+            prev=prev_row,
+            month=month,
+            title="Taxa de Mortalidade",
+            column='death_percentage',
+            percentage=True
+        )
 
-def big_total_casos(df, month):
-    st.write(df)
+    with col4:
+        render_big_number(
+            row=row,
+            prev=prev_row,
+            month=month,
+            title="Total de Casos",
+            column='total_cases',
+            type=int
+        )
 
-    value = int(df[df['month'] == month]['sum'].iloc[0])
+    with col5:
+        render_big_number(
+            row=row,
+            prev=prev_row,
+            month=month,
+            title="Média Geral de Concentração do Poluente",
+            column='avg_pollution'
+        )
+
+    with col6:
+        render_big_number(
+            row=row,
+            prev=prev_row,
+            month=month,
+            title="Taxa de UTI",
+            column='icu_percentage',
+            percentage=True
+        )
+
+
+
+def render_big_number(row, prev, month, title, column, type=float, percentage=False):
+    value = row[column].astype(type).item()
+    delta = None
+
+    if month > 1:
+        prev_value = prev[column].astype(type).item()
+        delta = value - prev_value
+    
+    if type == float:
+        value = round(value, 2)
+        if delta:
+            delta = round(delta, 2)
+
+    if percentage:
+        value = f"{value}%"
+        if delta:
+            delta = f"{delta}%"
 
     st.metric(
-        "Total de Casos",
-        value
+        title,
+        value,
+        delta,
+        delta_color='inverse'
     )
     
 
