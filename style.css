@@ -17,6 +17,11 @@
     color: #1a365d;
 }
 
+[data-testid="stMetricDelta"] {
+    font-size: 14px;
+    font-weight: 500;
+}
+
 [data-testid="stExpander"] summary {
     background-color: #eaf2f8;
     border: 1px solid #bee3f8;
