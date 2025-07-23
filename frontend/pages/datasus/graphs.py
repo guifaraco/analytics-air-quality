@@ -179,12 +179,6 @@ def grafico_pizza_casos_por_srag():
 def casos_por_srag_evolucao():
     df = query_casos_por_srag_e_evolucao()
 
-    # Cores para cada evolução
-    cores = {
-        'CURA': '#5CB860',  # Verde
-        'OBITO': "#F54747",  # Vermelho  # Laranja
-    }
-
     # Preparar dados para o gráfico empilhado
     df_pivot = df.pivot(index='srag', columns='evolucao', values='numero_total_casos').fillna(0)
 
@@ -207,7 +201,6 @@ def casos_por_srag_evolucao():
             x=df_pivot[evol],
             name=evol,
             orientation='h',
-            marker_color=cores[evol],
             text=df_pivot[evol].apply(lambda x: f'{x:,.0f}' if x > 0 else ''),  # Formata com separador de milhar
             textposition='inside',
             insidetextanchor='middle',
@@ -274,42 +267,60 @@ def evolucao_mensal_desfecho():
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)    
 
-def casos_por_fator_risco():
+def casos_por_fator_risco(filters):
     df = query_fatores_risco()
 
+    # Criar coluna de total de casos
     df['total_cases'] = df['total_non_icu_cases'] + df['total_icu_cases']
-    df = df.sort_values('total_cases', ascending=True)
+
+
+
+    # Filtrar dados conforme seleção
+    if filters['final_classification'] == 'TODAS':
+        # Agrupar por fator de risco e somar os casos
+        filtered_df = df.groupby('risk_factor_name').agg({
+            'total_non_icu_cases': 'sum',
+            'total_icu_cases': 'sum',
+            'total_cases': 'sum'
+        }).reset_index()
+        title_suffix = ' (Todos os tipos de SRAG)'
+    else:
+        filtered_df = df[df['final_classification'] == filters['final_classification']]
+        title_suffix = f' ({filters['final_classification']})'
+
+    # Ordenar por total de casos
+    filtered_df = filtered_df.sort_values('total_cases', ascending=True)
 
     # Criar gráfico
     fig = go.Figure()
 
     # Barra de casos não-ICU com valores
     fig.add_trace(go.Bar(
-        y=df['risk_factor_name'],
-        x=df['total_non_icu_cases'],
+        y=filtered_df['risk_factor_name'],
+        x=filtered_df['total_non_icu_cases'],
         name='Casos não-UTI',
         orientation='h',
         hovertemplate='<b>%{y}</b><br>Casos não-ICU: %{x:,}<extra></extra>',
-        text=[f'{x:,}' for x in df['total_non_icu_cases']],  # Texto para mostrar valores
+        text=[f'{x:,}' for x in filtered_df['total_non_icu_cases']],
         textposition='inside',
         insidetextanchor='middle'
     ))
 
     # Barra de casos ICU com valores
     fig.add_trace(go.Bar(
-        y=df['risk_factor_name'],
-        x=df['total_icu_cases'],
+        y=filtered_df['risk_factor_name'],
+        x=filtered_df['total_icu_cases'],
         name='Casos UTI',
         orientation='h',
         hovertemplate='<b>%{y}</b><br>Casos ICU: %{x:,}<extra></extra>',
-        base=df['total_non_icu_cases'],
-        text=[f'{x:,}' for x in df['total_icu_cases']],  # Texto para mostrar valores
+        base=filtered_df['total_non_icu_cases'],
+        text=[f'{x:,}' for x in filtered_df['total_icu_cases']],
         textposition='inside',
         insidetextanchor='middle'
     ))
 
     # Adicionar totais no final de cada barra
-    for i, row in df.iterrows():
+    for i, row in filtered_df.iterrows():
         fig.add_annotation(
             x=row['total_cases'],
             y=row['risk_factor_name'],
@@ -322,7 +333,7 @@ def casos_por_fator_risco():
 
     # Layout do gráfico
     fig.update_layout(
-        title='Distribuição de Casos por Fator de Risco',
+        title=f'Distribuição de Casos por Fator de Risco{title_suffix}',
         xaxis_title='Número de Casos',
         yaxis_title='Fatores de Risco',
         barmode='stack',
@@ -330,49 +341,63 @@ def casos_por_fator_risco():
         width=800,
         hovermode='y unified',
         plot_bgcolor='white',
-        uniformtext_minsize=8,  # Tamanho mínimo do texto dentro das barras
-        uniformtext_mode='hide'  # Esconde texto que não couber
+        uniformtext_minsize=8,
+        uniformtext_mode='hide'
     )
 
     # Exibir no Streamlit
     st.plotly_chart(fig, use_container_width=True)
-
-def casos_por_sintomas():
+def casos_por_sintomas(filters):
     df = query_casos_por_sintomas()
 
     df['total_cases'] = df['total_non_icu_cases'] + df['total_icu_cases']
     df = df.sort_values('total_cases', ascending=True)
 
+    # Filtrar dados conforme seleção
+    if filters['final_classification'] == 'TODAS':
+        # Agrupar por sintoma e somar os casos
+        filtered_df = df.groupby('symptom_name').agg({
+            'total_non_icu_cases': 'sum',
+            'total_icu_cases': 'sum',
+            'total_cases': 'sum'
+        }).reset_index()
+        title_suffix = ' (Todos os tipos de SRAG)'
+    else:
+        filtered_df = df[df['final_classification'] == filters['final_classification']]
+        title_suffix = f' ({filters['final_classification']})'
+
+    # Ordenar por total de casos
+    filtered_df = filtered_df.sort_values('total_cases', ascending=True)
     # Criar gráfico
     fig = go.Figure()
 
     # Barra de casos não-ICU com valores
     fig.add_trace(go.Bar(
-        y=df['symptom_name'],
-        x=df['total_non_icu_cases'],
+        y=filtered_df['symptom_name'],
+        x=filtered_df['total_non_icu_cases'],
         name='Casos não-UTI',
         orientation='h',
         hovertemplate='<b>%{y}</b><br>Casos não-ICU: %{x:,}<extra></extra>',
-        text=[f'{x:,}' for x in df['total_non_icu_cases']],  # Texto para mostrar valores
+        text=[f'{x:,}' for x in filtered_df['total_non_icu_cases']],
         textposition='inside',
         insidetextanchor='middle'
     ))
 
     # Barra de casos ICU com valores
     fig.add_trace(go.Bar(
-        y=df['symptom_name'],
-        x=df['total_icu_cases'],
+        y=filtered_df['symptom_name'],
+        x=filtered_df['total_icu_cases'],
         name='Casos UTI',
         orientation='h',
         hovertemplate='<b>%{y}</b><br>Casos UTI: %{x:,}<extra></extra>',
-        base=df['total_non_icu_cases'],
-        text=[f'{x:,}' for x in df['total_icu_cases']],  # Texto para mostrar valores
+        base=filtered_df['total_non_icu_cases'],
+        text=[f'{x:,}' for x in filtered_df['total_icu_cases']],
         textposition='inside',
         insidetextanchor='middle'
     ))
 
     # Adicionar totais no final de cada barra
-    for i, row in df.iterrows():
+    for i, row in filtered_df.iterrows():
         fig.add_annotation(
             x=row['total_cases'],
             y=row['symptom_name'],
@@ -385,7 +410,7 @@ def casos_por_sintomas():
 
     # Layout do gráfico
     fig.update_layout(
-        title='Distribuição de Casos por Sintomas',
+        title=f'Distribuição de Casos por Sintomas{title_suffix}',
         xaxis_title='Número de Casos',
         yaxis_title='Sintomas',
         barmode='stack',
@@ -393,34 +418,34 @@ def casos_por_sintomas():
         width=800,
         hovermode='y unified',
         plot_bgcolor='white',
-        uniformtext_minsize=8,  # Tamanho mínimo do texto dentro das barras
-        uniformtext_mode='hide'  # Esconde texto que não couber
+        uniformtext_minsize=8,
+        uniformtext_mode='hide'
     )
 
     # Exibir no Streamlit
     st.plotly_chart(fig, use_container_width=True)
-
-def faixa_etaria():
+def faixa_etaria(filters):
     df = query_casos_por_faixa_etaria()
 
-    # Paleta de cores pastéis
-    cores_pasteis = {
-        'MASCULINO': '#89CFF0',  # Azul bebê pastel
-        'FEMININO': '#FFB6C1'    # Rosa claro pastel
-    }
-
+    # Filtrar dados conforme seleção
+    if filters['final_classification'] == 'TODAS':
+        # Agrupar por gênero e faixa etária, somando os casos
+        filtered_df = df.groupby(['genero', 'faixa_etaria'], as_index=False)['numero_total_casos'].sum()
+        title_suffix = ' (Todos os tipos de SRAG)'
+    else:
+        filtered_df = df[df['final_classification'] == filters['final_classification']]
+        title_suffix = f' ({filters['final_classification']})'
 
     # Criando o gráfico
     fig = go.Figure()
 
     # Adicionando barras para cada gênero
-    for genero in df['genero'].unique():
-        df_genero = df[df['genero'] == genero]
+    for genero in filtered_df['genero'].unique():
+        df_genero = filtered_df[filtered_df['genero'] == genero]
         fig.add_trace(go.Bar(
             x=df_genero['faixa_etaria'],
             y=df_genero['numero_total_casos'],
             name=genero,
-            marker_color=cores_pasteis[genero],
             text=df_genero['numero_total_casos'],
             texttemplate='%{text:,}',
             textposition='auto',
@@ -429,7 +454,7 @@ def faixa_etaria():
 
     # Personalizando o layout
     fig.update_layout(
-        title='Distribuição de Casos por Gênero e Faixa Etária',
+        title=f'Distribuição de Casos por Gênero e Faixa Etária{title_suffix}',
         xaxis_title='Faixa Etária',
         yaxis_title='Número Total de Casos',
         barmode='group',
@@ -452,7 +477,6 @@ def faixa_etaria():
 
     # Exibindo no Streamlit
     st.plotly_chart(fig, use_container_width=True)
-
 def evolucao_mensal_por_srag(filters):
     df = query_evolucao_mensal_por_srag()
 
