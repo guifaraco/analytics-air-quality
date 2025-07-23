@@ -11,46 +11,36 @@ def get_pollutant_data(df, polutant):
     row = df[df['pollutant_code'] == polutant].iloc[0]
     return f"{row['state_code']} <br> {row['avg_pollution']:.2f} {row['measurement_unit']}"
 
-def big_numbers():
+def big_numbers(pollutant):
     metrics = query_big_numbers()
 
-    rows_list = [
-        {
-            'CO': get_pollutant_data(metrics, 'CO'),
-            'MP10': get_pollutant_data(metrics, 'MP10'),
-            'MP2,5': get_pollutant_data(metrics, 'MP2,5')
-        },
-        {
-            'NO2': get_pollutant_data(metrics, 'NO2'),
-            'O3': get_pollutant_data(metrics, 'O3'),
-            'SO2': get_pollutant_data(metrics, 'SO2')
-        }
-    ]
+    # Filtra apenas os dados do poluente selecionado
+    pollutant_data = metrics[metrics['pollutant_code'] == pollutant]
 
-    for row_dict in rows_list:
-        cols = st.columns(3, gap='small')
-        col_index = 0
-        for pol, value in row_dict.items():
-            with cols[col_index].container():
-                st.markdown(f"""
-                    <div class='metric-datasus' style="text-align:center; line-height:1.6; height:300px">
-                        <h3 style="margin-bottom:0;margin-left:25px;">{pol}</h3>
-                        <p style="margin:0; font-size:15px; color:#888;">Estado mais impactado</p>
-                        <h4 style="margin:0;margin-left:25px;">{value.split('<br>')[0].strip()}</h4>
-                        <p style="margin:0; font-size:15px; color:#888;">Média registrada</p>
-                        <h3 style="margin:0; margin-left:25px;">{value.split('<br>')[1].strip()}</h3>
-                    </div>
-                """, unsafe_allow_html=True)
-            col_index = (col_index + 1) % 3
-        st.markdown('')
-        
+    most_impacted_state = pollutant_data.loc[pollutant_data['avg_pollution'].idxmax(), 'state_code']
+    highest_avg = float(pollutant_data['avg_pollution'].max())   
+   
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.metric('Estado Mais Impactado', most_impacted_state)
+    
+    with col2: 
+        st.metric('Maior média registrada', f'{highest_avg:.2f}')
+
 def line_mensal(states):
     df = query_media_mensal()
 
-    df = get_month_name(df)
+    # Converter para datetime e extrair o mês
+    df['year_month'] = pd.to_datetime(df['year_month'])
+    df['month'] = df['year_month'].dt.month
+
+    # Ordenar por data
+    df.sort_values(by='year_month', inplace=True)
+
+    df = get_month_name(df, coluna_mes='month')
 
     df = filter_media_mensal(df, states)
-
 
     fig = px.area(
         df,
@@ -71,35 +61,17 @@ def line_mensal(states):
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
 
-def bar_mensal(states):
-    df = query_media_mensal()
-
-    df = get_month_name(df)
-
-    df = filter_media_mensal(df, states)
-
-    fig = px.histogram(
-        df, 
-        x="month", 
-        y="monthly_avg_pollution",
-        color='pollutant_code', 
-        barmode='group',
-        histfunc='avg',
-        category_orders=get_month_order_dict(),
-        labels={
-            "month": "Mês",
-            "monthly_avg_pollution": "Concentração Média",
-            "pollutant_code": "Poluente"
-        },
-        height=400
-    )
-
-    # Usa st.plotly_chart para exibir o gráfico interativo
-    st.plotly_chart(fig, use_container_width=True)
-
 def compare_pollutant_state(pollutant, states):
     df = query_compare_pollutant_state()
 
+
+    # Converter para datetime e extrair o mês
+    df['year_month'] = pd.to_datetime(df['year_month'])
+    df['month'] = df['year_month'].dt.month
+
+    # Ordenar por data
+    df.sort_values(by='year_month', inplace=True)
+    
     df = get_month_name(df)
 
     if pollutant:
