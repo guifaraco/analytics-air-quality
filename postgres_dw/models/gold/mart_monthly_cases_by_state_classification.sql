@@ -52,4 +52,4 @@
         l.state_code,
         d.month
     ORDER BY
-        numero_total_casos DESC
+        total_cases DESC
