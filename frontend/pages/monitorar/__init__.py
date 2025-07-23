@@ -18,24 +18,25 @@ def render_monitorar():
 
     st.divider()
 
-    col1, col2 = st.columns(2)
+    line_tab, bar_tab = st.tabs(["Gráfico de Linha", "Gráfico de Barras"])
 
-    with col1:
+    with line_tab:
         st.subheader("Concentração Mensal (Linha)")
         line_mensal(filters)
         
-    with col2:
+    with bar_tab:
         st.subheader("Concentração Mensal (Barras)")
         bar_mensal(filters)
+
+    col1, col2 = st.columns(2)
         
     st.divider()
 
-    col3, col4 = st.columns(2)
 
-    with col3:
+    with col1:
         st.subheader("Estados com as maiores médias de poluição")
         poluicao_estado(filters)
 
-    with col4:
+    with col2:
         st.subheader("Qualidade do Ar por Estado")
         pollution_map(filters)
