@@ -4,6 +4,14 @@ WITH classification_metrics AS (
 
         SUM(f.case_count) AS total_cases,
 
+        ROUND(100.0 * SUM(
+            CASE 
+            WHEN f.was_hospitalized = 'SIM' THEN 1
+            WHEN (f.was_hospitalized != 'SIM' AND f.required_icu = 'SIM') THEN 1 
+            ELSE 0 END) /
+            NULLIF(SUM(f.case_count), 0)
+        ) AS hospitalized_percentage,
+
         -- Calcula a porcentagem e arredonda a pocentagem para duas casas decimais
         ROUND(
             100.0 * SUM(CASE WHEN f.required_icu = 'SIM' THEN 1 ELSE 0 END) /
@@ -22,6 +30,7 @@ WITH classification_metrics AS (
     WHERE
         cc.final_classification != 'IGNORADO'
         AND cc.case_outcome != 'IGNORADO'
+        AND (f.was_hospitalized != 'IGNORADO' OR f.required_icu != 'IGNORADO') 
     GROUP BY
         cc.final_classification
 )
