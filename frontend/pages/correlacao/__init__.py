@@ -1,6 +1,6 @@
 import streamlit as st
 
-from .graphs import compara_mensal
+from .graphs import compara_mensal, correlacao_poluicao_casos
 
 from .filters import render_filters
 
@@ -10,14 +10,12 @@ def render_correlacao():
     st.divider()
 
     st.subheader("Filtros")
-    pollutant, states, srag = render_filters()
+    pollutants, states, srags = render_filters()
 
     st.divider()
 
-    col1, col2 = st.columns(2)
+    compara_mensal(pollutants, states, srags)
+
+    st.divider()
     
-    with col1:
-        compara_mensal(pollutant, states)
-    
-    with col2:
-        casos_poluente(pollutant, states, srag)
+    correlacao_poluicao_casos(pollutants, states, srags)
