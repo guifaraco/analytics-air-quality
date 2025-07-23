@@ -1,5 +1,5 @@
 import streamlit as st
-from frontend.utils import execute_query, get_states_list
+from frontend.utils import get_srag_list, get_states_list
 from utils.datasus.graph_queries import pegando_distinct_outcomes
 
 def render_filters_mensal():
@@ -53,19 +53,6 @@ def render_filters_geral():
         filters['final_classification'] = srag
 
     return filters
-
-def get_srag_list():
-    srag_df = execute_query('''
-        SELECT DISTINCT
-            srag
-        FROM 
-            gold.mart_total_cases_per_srag_and_evolution
-        '''
-    )
-    
-    srag_list= list(srag_df['srag'])
-
-    return srag_list
 
 def get_outcomes_list():
     df = pegando_distinct_outcomes()
