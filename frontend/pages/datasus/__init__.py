@@ -57,5 +57,5 @@ def render_datasus():
             faixa_etaria(filters) 
 
     st.subheader("Mapa de Casos Encontrados")
-    with st.expander("Mapa de Casos Encontrados", expanded=False):
+    with st.expander("Mapa de Casos Encontrados"):
         casos_map()
