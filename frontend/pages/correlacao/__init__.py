@@ -7,7 +7,12 @@ from .filters import month_filter, render_filters
 def render_correlacao():
     st.title("Correlação MonitorAr x DataSUS")
 
-    big_numbers()
+    # Big Number
+    # Selecionar um mes (janeiro não exibir delta)
+    # Taxa de mortalidade -> compara com o mes anterior
+    # Total de casos -> comparando com o mes anterior
+    # Taxa de UTI   -> comparando com o mês anterior
+    # Média geral de concentração de poluiente -> media de poluição
 
     st.divider()
 
@@ -18,6 +23,7 @@ def render_correlacao():
 
     compara_mensal(pollutants, srags)
 
-    st.divider()
+    # Tirar filtros de estado
+    # Fazer o mesmo gráfico anterior
 
-    compara_estado(pollutants, srags)
+    st.divider()

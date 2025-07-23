@@ -129,50 +129,6 @@ def poluicao_estado(states):
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
     
-def pollution_map(pollutant, states):
-    df = query_poluicao_estado()
-
-    df = filter_poluicao_estado(df, states=states, pollutant=pollutant)
-
-    br_states = [
-        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
-        'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
-        'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-    ]
-    
-    # Cria um DataFrame "base" que servirá como a lista completa
-    df_todos_estados = pd.DataFrame(br_states, columns=['state_code'])
-
-    # Junta o DataFrame completo com os dados da query
-    # O 'how="left"' garante que todos os estados da lista completa sejam mantidos.
-    # Para os estados que não estavam no resultado da query, o valor de 'avg_pollution' será NaN (nulo).
-    df = pd.merge(df_todos_estados, df, on='state_code', how='left')
-
-    # Todos os campos de média de poluição Nulos serão tratados como 0 para que apareça no mapa
-    df['avg_pollution'] = df['avg_pollution'].fillna(0)
-    
-    geojson = get_geojson()
-
-    fig = go.Figure(data=go.Choropleth(
-        geojson=geojson,
-        locations=df['state_code'],
-        z = df['avg_pollution'].astype(float),
-    ))
-
-    fig.update_layout(
-        title_text = 'Poluição Média em cada estado',
-    )
-
-    fig.update_geos(fitbounds="locations", visible=False)
-
-    # Usa st.plotly_chart para exibir o gráfico interativo
-    st.plotly_chart(fig, use_container_width=True)
-
-@st.cache_data
-def get_geojson():
-    geojson = json.load(open("./assets/geojson.json"))
-
-    return geojson
 
 def get_month_order_dict():
     return {

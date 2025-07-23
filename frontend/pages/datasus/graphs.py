@@ -12,28 +12,27 @@ from utils.datasus.graph_queries import query_casos_por_sintomas, evolucao_mensa
 from frontend.utils import get_month_name
 
 def big_numbers():
-    first_row = query_big_numbers_primeira_linha()
-    second_row = query_big_numbers_segunda_linha()
+    big_numbers = query_big_numbers_primeira_linha()
 
-    rows_list = [{
-        'Total de casos': first_row['total_cases'].sum(),
-        'Taxa de Internação': f"{first_row['icu_percentage'].mean():.2f}%",
-        'Taxa de Mortalidade': f"{first_row['death_percentage'].mean():.2f}%"
-        },
-        {
-        'SRAG com maior número de casos': f"{second_row['top_classification_by_total_cases'].values[0]} <br> {second_row['max_total_cases'].values[0]} Casos",
-        'SRAG com maior taxa de Internação': f"{second_row['top_classification_by_icu_rate'].values[0]} <br> {second_row['max_icu_rate'].values[0]}%",
-        'SRAG com maior taxa de Mortalidade': f"{second_row['top_classification_by_death_rate'].values[0]} <br> {second_row['max_death_rate'].values[0]:.2f}%"
-    }]
+    total_cases = big_numbers['total_cases'].sum()
+    hospitalized_percentage = big_numbers['hospitalized_percentage'].mean()
+    icu_percentage = big_numbers['icu_percentage'].mean()
+    deah_percentage = big_numbers['death_percentage'].mean()
 
-    for row_dict in rows_list:
-        cols = st.columns(3, gap='small')
-        col_index = 0
-        for title, value in row_dict.items():
-            with cols[col_index].container():
-                render_big_number(title, value)
-            col_index = (col_index + 1) % 3
-        st.markdown('')
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric('Número total de casos', total_cases)
+    
+    with col2:
+        st.metric('Taxa de internação', f'{hospitalized_percentage:.2f}%')
+    
+    with col3:
+        st.metric('Taxa de internação UTI', f'{icu_percentage:.2f}%')
+
+    with col4:
+        st.metric('Taxa de mortalidade', f'{deah_percentage:.2f}%')    
+
 
 def render_big_number(title, value):
     value = str(value).replace('SRAG', '').replace('POR', '')
