@@ -3,4 +3,4 @@ base="light"
 primaryColor = "#40B7DE"
 
 [theme.sidebar]
-backgroundColor = "#C0E7F4" 
+backgroundColor = "rgba(123, 217, 248, 0.76)" 
