@@ -79,6 +79,13 @@ def apply_palette(color_vision_deficiency: str):
     # 2. Aplica a paleta de MAPAS (gradiente) ao 'colorscale' padrão dos coropléticos
     custom_theme.data.choropleth = [go.Choropleth(colorscale=map_palette)]
 
+    # Aplica estilos globais de marker e linha para px.line / px.area
+    custom_theme.data.scatter = [
+        go.Scatter(
+            marker=dict(size=10)
+        )
+    ]
+
     # Define o novo tema como padrão global para todos os gráficos
     pio.templates.default = custom_theme
 
