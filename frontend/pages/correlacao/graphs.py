@@ -32,7 +32,12 @@ def compara_mensal(pollutants, states, srags):
     )
 
     df_pol = query_media_mensal()
-    df_pol = get_month_name(df_pol)
+    # Converter para datetime e extrair o mês
+    df_pol['year_month'] = pd.to_datetime(df_pol['year_month'])
+    df_pol['month'] = df_pol['year_month'].dt.month
+
+    df_pol = get_month_name(df_pol, 'month')
+
 
     if pollutants:
         df_pol = df_pol[df_pol['pollutant_code'].isin(pollutants)]

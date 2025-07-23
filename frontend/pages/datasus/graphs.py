@@ -13,18 +13,13 @@ from frontend.utils import get_month_name
 
 def big_numbers():
     first_row = query_big_numbers_primeira_linha()
-    second_row = query_big_numbers_segunda_linha()
 
     rows_list = [{
         'Total de casos': first_row['total_cases'].sum(),
         'Taxa de Internação': f"{first_row['icu_percentage'].mean():.2f}%",
         'Taxa de Mortalidade': f"{first_row['death_percentage'].mean():.2f}%"
         },
-        {
-        'SRAG com maior número de casos': f"{second_row['top_classification_by_total_cases'].values[0]} <br> {second_row['max_total_cases'].values[0]} Casos",
-        'SRAG com maior taxa de Internação': f"{second_row['top_classification_by_icu_rate'].values[0]} <br> {second_row['max_icu_rate'].values[0]}%",
-        'SRAG com maior taxa de Mortalidade': f"{second_row['top_classification_by_death_rate'].values[0]} <br> {second_row['max_death_rate'].values[0]:.2f}%"
-    }]
+        ]
 
     for row_dict in rows_list:
         cols = st.columns(3, gap='small')

@@ -11,9 +11,7 @@ def render_datasus():
 
     st.divider()
 
-    big_numbers()
-
-    st.divider()
+    big_numbers() # Colocar padrão metric
 
     tab_distribuicao_mensal, tab_distribuicao_geral = st.tabs(['Distribuição Mensal', 'Distribuição Geral'])
 
@@ -31,16 +29,13 @@ def render_datasus():
                 evolucao_mensal_por_srag(filters)
         
         with st.container(border=True):
-
-            row1_col1, row1_col2 = st.columns(2)
+ 
+            evolucao_mensal_desfecho()
             
-            with row1_col1:
-                evolucao_mensal_desfecho()
-            
-            with row1_col2:
-                casos_por_srag_evolucao() 
 
     with tab_distribuicao_geral:
+
+        # COlocar filtro por estado
 
         with st.container(border=True):
             filters = render_filters_geral()
@@ -48,7 +43,7 @@ def render_datasus():
             col1, col2 = st.columns(2)
 
             with col1:
-                casos_por_sintomas(filters)  
+                casos_por_sintomas(filters)   
                 
 
             with col2:
