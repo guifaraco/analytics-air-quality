@@ -10,32 +10,31 @@ def render_filters_mensal():
     filters = {}
 
 
-    with st.container(border=True):
-        col1, col2 = st.columns(2, gap='medium')
-        
-        with col1:  # Agora dentro do container
-            state = st.selectbox(
-                "Estado", 
-                states_list, 
-                key='state_code', 
-                index=0, 
-                placeholder="Selecione um estado"
-            )
+    col1, col2 = st.columns(2, gap='medium')
+    
+    with col1:  # Agora dentro do container
+        state = st.selectbox(
+            "Estado", 
+            states_list, 
+            key='state_code', 
+            index=0, 
+            placeholder="Selecione um estado"
+        )
 
-        if state:
-            filters['state_code'] = state
+    if state:
+        filters['state_code'] = state
 
-        with col2:  # Também dentro do container
-            srag = st.selectbox(
-                "SRAG", 
-                srag_list, 
-                key='final_classification', 
-                index=0, 
-                placeholder="Selecione uma SRAG"
-            )
+    with col2:  # Também dentro do container
+        srag = st.selectbox(
+            "SRAG", 
+            srag_list, 
+            key='final_classification', 
+            index=0, 
+            placeholder="Selecione uma SRAG"
+        )
 
-        if srag:
-            filters['final_classification'] = srag
+    if srag:
+        filters['final_classification'] = srag
 
     # Retorna o dicionário apenas com os filtros que foram de fato selecionados
     return filters
@@ -43,29 +42,15 @@ def render_filters_mensal():
 def render_filters_geral():
     filters = {}
     srag_list = ["TODAS"] + get_srag_list()
-    evolucao = get_outcomes_list()
 
-    # 2. Filtros Clínicos
-    st.write("**Dados Clínicos**")
-
-    with st.container(border=True):
-        col1, col2 = st.columns(2)
-        with col1:
-            srag = st.selectbox("SRAG",
-                                srag_list,
-                                key='final_classification_2',
-                                index=0,
-                                placeholder='Selecione uma SRAG'
-                                )
-        if srag:
-            filters['final_classification'] = srag
-
-        with col2:
-            desfecho = st.multiselect("Desfecho",
-                                    evolucao,
-                                    default=["OBITO", "CURA"])
-        if desfecho:
-            filters['desfecho'] = desfecho
+    srag = st.selectbox("SRAG",
+                        srag_list,
+                        key='final_classification_2',
+                        index=0,
+                        placeholder='Selecione uma SRAG'
+                        )
+    if srag:
+        filters['final_classification'] = srag
 
     return filters
 

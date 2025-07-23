@@ -9,11 +9,9 @@ from .filters import render_filters_mensal, render_filters_geral
 def render_datasus():
     st.title("DataSus")
 
-    st.subheader('', divider=True)
+    st.divider()
 
     big_numbers()
-
-    st.divider()
 
     st.divider()
 
@@ -21,49 +19,43 @@ def render_datasus():
 
     with tab_distribuicao_mensal:
 
-        filters = render_filters_mensal()
+        with st.container(border=True):
+            filters = render_filters_mensal()
 
-        col1, col2 = st.columns(2)
+            row1_col1, row1_col2 = st.columns(2)
 
-        with col1:
-            casos_mensais(filters)
+            with row1_col1:
+                casos_mensais(filters)
 
-        with col2:
-            evolucao_mensal_por_srag(filters)
+            with row1_col2:
+                evolucao_mensal_por_srag(filters)
         
-        col3, col4 = st.columns(2)
+        with st.container(border=True):
 
-        with col3:
-            evolucao_mensal_desfecho()
+            row1_col1, row1_col2 = st.columns(2)
+            
+            with row1_col1:
+                evolucao_mensal_desfecho()
+            
+            with row1_col2:
+                casos_por_srag_evolucao() 
 
     with tab_distribuicao_geral:
 
-        filters = render_filters_geral()
+        with st.container(border=True):
+            filters = render_filters_geral()
 
-        col1, col2 = st.columns(2)
+            col1, col2 = st.columns(2)
 
-        with col1:
-            casos_por_srag_evolucao()
+            with col1:
+                casos_por_sintomas(filters)  
+                
 
-        with col2:
-            casos_por_fator_risco()
-        
-        col3, col4 = st.columns(2)
-    
-        with col3:
-            casos_por_sintomas()       
-        
-        with col4:
-            faixa_etaria()
+            with col2:
+                casos_por_fator_risco(filters)
+            
+            faixa_etaria(filters) 
 
-
-
-    col1, col2 = st.columns(2)
-
-
-    # with col2:
-       
-        
     st.subheader("Mapa de Casos Encontrados")
-    with st.expander("Mapa de Casos Encontrados", expanded=True):
+    with st.expander("Mapa de Casos Encontrados", expanded=False):
         casos_map()
