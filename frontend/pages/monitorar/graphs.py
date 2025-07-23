@@ -40,9 +40,12 @@ def big_numbers():
             st.write('')
 
 def line_mensal(states):
-    df = query_media_mensal(states)
+    df = query_media_mensal()
 
     df = get_month_name(df)
+
+    df = filter_media_mensal(df, states)
+
 
     fig = px.area(
         df,
@@ -64,9 +67,11 @@ def line_mensal(states):
     st.plotly_chart(fig, use_container_width=True)
 
 def bar_mensal(states):
-    df = query_media_mensal(states)
+    df = query_media_mensal()
 
     df = get_month_name(df)
+
+    df = filter_media_mensal(df, states)
 
     fig = px.histogram(
         df, 
@@ -88,13 +93,19 @@ def bar_mensal(states):
     st.plotly_chart(fig, use_container_width=True)
 
 def compare_pollutant_state(pollutant, states):
-    if not pollutant:
-        st.warning('Selecione um poluente para exibir esse gráfico', icon="⚠️")
-        return
-    
-    df = query_compare_pollutant_state(pollutant, states)
+    df = query_compare_pollutant_state()
 
     df = get_month_name(df)
+
+    if pollutant:
+        df = df[df['pollutant_code'] == pollutant]
+
+    if states:
+        df = df[df['state_code'].isin(states)]
+
+    df = df.groupby(['month', 'state_code'], as_index=False)['monthly_avg_pollution'].mean()
+
+    df = df.dropna()
 
     available_states = list(df['state_code'].unique())
 
@@ -118,7 +129,9 @@ def compare_pollutant_state(pollutant, states):
     st.plotly_chart(fig, use_container_width=True)
 
 def poluicao_estado(states):
-    df = query_poluicao_estado(states=states)
+    df = query_poluicao_estado()
+
+    df = filter_poluicao_estado(df, states=states)
 
     fig = px.histogram(
         df, 
@@ -139,7 +152,9 @@ def poluicao_estado(states):
     st.plotly_chart(fig, use_container_width=True)
     
 def pollution_map(pollutant, states):
-    df = query_poluicao_estado(pollutant=pollutant, states=states)
+    df = query_poluicao_estado()
+
+    df = filter_poluicao_estado(df, states=states, pollutant=pollutant)
 
     br_states = [
         'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
@@ -189,3 +204,19 @@ def get_month_order_dict():
             'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
         ]
     }
+
+def filter_media_mensal(df, states):
+    if states:
+        df = df[df['state_code'].isin(states)]
+
+    df = df.groupby(['month', 'pollutant_code'], as_index=False)['monthly_avg_pollution'].mean().dropna()
+
+    return df
+
+def filter_poluicao_estado(df, states, pollutant=''):
+    if states:
+        df = df[df['state_code'].isin(states)]
+    if pollutant:
+        df = df[df['pollutant_code'] == pollutant]
+
+    return df

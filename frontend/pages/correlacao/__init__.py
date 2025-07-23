@@ -9,9 +9,10 @@ def render_correlacao():
 
     st.divider()
 
-    filters = render_filters()
+    st.subheader("Filtros")
+    pollutant, states = render_filters()
 
     st.divider()
     
     st.subheader("Comparação Mensal")
-    compara_mensal(filters)
+    compara_mensal(pollutant, states)

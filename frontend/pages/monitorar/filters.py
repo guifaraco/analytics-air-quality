@@ -37,6 +37,4 @@ def state_filter():
         placeholder="Selecione um estado"
     )
 
-    states = [f"'{state}'" for state in states]
-
     return states
