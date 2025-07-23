@@ -4,7 +4,6 @@ import subprocess
 from dotenv import load_dotenv
 from src.extract import from_csv
 from src.load import to_postgres
-from src.transform.transformation import transform_air_measurements, transform_srag
 
 # Executa a função para carregar as variáveis do arquivo .env no ambiente
 load_dotenv()
@@ -31,7 +30,7 @@ def run_dbt_transformations():
         dbt_project_path = "postgres_dw"
         # Executa 'dbt run' especificando o diretório do projeto dbt.
         subprocess.run(
-            ["dbt", "run", "--project-dir", dbt_project_path], 
+            ["dbt", "run", "--project-dir", dbt_project_path],
             check=True
         )
         print("--- Transformações dbt concluídas com sucesso ---\n")
@@ -45,7 +44,7 @@ def run_dbt_transformations():
 
 def main():
     print("Iniciando pipeline ELT localmente...")
-    
+
     # Pegar a conexão com o banco de dados
     conn = get_db_connection()
 
@@ -53,11 +52,7 @@ def main():
     df_air_measurements = from_csv.extract_from_csv("data/monitor_ar/dados_qualidade", "latin1")
     df_monitoring_stations = from_csv.extract_from_csv("data/monitor_ar/estacoes.csv", "utf_8_sig")
     df_datasus = from_csv.extract_from_csv("data/opendatasus/INFLUD22-26-06-2025.csv", "latin1")
-    
-    # Light Transform
-    df_air_measurements = transform_air_measurements(df_air_measurements)
-    df_datasus = transform_srag(df_datasus)
-    
+
     # Load
     to_postgres.load_to_postgres(df_air_measurements, conn, "bronze", "monitorar_measurements")
     to_postgres.load_to_postgres(df_monitoring_stations, conn, "bronze", "monitorar_stations")
