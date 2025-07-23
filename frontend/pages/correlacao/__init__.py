@@ -1,6 +1,6 @@
 import streamlit as st
 
-from .graphs import compara_mensal, correlacao_poluicao_casos
+from .graphs import compara_mensal
 
 from .filters import render_filters
 
