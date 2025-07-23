@@ -46,7 +46,7 @@ def query_big_numbers_segunda_linha():
     return execute_query(query)
 
 @st.cache_data
-def query_casos_mensais(filters={}):
+def query_casos_mensais():
     ''' 
         Retorna o DataFrame Utilizado para fazer o gráfico de Série Temporal de Casos.
         Colunas retornadas: 
@@ -62,28 +62,6 @@ def query_casos_mensais(filters={}):
             '''
 
     return execute_query(query)
-
-@st.cache_data
-def df_melted(df, total_cases):
-    '''
-        Retorna o DataFrame melted no model utilizado nos gráficos com duas colunas apenas:
-        Colunas retornadas:
-            - Fator de risco
-            - Numero total de casos
-    '''
-
-    colunas_para_melt = [col for col in df.columns if col != total_cases]
-
-    df_melted = df.melt(
-        value_vars=colunas_para_melt,
-        var_name='fator_risco',
-        value_name='numero_total_casos'
-    ).sort_values(
-        by='numero_total_casos',
-        ascending=False
-    )
-
-    return df_melted
 
 @st.cache_data
 def query_fatores_risco():
@@ -145,6 +123,19 @@ def query_casos_por_srag_e_evolucao():
     return execute_query(query)
 
 @st.cache_data
+def pegando_distinct_outcomes():
+    query = '''
+                SELECT DISTINCT
+                    evolucao
+                FROM
+                    gold.mart_total_cases_per_srag_and_evolution
+                WHERE
+                    evolucao != 'OBITO POR OUTRAS CAUSAS'
+            '''
+    
+    return execute_query(query)
+
+@st.cache_data
 def query_casos_map():
     '''
         Retorna o dataframe utilizado para renderizar o mapa.
@@ -168,6 +159,7 @@ def query_casos_map():
 
     return execute_query(query)
 
+@st.cache_data
 def query_evolucao_mensal_por_srag(): # Ok
     '''
         Retorna o DataFrame utilizado na elaboração do gráfico de Mês x Total Casos X SRAG
@@ -191,6 +183,7 @@ def query_evolucao_mensal_por_srag(): # Ok
     
     return execute_query(query)
 
+@st.cache_data
 def query_quantidade_total_casos_por_srag(): # Ok
     '''
         Retorna o DataFrame utilizado na elaboração do gráfico de pizza de distribuição de srag
@@ -211,6 +204,7 @@ def query_quantidade_total_casos_por_srag(): # Ok
     
     return execute_query(query)
 
+@st.cache_data
 def query_casos_por_sintomas():
     '''
         Retorna o DataFrame utilizado na elaboração do gráfico de barras com a quantidade de casos por sintomas
@@ -223,4 +217,26 @@ def query_casos_por_sintomas():
                     gold.mart_total_cases_per_symptoms
             '''
 
+    return execute_query(query)
+
+@st.cache_data
+def evolucao_mensal_por_desfecho():
+    '''
+        Retorna o DataFrame utilizado na elaboração do gráfico de Mês x Total Casos X SRAG
+        Colunas retornadas:
+            - case_outcome: óbito, óbito por outras causas, cura
+            - month: mês
+            - sum: número total de casos por srag
+    '''
+    query= '''
+                SELECT
+                    case_outcome,
+                    month,
+                    SUM(sum)
+                FROM
+                    gold.mart_monthly_evolution_monthly_srag
+                GROUP BY
+                    case_outcome,
+                    month
+            '''
     return execute_query(query)
