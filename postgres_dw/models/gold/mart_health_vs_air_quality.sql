@@ -40,7 +40,7 @@ air_quality_monthly_avg AS (
     JOIN
         {{ ref('dim_locations') }} AS l ON f.location_id = l.location_id
     WHERE
-        p.pollutant_code IN ('MP2.5', 'SO2', 'NO2', 'MP10', 'CO', 'O3')
+        p.pollutant_code IN ('MP2,5', 'SO2', 'NO2', 'MP10', 'CO', 'O3')
         AND l.state_code IS NOT NULL
     GROUP BY
         year_month, l.state_code, p.pollutant_code -- Agrupa por ano/mês, estado e poluente

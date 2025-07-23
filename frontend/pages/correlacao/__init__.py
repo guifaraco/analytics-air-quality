@@ -1,8 +1,8 @@
 import streamlit as st
 
-from .graphs import compara_mensal, correlacao_poluicao_casos
+from .graphs import big_numbers, compara_estado, compara_mensal
 
-from .filters import render_filters
+from .filters import month_filter, render_filters
 
 def render_correlacao():
     st.title("Correlação MonitorAr x DataSUS")
@@ -17,11 +17,11 @@ def render_correlacao():
     st.divider()
 
     st.subheader("Filtros")
-    pollutants, states, srags = render_filters()
+    pollutants, srags = render_filters()
 
     st.divider()
 
-    compara_mensal(pollutants, states, srags)
+    compara_mensal(pollutants, srags)
 
     # Tirar filtros de estado
     # Fazer o mesmo gráfico anterior
