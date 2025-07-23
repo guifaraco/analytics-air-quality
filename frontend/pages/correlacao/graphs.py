@@ -2,12 +2,13 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 
+from frontend.utils import get_month_name
 from frontend.utils.monitorar.graph_queries import query_media_mensal
 from frontend.utils.datasus.graph_queries import query_casos_mensais
 
-def compara_mensal(filters):
-    df_casos = query_casos_mensais(filters)
-    df_pol = query_media_mensal(filters)
+def compara_mensal(pollutant, states):
+    df_casos = query_casos_mensais()
+    df_casos = get_month_name(df_casos)
 
     # Cria os gráficos separados com px
     fig_casos = px.bar(
@@ -15,6 +16,14 @@ def compara_mensal(filters):
         x='month',
         y='sum'
     )
+
+    df_pol = query_media_mensal()
+    df_pol = get_month_name(df_pol)
+
+    if states:
+        df_pol = df_pol[df_pol['state_code'].isin(states)]
+
+    df_pol = df_pol.groupby(['month', 'pollutant_code'], as_index=False)['monthly_avg_pollution'].mean().dropna()
 
     fig_pol = px.line(
         df_pol,

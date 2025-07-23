@@ -20,7 +20,6 @@ def pollutant_filter():
         "Poluente",
         pollutant_list,
         key='pollutant_code',
-        index=None, 
         placeholder="Selecione um poluente"
     )
 
@@ -37,7 +36,5 @@ def state_filter():
         key='state_code',
         placeholder="Selecione um estado"
     )
-
-    states = [f"'{state}'" for state in states]
 
     return states
