@@ -1,6 +1,7 @@
 [theme]
-base="light"
+base = "light"
 primaryColor = "#40B7DE"
 
 [theme.sidebar]
-backgroundColor = "#C0E7F4" 
+backgroundColor = "#1a365d"
+secondaryBackgroundColor = "rgba(0, 0, 0, 0.1)"

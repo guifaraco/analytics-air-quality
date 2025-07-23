@@ -1,8 +1,10 @@
 import streamlit as st
 
-from .graphs import bar_mensal, big_numbers, line_mensal, pollution_map, poluicao_estado
-
 from .filters import render_filters
+
+from .graphs import bar_mensal, big_numbers, compare_pollutant_state, line_mensal, pollution_map, poluicao_estado
+
+from .filters import pollutant_filter, state_filter
 
 def render_monitorar():
     st.title("Monitor Ar")
@@ -14,28 +16,34 @@ def render_monitorar():
 
     st.divider()
 
-    filters = render_filters()
+    st.subheader("Filtros")
+    pollutant, states = render_filters()
 
     st.divider()
 
     col1, col2 = st.columns(2)
 
     with col1:
+        line_tab, bar_tab = st.tabs(["Gráfico de Linha", "Gráfico de Barras"])
+
+    with line_tab:
         st.subheader("Concentração Mensal (Linha)")
-        line_mensal(filters)
+        line_mensal(states)
         
-    with col2:
+    with bar_tab:
         st.subheader("Concentração Mensal (Barras)")
-        bar_mensal(filters)
-        
-    st.divider()
+        bar_mensal(states)
+
+    with col2:
+        st.subheader("Comparação entre um Poluente x Estados")
+        compare_pollutant_state(pollutant, states)
 
     col3, col4 = st.columns(2)
 
     with col3:
         st.subheader("Estados com as maiores médias de poluição")
-        poluicao_estado(filters)
+        poluicao_estado(pollutant, states)
 
     with col4:
         st.subheader("Qualidade do Ar por Estado")
-        pollution_map(filters)
+        pollution_map(pollutant, states)

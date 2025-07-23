@@ -8,44 +8,8 @@ from utils.datasus.graph_queries import query_big_numbers_primeira_linha, query_
 from utils.datasus.graph_queries import query_casos_mensais, query_fatores_risco
 from utils.datasus.graph_queries import query_casos_por_faixa_etaria, query_casos_por_srag_e_evolucao
 from utils.datasus.graph_queries import query_casos_map, query_evolucao_mensal_por_srag, query_quantidade_total_casos_por_srag
-from utils.datasus.graph_queries import query_casos_por_sintomas
+from utils.datasus.graph_queries import query_casos_por_sintomas, evolucao_mensal_por_desfecho
 from frontend.utils import get_month_name
-
-def df_melted(df, total_cases_col=None, filter_type=None):
-    '''
-    Retorna o DataFrame melted no modelo utilizado nos gráficos com duas colunas apenas.
-    Permite filtrar entre casos totais e casos de UTI.
-    
-    Parâmetros:
-        - df: DataFrame de entrada
-        - total_cases_col: Nome da coluna que contém o total de casos (opcional)
-        - filter_type: Tipo de filtro ('total' para casos totais, 'icu' para casos UTI)
-    
-    Colunas retornadas:
-        - fator_risco
-        - numero_total_casos
-    '''
-    # Filtra as colunas conforme o tipo especificado
-    if filter_type == 'total':
-        colunas_para_melt = [col for col in df.columns if col.startswith('total_cases')]
-    elif filter_type == 'icu':
-        colunas_para_melt = [col for col in df.columns if col.startswith('icu_cases')]
-    else:
-        # Se nenhum filtro for especificado, usa todas as colunas exceto a de total de casos
-        colunas_para_melt = [col for col in df.columns if col != total_cases_col]
-    
-    # Realiza o melt
-    df_melted = df.melt(
-        value_vars=colunas_para_melt,
-        var_name='fator_risco',
-        value_name='numero_total_casos'
-    ).sort_values(
-        by='numero_total_casos',
-        ascending=False
-    )
-    
-    return df_melted
-
 
 def big_numbers():
     first_row = query_big_numbers_primeira_linha()
@@ -89,37 +53,38 @@ def casos_mensais(filters):
 
     df = get_month_name(df, coluna_mes='month')
 
+    df_filtrado = df.copy()
+
+    # Filtrar dados
+    if 'state_code' in filters and filters['state_code'] != "TODOS":
+        df_filtrado = df_filtrado[df_filtrado['state_code'] == filters['state_code']]
+
+    # Agrupa por mês SEMPRE, independente do filtro
+    df_agrupado = df_filtrado.groupby('month', as_index=False)['sum'].sum()
+
+    # Gráfico
     fig = px.area(
-        df,
+        df_agrupado,
         x='month',
         y='sum',
         markers=True,
-        labels={
-            "month": "Mês",
-            "sum": "Total de Casos",
-        },
-        title="Total de casos Mensal",
+        labels={"month": "Mês", "sum": "Total de Casos"},
+        title=f"Total de Casos Mensais {'(Todos os Estados)' if filters['state_code'] == 'TODOS' else f'(Estado: {filters['state_code']})'}",
         text='sum'
     )
 
-    # Personalizar a linha e marcadores
+    # Personalizações
     fig.update_traces(
         line=dict(width=3),
-        text=df['sum'],  # Valores que aparecem nos marcadores
-        textposition="top center"
-    )
-
-    # Adicionar os valores em cima de cada ponto
-    fig.update_traces(
         texttemplate='%{text:.0f}',
+        textposition="top center",
         textfont_size=12,
         showlegend=False
     )
 
-    # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
 
-def casos_map(filters):
+def casos_map():
     df = query_casos_map()
 
     df['numero_total_cases'] = pd.to_numeric(df['numero_total_cases'], errors='coerce')
@@ -216,9 +181,8 @@ def casos_por_srag_evolucao():
 
     # Cores para cada evolução
     cores = {
-        'CURA': '#4CAF50',  # Verde
-        'OBITO': '#F44336',  # Vermelho
-        'OBITO POR OUTRAS CAUSAS': '#FF9800'  # Laranja
+        'CURA': '#5CB860',  # Verde
+        'OBITO': "#F54747",  # Vermelho  # Laranja
     }
 
     # Preparar dados para o gráfico empilhado
@@ -263,7 +227,7 @@ def casos_por_srag_evolucao():
 
     # Ajustar layout
     fig.update_layout(
-        title='<b>Distribuição de Casos de SRAG por Evolução</b>',
+        title='<b>Distribuição de Casos de SRAG por Desfecho</b>',
         barmode='stack',
         xaxis_title='Número de Casos',
         yaxis_title='Tipo de SRAG',
@@ -275,41 +239,338 @@ def casos_por_srag_evolucao():
 
     st.plotly_chart(fig, use_container_width=True)
 
-def casos_por_srag_evolucao_pizza():
-    df = query_casos_por_srag_e_evolucao()
+def evolucao_mensal_desfecho():
+    df = query_evolucao_mensal_por_srag()
 
-    # Criar o gráfico de pizza com Plotly
-    fig = px.pie(df, 
-                values='numero_total_casos', 
-                names='evolucao',
-                title= 'Distribuição de Casos SRAG por Evolução/Desfecho',
-                hole=0.3,  # Opcional: transforma em donut chart
-                color_discrete_sequence=['#4CAF50', '#F44336', '#FF9800'])  # Mesmas cores do gráfico anterior
+    df = get_month_name(df, coluna_mes='month')
 
-    # Melhorar a formatação
-    fig.update_traces(textposition='inside',
-                    textinfo='percent+label',
-                    insidetextfont=dict(color='white', size=12),
-                    hovertemplate='<b>%{label}</b><br>Casos: %{value:,.0f}<br>Percentual: %{percent}')
-
-    # Ajustar layout
-    fig.update_layout(
-        uniformtext_minsize=12,
-        uniformtext_mode='hide',
-        legend_title_text='Evolução',
-        title_font=dict(size=20),
-        hoverlabel=dict(font_size=14)
+    fig = px.line(
+        df,
+        x='month',
+        y='sum',
+        markers=True,
+        labels={
+            "month": "Mês",
+            "sum": "Total de Casos",
+        },
+        color='final_classification',
+        title="Total de casos Mensal"
     )
 
+    # Personalizar a linha e marcadores
+    fig.update_traces(
+        line=dict(width=3),
+        text=df['sum'],  # Valores que aparecem nos marcadores
+        textposition="top center"
+    )
+
+    # Adicionar os valores em cima de cada ponto
+    fig.update_traces(
+        texttemplate='%{text:.0f}',
+        textfont_size=12,
+        showlegend=True
+    )
+
+    # Usa st.plotly_chart para exibir o gráfico interativo
+    st.plotly_chart(fig, use_container_width=True)    
+
+def casos_por_fator_risco():
+    df = query_fatores_risco()
+
+    df['total_cases'] = df['total_non_icu_cases'] + df['total_icu_cases']
+    df = df.sort_values('total_cases', ascending=True)
+
+    # Criar gráfico
+    fig = go.Figure()
+
+    # Barra de casos não-ICU com valores
+    fig.add_trace(go.Bar(
+        y=df['risk_factor_name'],
+        x=df['total_non_icu_cases'],
+        name='Casos não-UTI',
+        orientation='h',
+        hovertemplate='<b>%{y}</b><br>Casos não-ICU: %{x:,}<extra></extra>',
+        text=[f'{x:,}' for x in df['total_non_icu_cases']],  # Texto para mostrar valores
+        textposition='inside',
+        insidetextanchor='middle'
+    ))
+
+    # Barra de casos ICU com valores
+    fig.add_trace(go.Bar(
+        y=df['risk_factor_name'],
+        x=df['total_icu_cases'],
+        name='Casos UTI',
+        orientation='h',
+        hovertemplate='<b>%{y}</b><br>Casos ICU: %{x:,}<extra></extra>',
+        base=df['total_non_icu_cases'],
+        text=[f'{x:,}' for x in df['total_icu_cases']],  # Texto para mostrar valores
+        textposition='inside',
+        insidetextanchor='middle'
+    ))
+
+    # Adicionar totais no final de cada barra
+    for i, row in df.iterrows():
+        fig.add_annotation(
+            x=row['total_cases'],
+            y=row['risk_factor_name'],
+            text=f"<b>{row['total_cases']:,}</b>",
+            showarrow=False,
+            xanchor='left',
+            xshift=10,
+            font=dict(size=10, color='black')
+        )
+
+    # Layout do gráfico
+    fig.update_layout(
+        title='Distribuição de Casos por Fator de Risco',
+        xaxis_title='Número de Casos',
+        yaxis_title='Fatores de Risco',
+        barmode='stack',
+        height=600,
+        width=800,
+        hovermode='y unified',
+        plot_bgcolor='white',
+        uniformtext_minsize=8,  # Tamanho mínimo do texto dentro das barras
+        uniformtext_mode='hide'  # Esconde texto que não couber
+    )
+
+    # Exibir no Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
-# def casos_por_fator_risco():
-#     df = query_fatores_risco()
-
-#     st.dataframe(df)
-
 def casos_por_sintomas():
-    df = df_melted(query_casos_por_sintomas(), filter_type='total')
+    df = query_casos_por_sintomas()
 
-    st.write(df)
+    df['total_cases'] = df['total_non_icu_cases'] + df['total_icu_cases']
+    df = df.sort_values('total_cases', ascending=True)
 
+    # Criar gráfico
+    fig = go.Figure()
+
+    # Barra de casos não-ICU com valores
+    fig.add_trace(go.Bar(
+        y=df['symptom_name'],
+        x=df['total_non_icu_cases'],
+        name='Casos não-UTI',
+        orientation='h',
+        hovertemplate='<b>%{y}</b><br>Casos não-ICU: %{x:,}<extra></extra>',
+        text=[f'{x:,}' for x in df['total_non_icu_cases']],  # Texto para mostrar valores
+        textposition='inside',
+        insidetextanchor='middle'
+    ))
+
+    # Barra de casos ICU com valores
+    fig.add_trace(go.Bar(
+        y=df['symptom_name'],
+        x=df['total_icu_cases'],
+        name='Casos UTI',
+        orientation='h',
+        hovertemplate='<b>%{y}</b><br>Casos UTI: %{x:,}<extra></extra>',
+        base=df['total_non_icu_cases'],
+        text=[f'{x:,}' for x in df['total_icu_cases']],  # Texto para mostrar valores
+        textposition='inside',
+        insidetextanchor='middle'
+    ))
+
+    # Adicionar totais no final de cada barra
+    for i, row in df.iterrows():
+        fig.add_annotation(
+            x=row['total_cases'],
+            y=row['symptom_name'],
+            text=f"<b>{row['total_cases']:,}</b>",
+            showarrow=False,
+            xanchor='left',
+            xshift=10,
+            font=dict(size=10, color='black')
+        )
+
+    # Layout do gráfico
+    fig.update_layout(
+        title='Distribuição de Casos por Sintomas',
+        xaxis_title='Número de Casos',
+        yaxis_title='Sintomas',
+        barmode='stack',
+        height=600,
+        width=800,
+        hovermode='y unified',
+        plot_bgcolor='white',
+        uniformtext_minsize=8,  # Tamanho mínimo do texto dentro das barras
+        uniformtext_mode='hide'  # Esconde texto que não couber
+    )
+
+    # Exibir no Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+def faixa_etaria():
+    df = query_casos_por_faixa_etaria()
+
+    # Paleta de cores pastéis
+    cores_pasteis = {
+        'MASCULINO': '#89CFF0',  # Azul bebê pastel
+        'FEMININO': '#FFB6C1'    # Rosa claro pastel
+    }
+
+
+    # Criando o gráfico
+    fig = go.Figure()
+
+    # Adicionando barras para cada gênero
+    for genero in df['genero'].unique():
+        df_genero = df[df['genero'] == genero]
+        fig.add_trace(go.Bar(
+            x=df_genero['faixa_etaria'],
+            y=df_genero['numero_total_casos'],
+            name=genero,
+            marker_color=cores_pasteis[genero],
+            text=df_genero['numero_total_casos'],
+            texttemplate='%{text:,}',
+            textposition='auto',
+            hovertemplate='<b>%{x}</b><br>%{fullData.name}: %{y:,} casos<extra></extra>'
+        ))
+
+    # Personalizando o layout
+    fig.update_layout(
+        title='Distribuição de Casos por Gênero e Faixa Etária',
+        xaxis_title='Faixa Etária',
+        yaxis_title='Número Total de Casos',
+        barmode='group',
+        plot_bgcolor='white',
+        height=600,
+        hovermode='x unified',
+        yaxis=dict(
+            tickformat=',.0f',
+            separatethousands=True
+        ),
+        legend=dict(
+            title='Gênero',
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='right',
+            x=1
+        )
+    )
+
+    # Exibindo no Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+def evolucao_mensal_por_srag(filters):
+    df = query_evolucao_mensal_por_srag()
+
+    df = get_month_name(df, coluna_mes='month')
+
+
+    # Inicializa o DataFrame filtrado
+    df_filtrado = df.copy()
+
+    # Aplica filtros
+    if filters:
+        # Filtro por estado
+        # if 'state_code' in filters and filters['state_code'] != "TODOS":
+        #     df_filtrado = df_filtrado[df_filtrado['state_code'] == filters['state_code']]
+        
+        # Filtro por SRAG
+        if 'final_classification' in filters:
+            if filters['final_classification'] != "TODAS":
+                df_filtrado = df_filtrado[df_filtrado['final_classification'] == filters['final_classification']]
+
+    # Verifica se há dados
+    if df_filtrado.empty:
+        st.warning("Nenhum dado encontrado com os filtros selecionados.")
+    else:
+        # Lógica diferente para "TODAS" vs SRAG específica
+        if 'final_classification' in filters and filters['final_classification'] != "TODAS":
+            # Caso 1: SRAG específica selecionada - gráfico simples
+            df_agrupado = df_filtrado.groupby('month', as_index=False)['sum'].sum()
+            
+            fig = px.line(
+                df_agrupado,
+                x='month',
+                y='sum',
+                markers=True,
+                labels={
+                    "month": "Mês",
+                    "sum": "Total de Casos"
+                },
+                title=f"Casos de {filters['final_classification']} por Mês" #+ 
+                    # (f" - Estado: {filters['state_code']}" if 'state_code' in filters and filters['state_code'] != 'TODOS' else '')
+            )
+            
+            # Personalização para gráfico único
+            fig.update_traces(
+                line=dict(width=3, color='#1f77b4'),
+                marker=dict(size=8),
+                text=df_agrupado['sum'],
+                textposition="top center"
+            )
+        else:
+            # Caso 2: "TODAS" as SRAGs - gráfico com múltiplas linhas coloridas
+            df_agrupado = df_filtrado.groupby(['month', 'final_classification'], as_index=False)['sum'].sum()
+            
+            fig = px.line(
+                df_agrupado,
+                x='month',
+                y='sum',
+                color='final_classification',
+                markers=True,
+                labels={
+                    "month": "Mês",
+                    "sum": "Total de Casos",
+                    "final_classification": "Tipo de SRAG"
+                },
+                title="Distribuição Mensal de Casos por Tipo de SRAG" # + 
+                    # (f" - Estado: {filters['state_code']}" if 'state_code' in filters and filters['state_code'] != 'TODOS' else '')
+            )
+            
+            # Personalização para gráfico múltiplo
+            fig.update_traces(
+                line=dict(width=2.5),
+                marker=dict(size=6),
+                textposition="top center"
+            )
+            fig.update_layout(legend_title_text='Classificação SRAG')
+
+        # Configurações comuns a ambos os casos
+        fig.update_traces(
+            texttemplate='%{text:.0f}',
+            textfont_size=10,
+            showlegend=True
+        )
+        fig.update_layout(hovermode='x unified')
+        
+        st.plotly_chart(fig, use_container_width=True)  
+    
+def evolucao_mensal_desfecho():
+    df = evolucao_mensal_por_desfecho()
+
+    df = get_month_name(df, coluna_mes='month')
+
+
+    fig = px.line(
+        df,
+        x='month',
+        y='sum',
+        markers=True,
+        labels={
+            "month": "Mês",
+            "sum": "Total de Casos",
+        },
+        color='case_outcome',
+        title="Distribuição Mensal por Desfecho"
+    )
+
+    # Personalizar a linha e marcadores
+    fig.update_traces(
+        line=dict(width=3),
+        text=df['sum'],  # Valores que aparecem nos marcadores
+        textposition="top center"
+    )
+
+    # Adicionar os valores em cima de cada ponto
+    fig.update_traces(
+        texttemplate='%{text:.0f}',
+        textfont_size=12,
+        showlegend=True
+    )
+
+    # Usa st.plotly_chart para exibir o gráfico interativo
+    st.plotly_chart(fig, use_container_width=True)    
