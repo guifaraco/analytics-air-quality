@@ -92,9 +92,6 @@ def compara_mensal(pollutants, states, srags):
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
-
-def correlacao_poluicao_casos(pollutants, states, srags):
     df = query_correlacao_poluicao_casos()
 
     # Converter para datetime e extrair o mês

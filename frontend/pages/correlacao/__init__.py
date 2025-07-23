@@ -17,5 +17,3 @@ def render_correlacao():
     compara_mensal(pollutants, states, srags)
 
     st.divider()
-    
-    correlacao_poluicao_casos(pollutants, states, srags)
