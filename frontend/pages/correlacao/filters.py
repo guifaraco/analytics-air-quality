@@ -1,45 +1,52 @@
 import streamlit as st
 
-from frontend.utils import get_srag_list, get_states_list
+from frontend.utils import get_srag_list
+
+def month_filter():
+    months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+              "Julho", "Agosto", "Setembro", "Outubro", "Novembro"]
+
+    name = st.selectbox("Mês", months, key="month", placeholder="Selecione um Mês")
+    number = months.index(name) + 1
+
+    return number
 
 def render_filters():
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
     with col1:
-        pollutants = pollutants_filter()
+        pollutants = multipollutant_filter()
 
     with col2:
         srags = srag_filter()
 
-    with col3:
-        states = state_filter()
+    return pollutants, srags
 
-    return pollutants, states, srags
+def singlepollutant_filter():
+    pollutant_list = ["CO", "MP10", "MP2,5", "NO2", "SO2","O3"]
 
-def pollutants_filter():
+    pollutant = st.selectbox(
+        "Poluente",
+        pollutant_list,
+        key='single_pollutant_code',
+        placeholder="TODOS"
+    )
+
+    # Retorna o filtro selecionado
+    return pollutant
+
+def multipollutant_filter():
     pollutant_list = ["CO", "MP10", "MP2,5", "NO2", "SO2","O3"]
 
     pollutants = st.multiselect(
-        "Poluente",
+        "Poluentes",
         pollutant_list,
-        key='pollutant_code',
+        key='multi_pollutant_code',
         placeholder="TODOS"
     )
 
     # Retorna o filtro selecionado
     return pollutants
-
-def state_filter():
-    states_list = get_states_list()
-    
-    states = st.multiselect(
-        "Estados", 
-        states_list, 
-        key='state_code',
-        placeholder="TODOS"
-    )
-
-    return states
 
 def srag_filter():
     srag_list = get_srag_list()
