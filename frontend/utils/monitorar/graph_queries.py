@@ -93,7 +93,7 @@ def query_compare_pollutant_state(pollutant, states):
 
 ### ESTADO
 @st.cache_data   
-def query_poluicao_estado(pollutant, states):
+def query_poluicao_estado(states, pollutant=''):
     where_clause = apply_filters(
         pollutant=pollutant,
         states=states

@@ -4,8 +4,6 @@ from .filters import render_filters
 
 from .graphs import bar_mensal, big_numbers, compare_pollutant_state, line_mensal, pollution_map, poluicao_estado
 
-from .filters import pollutant_filter, state_filter
-
 def render_monitorar():
     st.title("Monitor Ar")
     
@@ -42,7 +40,7 @@ def render_monitorar():
 
     with col3:
         st.subheader("Estados com as maiores médias de poluição")
-        poluicao_estado(pollutant, states)
+        poluicao_estado(states)
 
     with col4:
         st.subheader("Qualidade do Ar por Estado")

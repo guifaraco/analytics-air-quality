@@ -20,7 +20,6 @@ def pollutant_filter():
         "Poluente",
         pollutant_list,
         key='pollutant_code',
-        index=None, 
         placeholder="Selecione um poluente"
     )
 

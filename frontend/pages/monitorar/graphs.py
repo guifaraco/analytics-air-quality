@@ -96,6 +96,8 @@ def compare_pollutant_state(pollutant, states):
 
     df = get_month_name(df)
 
+    available_states = list(df['state_code'].unique())
+
     fig = px.line(
         df,
         x='month',
@@ -109,14 +111,14 @@ def compare_pollutant_state(pollutant, states):
             "monthly_avg_pollution": "Concentração Média",
             "state_code": "Estado"
         },
-        title=f"Comparação de {pollutant} entre os Estados: {(', '.join(states)).replace("'", "")}",
+        title=f"Comparação de {pollutant} entre os Estados: {(', '.join(available_states)).replace("'", "")}",
     )
 
     # Usa st.plotly_chart para exibir o gráfico interativo
     st.plotly_chart(fig, use_container_width=True)
 
-def poluicao_estado(pollutant, states):
-    df = query_poluicao_estado(pollutant, states)
+def poluicao_estado(states):
+    df = query_poluicao_estado(states=states)
 
     fig = px.histogram(
         df, 
@@ -137,7 +139,7 @@ def poluicao_estado(pollutant, states):
     st.plotly_chart(fig, use_container_width=True)
     
 def pollution_map(pollutant, states):
-    df = query_poluicao_estado(pollutant, states)
+    df = query_poluicao_estado(pollutant=pollutant, states=states)
 
     br_states = [
         'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
