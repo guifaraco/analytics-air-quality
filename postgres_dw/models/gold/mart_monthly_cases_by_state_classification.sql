@@ -27,16 +27,16 @@
     dim_date AS (
         SELECT
             date_id,
-            month_name
+            month
         FROM
             {{ ref('dim_date') }}
     )
 
     SELECT
-        cc.final_classification AS classificacao_final,
-        l.state_code AS uf,
-        d.month_name AS mes,
-        SUM(hc.case_count) AS numero_total_casos
+        cc.final_classification,
+        l.state_code,
+        d.month,
+        SUM(hc.case_count) AS total_cases
     FROM
         fact_health_cases hc
     JOIN
@@ -50,6 +50,6 @@
     GROUP BY
         cc.final_classification,
         l.state_code,
-        d.month_name
+        d.month
     ORDER BY
         numero_total_casos DESC

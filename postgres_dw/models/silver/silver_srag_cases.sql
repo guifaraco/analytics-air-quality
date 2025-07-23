@@ -68,9 +68,10 @@ cleaned_and_casted AS (
         TO_DATE("DT_SAIDUTI", 'YYYY-MM-DD') AS icu_exit_date,
 
         -- Localização
-        "CO_MUN_RES" AS residence_city_ibge_code,
+        SUBSTRING(TRIM("CO_MUN_RES"), 1, 6) AS residence_city_ibge_code,
         UPPER(TRIM("SG_UF")) AS residence_state_code,
         UPPER(TRIM("ID_MN_RESI")) AS residence_city_name,
+
         -- Decodificação Demográfica
         CASE "CS_SEXO"
             WHEN 'M' THEN 'MASCULINO'
@@ -78,217 +79,217 @@ cleaned_and_casted AS (
             ELSE 'IGNORADO'
         END AS gender,
 
-        CASE "CS_RACA"
-            WHEN '1' THEN 'BRANCA'
-            WHEN '2' THEN 'PRETA'
-            WHEN '3' THEN 'AMARELA'
-            WHEN '4' THEN 'PARDA'
-            WHEN '5' THEN 'INDIGENA'
+        CASE CAST(NULLIF(TRIM("CS_RACA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'BRANCA'
+            WHEN 2 THEN 'PRETA'
+            WHEN 3 THEN 'AMARELA'
+            WHEN 4 THEN 'PARDA'
+            WHEN 5 THEN 'INDIGENA'
             ELSE 'IGNORADO'
         END AS race,
 
         -- Decodificação da Escolaridade
-        CASE "CS_ESCOL_N"
-            WHEN '0' THEN 'SEM ESCOLARIDADE'
-            WHEN '1' THEN 'FUNDAMENTAL1'
-            WHEN '2' THEN 'FUNDAMENTAL2'
-            WHEN '3' THEN 'ENSINO MEDIO'
-            WHEN '4' THEN 'ENSINO SUPERIOR'
-            WHEN '5' THEN 'NAO SE APLICA'
+        CASE CAST(NULLIF(TRIM("CS_ESCOL_N"), '') AS NUMERIC)::INTEGER
+            WHEN 0 THEN 'SEM ESCOLARIDADE'
+            WHEN 1 THEN 'FUNDAMENTAL1'
+            WHEN 2 THEN 'FUNDAMENTAL2'
+            WHEN 3 THEN 'ENSINO MEDIO'
+            WHEN 4 THEN 'ENSINO SUPERIOR'
+            WHEN 5 THEN 'NAO SE APLICA'
             ELSE 'IGNORADO'
         END AS education_level,
 
          -- TRATAMENTO DOS SINTOMAS
-        CASE "FEBRE"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("FEBRE"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_fever,
 
-        CASE "TOSSE"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("TOSSE"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_cough,
 
-        CASE "GARGANTA"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("GARGANTA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_sore_throat,
 
-        CASE "DISPNEIA"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("DISPNEIA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_dyspnea,
 
-        CASE "DESC_RESP"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("DESC_RESP"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_respiratory_distress,
 
-        CASE "SATURACAO"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("SATURACAO"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_low_saturation,
 
-        CASE "DIARREIA"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("DIARREIA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_diarrhea,
 
-        CASE "VOMITO"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("VOMITO"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_vomiting,
 
-        CASE "FADIGA"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("FADIGA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_fatigue,
 
-        CASE "PERD_OLFT"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("PERD_OLFT"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_loss_of_smell,
 
-        CASE "PERD_PALA"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("PERD_PALA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS had_loss_of_taste,
 
         -- TRATAMENTO DOS FATORES DE RISCO
-        CASE "PUERPERA"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("PUERPERA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS is_puerpera,
 
-        CASE "CARDIOPATI"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("CARDIOPATI"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_chronic_cardiovascular_disease,
 
-        CASE "HEMATOLOGI"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("HEMATOLOGI"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_chronic_hematologic_disease,
 
-        CASE "SIND_DOWN"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("SIND_DOWN"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_down_syndrome,
 
-        CASE "HEPATICA"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("HEPATICA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_chronic_liver_disease,
 
-        CASE "ASMA"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("ASMA"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_asthma,
 
-        CASE "DIABETES"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("DIABETES"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_diabetes,
 
-        CASE "NEUROLOGIC"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("NEUROLOGIC"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_chronic_neurological_disease,
 
-        CASE "PNEUMOPATI"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("PNEUMOPATI"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_other_chronic_pneumopathy,
 
-        CASE "IMUNODEPRE"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("IMUNODEPRE"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_immunodeficiency,
 
-        CASE "RENAL"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("RENAL"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_chronic_kidney_disease,
 
-        CASE "OBESIDADE"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("OBESIDADE"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_obesity,
 
 
         -- Decodificação Clínica
-        CASE "FATOR_RISC"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("FATOR_RISC"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS has_risk_factors,
 
-        CASE "HOSPITAL"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("HOSPITAL"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS was_hospitalized,
 
-        CASE "UTI"
-            WHEN '1' THEN 'SIM'
-            WHEN '2' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("UTI"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SIM'
+            WHEN 2 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS required_icu,
 
-        CASE "SUPORT_VEN"
-            WHEN '1' THEN 'INVASIVO'
-            WHEN '2' THEN 'NAO INVASIVO'
-            WHEN '3' THEN 'NAO'
+        CASE CAST(NULLIF(TRIM("SUPORT_VEN"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'INVASIVO'
+            WHEN 2 THEN 'NAO INVASIVO'
+            WHEN 3 THEN 'NAO'
             ELSE 'IGNORADO'
         END AS ventilatory_support_type,
 
         -- Decodificação da Classificação Final
-        CASE "CLASSI_FIN"
-            WHEN '1' THEN 'SRAG POR INFLUENZA'
-            WHEN '2' THEN 'SRAG POR OUTRO VIRUS RESPIRATORIO'
-            WHEN '3' THEN 'SRAG POR OUTRO AGENTE ETIOLOGICO'
-            WHEN '4' THEN 'SRAG NAO ESPECIFICADO'
-            WHEN '5' THEN 'SRAG POR COVID-19'
+        CASE CAST(NULLIF(TRIM("CLASSI_FIN"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'SRAG POR INFLUENZA'
+            WHEN 2 THEN 'SRAG POR OUTRO VIRUS RESPIRATORIO'
+            WHEN 3 THEN 'SRAG POR OUTRO AGENTE ETIOLOGICO'
+            WHEN 4 THEN 'SRAG NAO ESPECIFICADO'
+            WHEN 5 THEN 'SRAG POR COVID-19'
             ELSE 'IGNORADO'
         END AS final_classification,
 
         -- Decodificação do Critério de Encerramento
-        CASE "CRITERIO"
-            WHEN '1' THEN 'LABORATORIAL'
-            WHEN '2' THEN 'CLINICO EPIDEMOLOGICO'
-            WHEN '3' THEN 'CLINICO'
-            WHEN '4' THEN 'CLINICO IMAGEM'
+        CASE CAST(NULLIF(TRIM("CRITERIO"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'LABORATORIAL'
+            WHEN 2 THEN 'CLINICO EPIDEMOLOGICO'
+            WHEN 3 THEN 'CLINICO'
+            WHEN 4 THEN 'CLINICO IMAGEM'
             ELSE 'IGNORADO'
         END AS closure_criteria,
 
         -- Decodificação da Evolução do caso
-        CASE "EVOLUCAO"
-            WHEN '1' THEN 'CURA'
-            WHEN '2' THEN 'OBITO'
-            WHEN '3' THEN 'OBITO POR OUTRAS CAUSAS'
+        CASE CAST(NULLIF(TRIM("EVOLUCAO"), '') AS NUMERIC)::INTEGER
+            WHEN 1 THEN 'CURA'
+            WHEN 2 THEN 'OBITO'
+            WHEN 3 THEN 'OBITO POR OUTRAS CAUSAS'
             ELSE 'IGNORADO'
         END AS case_outcome
     FROM

@@ -7,38 +7,43 @@ import plotly.graph_objects as go
 from frontend.utils import get_month_name
 from utils.monitorar.graph_queries import query_big_numbers, query_compare_pollutant_state, query_media_mensal, query_poluicao_estado
 
+def get_pollutant_data(df, polutant):
+    row = df[df['pollutant_code'] == polutant].iloc[0]
+    return f"{row['state_code']} <br> {row['avg_pollution']:.2f} {row['measurement_unit']}"
+
 def big_numbers():
     metrics = query_big_numbers()
 
-    emoji_map = {
-        "CO": "🔥", "MP10": "🌫️", "MP2,5": "🌫️",
-        "NO2": "🧪", "SO2": "🧪", "O3": "☁️"
-    }
+    rows_list = [
+        {
+            'CO': get_pollutant_data(metrics, 'CO'),
+            'MP10': get_pollutant_data(metrics, 'MP10'),
+            'MP2,5': get_pollutant_data(metrics, 'MP2,5')
+        },
+        {
+            'NO2': get_pollutant_data(metrics, 'NO2'),
+            'O3': get_pollutant_data(metrics, 'O3'),
+            'SO2': get_pollutant_data(metrics, 'SO2')
+        }
+    ]
 
-    rows = list(metrics.itertuples(index=False))
-    for row_number in range(2):  # 2 linhas
-        cols = st.columns(3, gap='large')
-        for i in range(3):  # 3 colunas por linha
-            j = row_number * 3 + i  # índice real da métrica
-            row = rows[j]
-            pol = row.pollutant_code
-            uf = row.state_code
-            unit = row.measurement_unit
-            val = float(row.avg_pollution)
-            icon = emoji_map.get(pol, "")
-
-            with cols[i]:
+    for row_dict in rows_list:
+        cols = st.columns(3, gap='small')
+        col_index = 0
+        for pol, value in row_dict.items():
+            with cols[col_index].container():
                 st.markdown(f"""
                     <div class='metric-datasus' style="text-align:center; line-height:1.6; height:300px">
-                        <h3 style="margin-bottom:0;margin-left:25px;">{icon} {pol}</h3>
+                        <h3 style="margin-bottom:0;margin-left:25px;">{pol}</h3>
                         <p style="margin:0; font-size:15px; color:#888;">Estado mais impactado</p>
-                        <h4 style="margin:0;margin-left:25px;">{uf}</h4>
+                        <h4 style="margin:0;margin-left:25px;">{value.split('<br>')[0].strip()}</h4>
                         <p style="margin:0; font-size:15px; color:#888;">Média registrada</p>
-                        <h3 style="margin:0; margin-left:25px;">{val:.2f} {unit}</h3>
+                        <h3 style="margin:0; margin-left:25px;">{value.split('<br>')[1].strip()}</h3>
                     </div>
                 """, unsafe_allow_html=True)
-            st.write('')
-
+            col_index = (col_index + 1) % 3
+        st.markdown('')
+        
 def line_mensal(states):
     df = query_media_mensal()
 
@@ -145,6 +150,7 @@ def poluicao_estado(states):
             "avg_pollution": "Concentração Média",
             "pollutant_code": "Poluente"
         },
+        title="Estados com as maiores médias de poluição",
         height=400
     )
 
@@ -178,12 +184,11 @@ def pollution_map(pollutant, states):
     fig = go.Figure(data=go.Choropleth(
         geojson=geojson,
         locations=df['state_code'],
-        z = df['avg_pollution'].astype(float)
+        z = df['avg_pollution'].astype(float),
     ))
 
     fig.update_layout(
         title_text = 'Poluição Média em cada estado',
-        margin={"r":0, "t":0, "l":0, "b":0},
     )
 
     fig.update_geos(fitbounds="locations", visible=False)
