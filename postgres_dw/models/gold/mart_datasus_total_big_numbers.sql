@@ -4,6 +4,7 @@ WITH classification_metrics AS (
 
         SUM(f.case_count) AS total_cases,
 
+        -- Calcula a porcentagem e arredonda a pocentagem para duas casas decimais
         ROUND(
             100.0 * SUM(CASE WHEN f.required_icu = 'SIM' THEN 1 ELSE 0 END) /
             NULLIF(SUM(f.case_count), 0),

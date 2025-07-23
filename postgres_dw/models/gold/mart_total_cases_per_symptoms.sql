@@ -20,8 +20,6 @@ WITH joined_data AS (
 )
 
 -- Desempilhamos cada coluna de sintoma usando UNION ALL
-
--- Febre
 SELECT
     'Febre' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -31,7 +29,6 @@ WHERE had_fever = 'SIM' -- Filtra apenas os casos que tiveram este sintoma
 
 UNION ALL
 
--- Tosse
 SELECT
     'Tosse' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -41,7 +38,6 @@ WHERE had_cough = 'SIM'
 
 UNION ALL
 
--- Dor de Garganta
 SELECT
     'Dor de Garganta' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -51,7 +47,6 @@ WHERE had_sore_throat = 'SIM'
 
 UNION ALL
 
--- Dispneia
 SELECT
     'Dispneia' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -61,7 +56,6 @@ WHERE had_dyspnea = 'SIM'
 
 UNION ALL
 
--- Desconforto Respiratório
 SELECT
     'Desconforto Respiratório' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -71,7 +65,6 @@ WHERE had_respiratory_distress = 'SIM'
 
 UNION ALL
 
--- Saturação Baixa
 SELECT
     'Saturação < 95%' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -81,7 +74,6 @@ WHERE had_low_saturation = 'SIM'
 
 UNION ALL
 
--- Diarreia
 SELECT
     'Diarreia' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -91,7 +83,6 @@ WHERE had_diarrhea = 'SIM'
 
 UNION ALL
 
--- Vômito
 SELECT
     'Vômito' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -101,7 +92,6 @@ WHERE had_vomiting = 'SIM'
 
 UNION ALL
 
--- Fadiga
 SELECT
     'Fadiga' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -111,7 +101,6 @@ WHERE had_fatigue = 'SIM'
 
 UNION ALL
 
--- Perda de Olfato
 SELECT
     'Perda de Olfato' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,
@@ -121,7 +110,6 @@ WHERE had_loss_of_smell = 'SIM'
 
 UNION ALL
 
--- Perda de Paladar
 SELECT
     'Perda de Paladar' AS symptom_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM' THEN 1 END) AS total_non_icu_cases,

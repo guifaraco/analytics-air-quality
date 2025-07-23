@@ -30,24 +30,27 @@ A análise cruza informações do ano de 2022 sobre a **qualidade do ar**, obtid
 
 A arquitetura do projeto foi pensada para ser robusta, escalável e reprodutível, utilizando as seguintes tecnologias:
 
-| Tecnologia         | Versão/Descrição | Propósito na Solução                                                              |
-| :----------------- | :--------------- | :-------------------------------------------------------------------------------- |
-| **PostgreSQL**     | `16-alpine`      | Banco de dados relacional para armazenamento seguro e estruturado.                |
-| **Docker**         | `latest`         | Containerização do banco de dados para garantir um ambiente consistente.          |
-| **Python**         | `>=3.12`         | Linguagem principal para análise, processamento e visualização.                   |
-| **Jupyter**        | `>=1.1.1`        | Análise exploratória de dados (EDA) e prototipagem de modelos.                    |
-| **Pandas**         | `>=2.3.1`        | Manipulação, limpeza e estruturação dos dados.                                    |
-| **NumPy**          | `>=2.3.1`        | Operações numéricas e cálculos científicos.                                       |
-| **Requests**       | `>=2.32.4`       | Realização de requisições HTTP para coleta de dados de APIs externas.             |
-| **psycopg**        | `>=3.2.9`        | Conector (código-fonte) para comunicação entre a aplicação Python e o PostgreSQL. |
-| **psycopg-binary** | `>=3.2.9`        | Conector para comunicação entre a aplicação Python e o PostgreSQL.                |
-| **dbt-postgres**   | `>=1.9.0`        | Ferramenta para transformação de dados (ELT) no data warehouse.                   |
-| **Matplotlib**     | `>=3.10.3`       | Criação de gráficos estáticos e customizados.                                     |
-| **Seaborn**        | `>=0.13.2`       | Criação de gráficos estatísticos e visualmente atraentes.                         |
-| **Scikit-learn**   | `>=1.7.0`        | Modelagem estatística e aplicação de algoritmos de Machine Learning.              |
-| **Streamlit**      | `>=1.46.1`       | Construção e deploy do dashboard interativo.                                      |
-| **Pytest**         | `>=8.4.1`        | Testes automatizados para garantir a qualidade e a integridade do código.         |
-| **python-dotenv**  | `>=1.1.1`        | Gerenciamento de variáveis de ambiente de forma segura.                           |
+| Tecnologia         | Versão/Descrição | Propósito na Solução                                                      |
+| :----------------- | :--------------- | :------------------------------------------------------------------------ |
+| **PostgreSQL**     | `16-alpine`      | Banco de dados relacional para armazenamento seguro e estruturado.        |
+| **Docker**         | `latest`         | Containerização do banco de dados para garantir um ambiente consistente.  |
+| **Python**         | `>=3.12`         | Linguagem principal para análise, processamento e visualização.           |
+| **dbt-postgres**   | `>=1.9.0`        | Ferramenta para transformação de dados (ELT) no data warehouse.           |
+| **Jupyter**        | `>=1.1.1`        | Análise exploratória de dados (EDA) e prototipagem de modelos.            |
+| **Matplotlib**     | `>=3.10.3`       | Criação de gráficos estáticos e customizados.                             |
+| **NumPy**          | `>=2.3.1`        | Operações numéricas e cálculos científicos.                               |
+| **Pandas**         | `>=2.3.1`        | Manipulação, limpeza e estruturação dos dados.                            |
+| **Plotly**         | `>=6.2.0`        | Criação de gráficos interativos para o dashboard.                         |
+| **Plotly-Express** | `>=0.4.1`        | Interface de alto nível para criação rápida de gráficos com Plotly.       |
+| **psycopg**        | `>=3.2.9`        | Conector (código-fonte) para comunicação entre Python e PostgreSQL.       |
+| **psycopg-binary** | `>=3.2.9`        | Conector (binário) para comunicação entre Python e PostgreSQL.            |
+| **Pytest**         | `>=8.4.1`        | Testes automatizados para garantir a qualidade e a integridade do código. |
+| **python-aqi**     | `>=0.6.1`        | Biblioteca para cálculo do Índice de Qualidade do Ar (AQI).               |
+| **python-dotenv**  | `>=1.1.1`        | Gerenciamento de variáveis de ambiente de forma segura.                   |
+| **Requests**       | `>=2.32.4`       | Realização de requisições HTTP para coleta de dados de APIs externas.     |
+| **Scikit-learn**   | `>=1.7.0`        | Modelagem estatística e aplicação de algoritmos de Machine Learning.      |
+| **Seaborn**        | `>=0.13.2`       | Criação de gráficos estatísticos e visualmente atraentes.                 |
+| **Streamlit**      | `>=1.46.1`       | Construção e deploy do dashboard interativo.                              |
 
 ## 📂 Estrutura do Projeto
 
@@ -197,7 +200,6 @@ Siga os passos abaixo para configurar e rodar o ambiente de desenvolvimento loca
     ```
 
 ### Utilização
-
 
 -   **Extraia os arquivos `*.zip` dentro da pasta `data`:**
 

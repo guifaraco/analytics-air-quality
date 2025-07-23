@@ -22,7 +22,6 @@ WITH joined_data AS (
 )
 
 -- Desempilhamos cada coluna de fator de risco usando UNION ALL
-
 SELECT
     'Puérpera' AS risk_factor_name,
     COUNT(CASE WHEN NOT required_icu = 'SIM'THEN 1 END) AS total_non_icu_cases,
