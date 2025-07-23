@@ -78,3 +78,16 @@ def get_states_list():
     states_list= list(states_df['state_code'])
 
     return states_list
+
+def get_srag_list():
+    srag_df = execute_query('''
+        SELECT DISTINCT
+            srag
+        FROM 
+            gold.mart_total_cases_per_srag_and_evolution
+        '''
+    )
+    
+    srag_list= list(srag_df['srag'])
+
+    return srag_list

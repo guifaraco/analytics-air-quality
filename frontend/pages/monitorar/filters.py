@@ -3,7 +3,7 @@ import streamlit as st
 from frontend.utils import get_states_list
 
 def pollutant_filter():
-    pollutant_list = ["CO", "MP10", "MP2,5", "NO2", "SO2","O3"]
+    pollutant_list = ["TODOS", "CO", "MP10", "MP2,5", "NO2", "SO2","O3"]
 
     pollutant = st.selectbox(
         "Poluente",
@@ -11,6 +11,9 @@ def pollutant_filter():
         key='pollutant_code',
         placeholder="Selecione um poluente"
     )
+
+    if pollutant == 'TODOS':
+        return None
 
     # Retorna o filtro selecionado
     return pollutant
