@@ -23,29 +23,15 @@ def query_big_numbers():
 
 @st.cache_data
 def query_media_mensal():
-    query = (f'''
-        select
-            dd.month,
-            dp.pollutant_code,
-            dl.state_code,
-            avg(f.measurement_value) as monthly_avg_pollution
-        from
-            gold.fact_air_quality_measurements f 
-        join
-            gold.dim_date dd on f.date_id = dd.date_id
-        join
-            gold.dim_pollutants dp on f.pollutant_id = dp.pollutant_id
-        join
-            gold.dim_locations dl on f.location_id = dl.location_id
-        where
-            dp.pollutant_code IN ('MP10', 'NO2', 'SO2', 'O3', 'CO', 'MP2,5')
-        group by 
-            dd.month,
-            dp.pollutant_code,
-            dl.state_code
-        order by
-            dd.month;
-    ''')
+    query = '''
+                SELECT
+                    year_month,
+                    state_code,
+                    pollutant_code,
+                    monthly_avg_pollution
+                FROM
+                    gold.mart_health_vs_air_quality
+            '''
 
     df = execute_query(query)
 
@@ -53,27 +39,15 @@ def query_media_mensal():
 
 @st.cache_data
 def query_compare_pollutant_state():
-    query = (f'''
-        select
-            dd.month,
-            dl.state_code,
-            dp.pollutant_code,
-            avg(f.measurement_value) as monthly_avg_pollution
-        from
-            gold.fact_air_quality_measurements f 
-        join
-            gold.dim_date dd on f.date_id = dd.date_id
-        join
-            gold.dim_pollutants dp on f.pollutant_id = dp.pollutant_id
-        join
-            gold.dim_locations dl on f.location_id = dl.location_id
-        group by 
-            dd.month,
-            dl.state_code,
-            dp.pollutant_code
-        order by
-            dd.month;
-    ''')
+    query = '''
+                SELECT
+                    year_month,
+                    state_code,
+                    pollutant_code,
+                    monthly_avg_pollution
+                FROM
+                    gold.mart_health_vs_air_quality
+            '''
 
     df = execute_query(query)
 
