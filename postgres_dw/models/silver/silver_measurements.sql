@@ -15,7 +15,7 @@ WITH source_data AS (
         END AS pollutant_code,
         "Item_monitorado" AS pollutant_name_source,
         "Concentracao",
-        "iqar" AS air_quality_index
+        "iqar"
     FROM
         {{ source("monitor_ar", "monitorar_measurements") }}
 ),
@@ -49,7 +49,37 @@ renamed_and_casted AS (
         pollutant_code,
         TRIM(UPPER("pollutant_name_source")) AS pollutant_name,
         TO_TIMESTAMP("Data" || ' ' || "Hora", 'DD/MM/YYYY HH24:MI:SS') AS measured_at,
-        "Concentracao"::NUMERIC AS measurement_value,
+
+        CASE
+            -- Apenas executa a lógica se houver mais de um ponto
+            WHEN LENGTH("Concentracao") - LENGTH(REPLACE("Concentracao", '.', '')) > 1
+            THEN
+                (
+                    -- Pega a parte antes do primeiro ponto
+                    SUBSTRING("Concentracao" FROM 1 FOR STRPOS("Concentracao", '.') - 1) ||
+                    -- Pega a parte depois do primeiro ponto e remove todos os outros pontos
+                    REPLACE(SUBSTRING("Concentracao" FROM STRPOS("Concentracao", '.') + 1), '.', '')
+                )::NUMERIC
+            ELSE
+                -- Se tiver um ou nenhum ponto, apenas troca a vírgula e converte
+                REPLACE("Concentracao", ',', '.')::NUMERIC
+        END AS measurement_value,
+
+        CASE
+            -- Apenas executa a lógica se houver mais de um ponto
+            WHEN LENGTH("iqar") - LENGTH(REPLACE("iqar", '.', '')) > 1
+            THEN
+                (
+                    -- Pega a parte antes do primeiro ponto
+                    SUBSTRING("iqar" FROM 1 FOR STRPOS("iqar", '.') - 1) ||
+                    -- Pega a parte depois do primeiro ponto e remove todos os outros pontos
+                    REPLACE(SUBSTRING("iqar" FROM STRPOS("iqar", '.') + 1), '.', '')
+                )::NUMERIC
+            ELSE
+                -- Se tiver um ou nenhum ponto, apenas troca a vírgula e converte
+                REPLACE("Concentracao", ',', '.')::NUMERIC
+        END AS air_quality_index,
+
         -- Usamos COALESCE para tratar casos onde o JOIN não encontrou uma unidade
         COALESCE(measurement_unit, 'N/A') AS measurement_unit
     FROM
