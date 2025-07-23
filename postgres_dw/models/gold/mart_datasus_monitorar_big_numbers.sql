@@ -40,6 +40,8 @@ pollution_metrics_monthly AS (
         {{ ref('dim_date') }} AS d ON f.date_id = d.date_id
     JOIN
         {{ ref('dim_pollutants') }} AS p ON f.pollutant_id = p.pollutant_id
+    WHERE
+        p.pollutant_code IN ('MP2.5', 'SO2', 'NO2', 'MP10', 'CO', 'O3')
     GROUP BY
         d.month, p.pollutant_code -- Agrupa por ano/mês e por poluente
 )
