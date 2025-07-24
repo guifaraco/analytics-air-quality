@@ -59,7 +59,8 @@ def big_numbers():
             prev=prev_row,
             month=month,
             title="Média Geral de Concentração do Poluente",
-            column='avg_pollution'
+            column='avg_pollution',
+            pollutant=True
         )
 
     with col6:
@@ -74,7 +75,7 @@ def big_numbers():
 
 
 
-def render_big_number(row, prev, month, title, column, type=float, percentage=False):
+def render_big_number(row, prev, month, title, column, type=float, percentage=False, pollutant=False):
     value = row[column].astype(type).item()
     delta = None
 
@@ -92,6 +93,13 @@ def render_big_number(row, prev, month, title, column, type=float, percentage=Fa
         if delta:
             delta = f"{delta}%"
 
+    if pollutant:
+        pollutant_code = row['pollutant_code'].item()
+        unit = get_measurement_unit(pollutant_code)
+        value = f"{value} {unit}"
+        if delta:
+            delta = f"{delta} {unit}"
+
     st.metric(
         title,
         value,
@@ -100,6 +108,11 @@ def render_big_number(row, prev, month, title, column, type=float, percentage=Fa
     )
     
 
+def get_measurement_unit(pollutant):
+    if pollutant in ['MP10', 'MP2,5', 'NO2', 'O3', 'SO2']:
+        return 'μg/m³'
+    elif pollutant == 'CO':
+        return 'ppm'
 
 def compara_mensal(pollutants, srags):
     df_casos = query_casos_mensais_estado()

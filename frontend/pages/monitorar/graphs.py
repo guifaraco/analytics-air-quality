@@ -18,7 +18,8 @@ def big_numbers(pollutant):
     pollutant_data = metrics[metrics['pollutant_code'] == pollutant]
 
     most_impacted_state = pollutant_data.loc[pollutant_data['avg_pollution'].idxmax(), 'state_code']
-    highest_avg = float(pollutant_data['avg_pollution'].max())   
+    highest_avg = float(pollutant_data['avg_pollution'].max())
+    measurement_unit = pollutant_data[pollutant_data['avg_pollution'] == pollutant_data['avg_pollution'].max()]['measurement_unit'].item()
    
     col1, col2 = st.columns(2)
     
@@ -26,7 +27,7 @@ def big_numbers(pollutant):
         st.metric('Estado Mais Impactado', most_impacted_state)
     
     with col2: 
-        st.metric('Maior média registrada', f'{highest_avg:.2f}')
+        st.metric('Maior média registrada', f'{highest_avg:.2f} {measurement_unit}')
 
 def line_mensal(states):
     df = query_media_mensal()
