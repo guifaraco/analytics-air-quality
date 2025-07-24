@@ -9,6 +9,7 @@ from frontend.utils.correlacao.graph_queries import query_big_numbers, query_cas
 from frontend.utils.monitorar.graph_queries import query_media_mensal
 
 def big_numbers():
+
     col1, col2 = st.columns(2)
 
     with col1:

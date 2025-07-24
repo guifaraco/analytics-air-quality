@@ -9,9 +9,7 @@ from .filters import render_filters_mensal, render_filters_geral
 def render_datasus():
     st.title("DataSus")
 
-    st.divider()
-
-    big_numbers() # Colocar padrão metric
+    big_numbers() 
 
     tab_distribuicao_mensal, tab_distribuicao_geral = st.tabs(['Distribuição Mensal', 'Distribuição Geral'])
 
@@ -35,8 +33,6 @@ def render_datasus():
 
     with tab_distribuicao_geral:
 
-        # COlocar filtro por estado
-
         with st.container(border=True):
             filters = render_filters_geral()
 
@@ -45,7 +41,6 @@ def render_datasus():
             with col1:
                 casos_por_sintomas(filters)   
                 
-
             with col2:
                 casos_por_fator_risco(filters)
             
