@@ -19,7 +19,7 @@ def big_numbers():
 
     # taxa_mortalidade = query_taxa_mortalidade()
     df = query_big_numbers()
-    
+
     row = df[
         (df['month'] == month) &
         (df['pollutant_code'] == pollutant)
@@ -30,8 +30,7 @@ def big_numbers():
         (df['pollutant_code'] == pollutant)
     ]
 
-    col3, col4 = st.columns(2)
-    col5, col6 = st.columns(2)
+    col3, col4, col5, col6 = st.columns(4)
 
     with col3:
         render_big_number(
