@@ -235,6 +235,8 @@ def evolucao_mensal_por_desfecho():
                     SUM(sum)
                 FROM
                     gold.mart_monthly_evolution_monthly_srag
+                WHERE 
+                    case_outcome != 'IGNORADO'
                 GROUP BY
                     case_outcome,
                     month
