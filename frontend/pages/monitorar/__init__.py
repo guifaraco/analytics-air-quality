@@ -6,18 +6,10 @@ from .graphs import big_numbers, compare_pollutant_state, line_mensal, poluicao_
 
 def render_monitorar():
     st.title("Monitor Ar")
-    
-    st.divider()
-    
-    st.subheader("Maior Impacto por Poluente")
-    
+     
     pollutant = pollutant_filter() # Tirar TODOS do filtro
     
     big_numbers(pollutant) # COlocar unidade de medida
-
-    st.divider()
-
-    # pollutant, states = render_filters()
 
     with st.container(border=True):
         

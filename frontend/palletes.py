@@ -9,11 +9,12 @@ import plotly.io as pio
 CHART_PALETTES = {
     # Paleta principal, projetada para ser universalmente legível e a melhor escolha padrão.
     'inclusive_standard': [
-        '#A9D6E5',  # Azul Gelo
-        '#61A5C2',  # Azul Aço Claro
-        '#2C7DA0',  # Azul Petróleo
-        '#014F86',  # Azul Mar
-        '#012A4A'   # Azul Meia-noite
+        '#AEC6CF',
+        '#77AADD', 
+        '#4A86C3',
+        '#34568B', 
+        '#1F3A60',
+        '#001F3F'
     ],
     # Otimizada para Deuteranopia/Protanopia (evita o eixo verde-vermelho).
     'for_deuteranopia_protanopia': [
@@ -21,7 +22,8 @@ CHART_PALETTES = {
         '#EE9B00',  # Âmbar
         '#98C1D9',  # Azul Claro
         '#293241',  # Azul Marinho Escuro
-        '#7A7A7A'   # Cinza
+        '#7A7A7A',   # Cinza
+        '#A8D8B9'   # Menta Claro
     ],
     # Otimizada para Tritanopia (evita o eixo azul-amarelo).
     'for_tritanopia': [
@@ -29,11 +31,17 @@ CHART_PALETTES = {
         '#2CA02C',  # Verde
         '#17BECF',  # Ciano
         '#8C564B',  # Marrom
-        '#4B0082'   # Índigo
+        '#4B0082',  # Índigo
+        '#FFD700'   # Dourado
     ],
     # Para Acromatopsia, a paleta de cinzas funciona bem para ambos os casos.
     'for_achromatopsia': [
-        '#F0F0F0', '#BDBDBD', '#757575', '#424242', '#000000'
+        '#F5F5F5',
+        '#F0F0F0',
+        '#BDBDBD',
+        '#757575',
+        '#424242',
+        '#000000'
     ]
 }
 

@@ -9,15 +9,9 @@ def render_correlacao():
 
     big_numbers()
 
-    st.divider()
+    with st.container(border=True):
+        pollutants, srags = render_filters()
 
-    st.subheader("Filtros")
-    pollutants, srags = render_filters()
+        compara_mensal(pollutants, srags)
 
-    st.divider()
-
-    compara_mensal(pollutants, srags)
-
-    st.divider()
-
-    compara_estado(pollutants, srags)
+        compara_estado(pollutants, srags)
