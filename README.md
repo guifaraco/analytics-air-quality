@@ -45,9 +45,7 @@ A arquitetura do projeto foi pensada para ser robusta, escalável e reprodutíve
 | **psycopg**        | `>=3.2.9`        | Conector (código-fonte) para comunicação entre Python e PostgreSQL.       |
 | **psycopg-binary** | `>=3.2.9`        | Conector (binário) para comunicação entre Python e PostgreSQL.            |
 | **Pytest**         | `>=8.4.1`        | Testes automatizados para garantir a qualidade e a integridade do código. |
-| **python-aqi**     | `>=0.6.1`        | Biblioteca para cálculo do Índice de Qualidade do Ar (AQI).               |
 | **python-dotenv**  | `>=1.1.1`        | Gerenciamento de variáveis de ambiente de forma segura.                   |
-| **Requests**       | `>=2.32.4`       | Realização de requisições HTTP para coleta de dados de APIs externas.     |
 | **Scikit-learn**   | `>=1.7.0`        | Modelagem estatística e aplicação de algoritmos de Machine Learning.      |
 | **Seaborn**        | `>=0.13.2`       | Criação de gráficos estatísticos e visualmente atraentes.                 |
 | **Streamlit**      | `>=1.46.1`       | Construção e deploy do dashboard interativo.                              |
